@@ -5,6 +5,7 @@ import org.mapstruct.*;
 import java.util.Date;
 import java.util.List;
 
+
 public interface EntityMapper<ENTITY, RESPONSE, REQUEST> {
 
     @Mapping(ignore = true, target = "id")
@@ -23,12 +24,6 @@ public interface EntityMapper<ENTITY, RESPONSE, REQUEST> {
     List<RESPONSE> toResponse(List<ENTITY> entityList);
 
     @Named("partialUpdate")
-    @Mapping(target = "createdDate",qualifiedByName = "getDate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(@MappingTarget ENTITY entity, REQUEST model);
-
-    @Named("getDate")
-    default Date getDate(){
-        return new Date();
-    }
 }

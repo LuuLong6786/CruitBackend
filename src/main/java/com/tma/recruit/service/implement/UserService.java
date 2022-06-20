@@ -81,7 +81,7 @@ public class UserService implements IUserService {
 
         userMapper.partialUpdate(userEntity, request);
         userEntity.setUpdatedBy(updater);
-//        userEntity.setUpdatedDate(new Date());
+        userEntity.setUpdatedDate(new Date());
         userEntity = userRepository.save(userEntity);
         return ResponseEntity.ok(userMapper.toResponse(userEntity));
     }
