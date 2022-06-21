@@ -1,7 +1,7 @@
 package com.tma.recruit.security.service;
 
 
-import com.tma.recruit.model.entity.UserEntity;
+import com.tma.recruit.model.entity.User;
 import com.tma.recruit.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +19,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserEntity user = userRepository.findByEmailIgnoreCaseAndActiveTrue(email)
+        User user = userRepository.findByEmailIgnoreCaseAndActiveTrue(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User " + email + " was not found in the database"));
 
         return UserDetailsImpl.build(user);

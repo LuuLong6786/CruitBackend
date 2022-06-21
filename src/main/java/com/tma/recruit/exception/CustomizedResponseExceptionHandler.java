@@ -13,6 +13,6 @@ public class CustomizedResponseExceptionHandler extends ResponseEntityExceptionH
 
     @ExceptionHandler(value = ResponseStatusException.class)
     public ResponseEntity<?> handleIllegalArgumentException(ResponseStatusException ex) {
-        return new ResponseEntity(ex.getReason(), ex.getStatus());
+        return new ResponseEntity<>(ex.getReason(), ex.getStatus());
     }
 }

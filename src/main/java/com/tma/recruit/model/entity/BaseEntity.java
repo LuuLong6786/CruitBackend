@@ -26,13 +26,12 @@ public class BaseEntity {
     private boolean active = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private UserEntity createdBy;
+    @JoinColumn(name = "author_id")
+    private User author;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "updated_by")
-    private UserEntity updatedBy;
-
+    @JoinColumn(name = "updated_user_id")
+    private User updatedUser;
 
     public BaseEntity() {
         this.createdDate = new Date();

@@ -61,6 +61,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/api/user/login",
                         "/api/user/reset-password",
                         "/api/user/forgot-password",
+                        "/api/user/sign-up",
                         "/swagger-resources/**",
                         "/configuration/security",
                         "/swagger-ui.html",

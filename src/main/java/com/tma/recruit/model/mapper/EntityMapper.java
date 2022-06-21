@@ -2,7 +2,6 @@ package com.tma.recruit.model.mapper;
 
 import org.mapstruct.*;
 
-import java.util.Date;
 import java.util.List;
 
 

@@ -1,5 +1,6 @@
 package com.tma.recruit.security.jwt;
 
+import com.tma.recruit.model.entity.Role;
 import com.tma.recruit.model.enums.UserRole;
 import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.service.UserDetailsImpl;
@@ -13,11 +14,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
-    private static final String ROLE_KEY = "role";
+
+    private static final String ROLE_KEY = "ROLE_";
+
+    private static final String PERMISSION_KEY = "authority";
 
     @Autowired
     private UserRepository userRepository;
@@ -34,7 +40,8 @@ public class JwtUtils {
         String token = Jwts.builder()
                 .setId(userPrincipal.getId().toString())
                 .setSubject(userPrincipal.getUsername())
-                .claim(ROLE_KEY, userPrincipal.getRole())
+//                .claim("authorities", userPrincipal.getAuthorities())
+//                .claim(ROLE_KEY, userPrincipal.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                 .setIssuedAt(currentDate)
                 .setExpiration(new Date((currentDate).getTime() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
@@ -46,17 +53,24 @@ public class JwtUtils {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody().getSubject();
     }
 
-    public UserRole getRoleFromToken(String token) {
+    public List<String> getRoleFromToken(String token) {
 
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody();
-        return UserRole.valueOf((String) claims.get(ROLE_KEY));
+        List<String> a= (List<String>) claims.get("authorities");
+        return  null;
     }
 
-    public boolean isAdmin(String token){
-        return getRoleFromToken(token).equals(UserRole.ADMIN);
+    public List<String> getPermission(String token) {
+
+        Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody();
+        return (List<String>) claims.get(ROLE_KEY);
     }
 
-    public boolean isOwner(String token, Long userId){
+    public boolean isAdmin(String token) {
+        return getRoleFromToken(token).contains(UserRole.ADMIN.toString());
+    }
+
+    public boolean isOwner(String token, Long userId) {
         return getUserIdFromJwtToken(token).equals(userId);
     }
 

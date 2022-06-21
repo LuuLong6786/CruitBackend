@@ -13,8 +13,4 @@ public interface IUserDetailsImpl {
     String getPassword();
 
     void setPassword(String password);
-
-    Boolean getIsAdmin();
-
-    void setIsAdmin(Boolean isAdmin);
 }

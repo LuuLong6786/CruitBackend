@@ -32,7 +32,12 @@ public class UserController {
         return userService.getById(token, id);
     }
 
-    @PreAuthorize(PreAuthorizerConstant.ROLE_ADMIN)
+    @PostMapping("/sign-up")
+    public ResponseEntity<?> signUp(@RequestBody UserRequest request) {
+        return userService.create(null, request);
+    }
+
+    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
     @PostMapping
     public ResponseEntity<?> create(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @Valid @RequestBody UserRequest request) {
@@ -46,7 +51,7 @@ public class UserController {
         return userService.update(token, id, request);
     }
 
-    @PreAuthorize(PreAuthorizerConstant.ROLE_ADMIN)
+    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @PathVariable Long id) {

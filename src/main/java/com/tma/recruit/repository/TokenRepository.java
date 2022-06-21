@@ -1,20 +1,19 @@
 package com.tma.recruit.repository;
 
-import com.tma.recruit.model.entity.TokenEntity;
+import com.tma.recruit.model.entity.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import javax.xml.crypto.Data;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TokenRepository extends JpaRepository<TokenEntity, Long> {
+public interface TokenRepository extends JpaRepository<Token, Long> {
 
-    Optional<TokenEntity> findByToken(String token);
+    Optional<Token> findByToken(String token);
 
-    List<TokenEntity>  findByUserEntityId(Long id);
+    List<Token> findByUserId(Long id);
 
     boolean existsByToken(String token);
 

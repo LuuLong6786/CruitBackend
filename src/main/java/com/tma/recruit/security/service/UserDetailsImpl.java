@@ -1,16 +1,20 @@
 package com.tma.recruit.security.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.tma.recruit.model.entity.UserEntity;
-import com.tma.recruit.model.enums.UserRole;
+import com.tma.recruit.model.entity.Permission;
+import com.tma.recruit.model.entity.Role;
+import com.tma.recruit.model.entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class UserDetailsImpl implements UserDetails {
 
@@ -25,30 +29,53 @@ public class UserDetailsImpl implements UserDetails {
 
     private final Collection<? extends GrantedAuthority> authorities;
 
-    private UserRole role;
+    private List<Role> roles;
 
-    public UserDetailsImpl(Long id, String email, String password, UserRole role,
+    public UserDetailsImpl(Long id, String email, String password, List<Role> roles,
                            Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;
-        this.role = role;
+        this.roles = roles;
         this.authorities = authorities;
     }
 
-    public static UserDetailsImpl build(UserEntity user) {
-        String role = null;
-        role = user.getRole().toString();
+    public static UserDetailsImpl build(User user) {
 
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        user.getRoles().forEach(role -> {
+            authorities.add(new SimpleGrantedAuthority("ROLE_"+role.getName()));
+            authorities.addAll(role.getPermissions().stream()
+                    .map(Permission::getPermissionKey)
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList()));
+        });
 
-        authorities.add(new SimpleGrantedAuthority(role));
+
+//        user.getRoles().forEach(role -> authorities.addAll(role.getPermissions().stream()
+//                .map(Permission::getPermissionKey)
+//                .map(SimpleGrantedAuthority::new)
+//                .collect(Collectors.toList())));
+
+//        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+
+
+//        List<GrantedAuthority> authorities = user.getRoles()
+//                .stream()
+//                .map(Role::getName)
+//                .map(SimpleGrantedAuthority::new)
+//                .collect(Collectors.toList());
+
         return new UserDetailsImpl(
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
-                user.getRole(),
+                user.getRoles(),
                 authorities);
+    }
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
     @Override
@@ -71,12 +98,16 @@ public class UserDetailsImpl implements UserDetails {
         return email;
     }
 
-    public UserRole getRole() {
-        return role;
+    public String getEmail() {
+        return email;
     }
 
-    public void setRole(UserRole role) {
-        this.role = role;
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 
     @Override

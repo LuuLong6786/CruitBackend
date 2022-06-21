@@ -14,8 +14,9 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity
 @Table(name = "token")
-public class TokenEntity extends BaseEntity {
+public class Token extends BaseEntity {
 
+    @Lob
     @Column(name = "token")
     private String token;
 
@@ -28,9 +29,9 @@ public class TokenEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private UserEntity userEntity;
+    private User user;
 
-    public TokenEntity(String token, TokenType type) {
+    public Token(String token, TokenType type) {
         this.token = token;
         this.type = type;
         if (type.equals(TokenType.PASSWORD_RESET_TOKEN)) {
@@ -40,8 +41,8 @@ public class TokenEntity extends BaseEntity {
         }
     }
 
-    public TokenEntity(String token, TokenType type, UserEntity userEntity) {
+    public Token(String token, TokenType type, User user) {
         this(token, type);
-        this.userEntity = userEntity;
+        this.user = user;
     }
 }
