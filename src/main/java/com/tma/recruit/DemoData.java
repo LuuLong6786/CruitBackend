@@ -85,7 +85,7 @@ public class DemoData implements CommandLineRunner {
             user.setRoles(Collections.singletonList(userRole));
 
             User quest = new User();
-            quest.setEmail("quest@tma.com.vn");
+            quest.setEmail("guest@tma.com.vn");
             quest.setPassword(encoder.encode("12341234"));
             quest.setRoles(Collections.singletonList(questRole));
 
