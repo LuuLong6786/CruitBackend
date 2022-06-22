@@ -68,7 +68,7 @@ public class DemoData implements CommandLineRunner {
             userRole = roleRepository.save(userRole);
 
             Role questRole = new Role();
-            questRole.setName(RoleConstant.QUEST);
+            questRole.setName(RoleConstant.GUEST);
             questRole.setPermissions(Collections.singletonList(viewPermission));
             questRole = roleRepository.save(questRole);
 
@@ -84,10 +84,10 @@ public class DemoData implements CommandLineRunner {
             user.setPassword(encoder.encode("12341234"));
             user.setRoles(Collections.singletonList(userRole));
 
-            User quest = new User();
-            quest.setEmail("guest@tma.com.vn");
-            quest.setPassword(encoder.encode("12341234"));
-            quest.setRoles(Collections.singletonList(questRole));
+            User guest = new User();
+            guest.setEmail("guest@tma.com.vn");
+            guest.setPassword(encoder.encode("12341234"));
+            guest.setRoles(Collections.singletonList(questRole));
 
             User multipleUser = new User();
             multipleUser.setEmail("mul@tma.com.vn");
@@ -102,7 +102,7 @@ public class DemoData implements CommandLineRunner {
 
             userRepository.save(user);
 
-            userRepository.save(quest);
+            userRepository.save(guest);
 
             userRepository.save(multipleUser);
         }

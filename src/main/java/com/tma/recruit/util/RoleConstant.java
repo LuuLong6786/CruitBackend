@@ -6,5 +6,5 @@ public class RoleConstant {
 
     public static final String USER = "USER";
 
-    public static final String QUEST = "QUEST";
+    public static final String GUEST = "GUEST";
 }

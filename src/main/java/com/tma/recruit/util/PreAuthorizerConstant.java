@@ -6,7 +6,7 @@ public class PreAuthorizerConstant {
 
     public static final String USER_ROLE = "hasRole('" + RoleConstant.USER + "')";
 
-    public static final String QUEST_ROLE = "hasRole('" + RoleConstant.QUEST + "')";
+    public static final String QUEST_ROLE = "hasRole('" + RoleConstant.GUEST + "')";
 
     public static final String CREATE_AUTHORITY = "hasAuthority('" + PermissionConstant.CREATE + "')";
 

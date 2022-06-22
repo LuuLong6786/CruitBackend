@@ -21,7 +21,6 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -49,9 +48,10 @@ public class RoleService implements IRoleService {
         }
         User author = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        List<Permission> permissions=new ArrayList<>();
-        for (PermissionRequest permissionRequest: request.getPermissions()){
-            Permission permission = permissionRepository.findByIdAndActiveTrue(permissionRequest.getId()).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        List<Permission> permissions = new ArrayList<>();
+        for (PermissionRequest permissionRequest : request.getPermissions()) {
+            Permission permission = permissionRepository.findByIdAndActiveTrue(permissionRequest.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
             permissions.add(permission);
         }
 
@@ -72,9 +72,9 @@ public class RoleService implements IRoleService {
         Role role = roleRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        List<Permission> permissions=new ArrayList<>();
-        for (PermissionRequest permissionRequest: request.getPermissions()){
-            Permission permission = permissionRepository.findByIdAndActiveTrue(permissionRequest.getId()).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        List<Permission> permissions = new ArrayList<>();
+        for (PermissionRequest permissionRequest : request.getPermissions()) {
+            Permission permission = permissionRepository.findByIdAndActiveTrue(permissionRequest.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
             permissions.add(permission);
         }
 
@@ -91,8 +91,10 @@ public class RoleService implements IRoleService {
     public ResponseEntity<?> delete(String token, Long id) {
         User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         Role role = roleRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         role.setActive(false);
         role.setUpdatedDate(new Date());
         role.setUpdatedUser(updater);
@@ -102,14 +104,14 @@ public class RoleService implements IRoleService {
 
     @Override
     public ResponseEntity<?> getAll() {
-        List<Role> roles = roleRepository.findByActiveTrue();
-        return ResponseEntity.ok(roleMapper.toResponse(roles));
+        return ResponseEntity.ok(roleMapper.toResponse(roleRepository.findByActiveTrue()));
     }
 
     @Override
     public ResponseEntity<?> getById(Long id) {
         Role role = roleRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         return ResponseEntity.ok(roleMapper.toResponse(role));
     }
 }

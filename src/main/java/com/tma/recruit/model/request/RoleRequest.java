@@ -1,6 +1,5 @@
 package com.tma.recruit.model.request;
 
-import com.tma.recruit.model.entity.Permission;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleRequest {
+
+    private Long id;
 
     @Column(name = "name")
     private String name;

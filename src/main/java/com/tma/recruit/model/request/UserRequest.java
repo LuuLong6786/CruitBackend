@@ -13,11 +13,13 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 public class UserRequest {
 
+    private Long id;
+
     @Email
     private String email;
 
     @Size(min = 8, max = 50, message = "Password length must be at least 8 characters")
     private String password;
 
-    private UserRole role;
+    private RoleRequest role;
 }

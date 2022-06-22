@@ -15,4 +15,10 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     Optional<Role> findByIdAndActiveTrue(Long id);
 
     List<Role> findByActiveTrue();
+
+    Optional<Role> findByName(String name);
+
+    Optional<Role> findByNameIgnoreCase(String guest);
+
+//    Optional<Role> findByPermissionsPermissionKey(String guest);
 }
