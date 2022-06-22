@@ -33,4 +33,10 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "approver")
     private List<QuestionBank> questions;
+
+    @OneToMany(mappedBy = "author")
+    private List<BaseEntity> createdEntity;
+
+    @OneToMany(mappedBy = "updatedUser")
+    private List<BaseEntity> updatedEntity;
 }

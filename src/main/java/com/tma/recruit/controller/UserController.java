@@ -29,7 +29,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                      @PathVariable Long id) {
-        return userService.getById(token, id);
+        return userService.getById(id);
     }
 
     @PostMapping("/sign-up")

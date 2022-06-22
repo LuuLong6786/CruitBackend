@@ -1,0 +1,95 @@
+package com.tma.recruit.service.implement;
+
+import com.tma.recruit.model.entity.Permission;
+import com.tma.recruit.model.entity.User;
+import com.tma.recruit.model.mapper.PermissionMapper;
+import com.tma.recruit.model.request.PermissionRequest;
+import com.tma.recruit.repository.PermissionRepository;
+import com.tma.recruit.repository.UserRepository;
+import com.tma.recruit.security.jwt.JwtUtils;
+import com.tma.recruit.service.interfaces.IPermissionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import javax.transaction.Transactional;
+import java.util.Date;
+import java.util.List;
+
+@Service
+@Transactional
+public class PermissionService implements IPermissionService {
+
+    @Autowired
+    private PermissionRepository permissionRepository;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    @Autowired
+    private PermissionMapper permissionMapper;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public ResponseEntity<?> create(String token, PermissionRequest request) {
+        if (permissionRepository.existsByPermissionKeyAndActiveTrue(request.getPermissionKey())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+        User author = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+        Permission permission = permissionMapper.toEntity(request);
+        permission.setAuthor(author);
+        permission.setUpdatedUser(author);
+        permission = permissionRepository.save(permission);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(permissionMapper.toResponse(permission));
+    }
+
+    @Override
+    public ResponseEntity<?> update(String token, PermissionRequest request, Long id) {
+        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+        Permission permission = permissionRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        permissionMapper.partialUpdate(permission, request);
+        permission.setUpdatedUser(updater);
+        permission.setUpdatedDate(new Date());
+        permission = permissionRepository.save(permission);
+
+        return ResponseEntity.ok(permissionMapper.toResponse(permission));
+    }
+
+    @Override
+    public ResponseEntity<?> delete(String token, Long id) {
+        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Permission permission = permissionRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        permission.setActive(false);
+        permission.setUpdatedDate(new Date());
+        permission.setUpdatedUser(updater);
+        permissionRepository.save(permission);
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getAll() {
+        List<Permission> permissions = permissionRepository.findByActiveTrue();
+        return ResponseEntity.ok(permissionMapper.toResponse(permissions));
+    }
+
+    @Override
+    public ResponseEntity<?> getById(Long id) {
+
+        Permission permission = permissionRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        return ResponseEntity.ok(permissionMapper.toResponse(permission));
+    }
+}

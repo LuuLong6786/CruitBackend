@@ -4,7 +4,6 @@ import com.tma.recruit.model.entity.Role;
 import com.tma.recruit.model.entity.Token;
 import com.tma.recruit.model.entity.User;
 import com.tma.recruit.model.enums.TokenType;
-import com.tma.recruit.model.mapper.EntityMapper;
 import com.tma.recruit.model.mapper.UserMapper;
 import com.tma.recruit.model.request.ChangePasswordRequest;
 import com.tma.recruit.model.request.LoginRequest;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityManager;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -65,12 +63,12 @@ public class UserService implements IUserService {
         if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "ACCOUNT ALREADY EXISTS");
         }
-        Optional<User> creator = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token));
+        Optional<User> author = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token));
         User user = userMapper.toEntity(request);
         user.setEmail(user.getEmail().toLowerCase());
         user.setPassword(encoder.encode(request.getPassword()));
-        creator.ifPresent(user::setAuthor);
-        creator.ifPresent(user::setUpdatedUser);
+        author.ifPresent(user::setAuthor);
+        author.ifPresent(user::setUpdatedUser);
         user = userRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toResponse(user));
     }
@@ -79,6 +77,7 @@ public class UserService implements IUserService {
     public ResponseEntity<?> update(String token, Long id, UserRequest request) {
         User user = userRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
@@ -108,12 +107,12 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> getAll() {
-        List<User> userList = userRepository.findByActiveTrue();
-        return ResponseEntity.ok(userMapper.toResponse(userList));
+        List<User> users = userRepository.findByActiveTrue();
+        return ResponseEntity.ok(userMapper.toResponse(users));
     }
 
     @Override
-    public ResponseEntity<?> getById(String token, Long id) {
+    public ResponseEntity<?> getById(Long id) {
         Optional<User> entityOptional = userRepository.findByIdAndActiveTrue(id);
         if (!entityOptional.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -156,8 +155,10 @@ public class UserService implements IUserService {
     public ResponseEntity<?> resetPassword(ResetPasswordRequest resetPasswordRequest) {
         User user = userRepository.findByEmailIgnoreCaseAndActiveTrue(resetPasswordRequest.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         Token token = tokenRepository.findByToken(resetPasswordRequest.getToken())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         if (user.getId().equals(token.getUser().getId())) {
             user.setUpdatedDate(new Date());
             user.setPassword(encoder.encode(resetPasswordRequest.getPassword()));
@@ -178,9 +179,9 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> getProfile(String token) {
-        String email = jwtUtils.getEmailFromJwtToken(token);
-        User user = userRepository.findByEmailIgnoreCaseAndActiveTrue(email)
+        User user = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         return ResponseEntity.ok(userMapper.toResponse(user));
     }
 
@@ -188,6 +189,7 @@ public class UserService implements IUserService {
     public ResponseEntity<?> changePassword(String token, ChangePasswordRequest changePasswordRequest) {
         User user = userRepository.findByIdAndActiveTrue(jwtUtils.getUserIdFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         if (encoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
             user.setUpdatedDate(new Date());
             user.setUpdatedUser(user);

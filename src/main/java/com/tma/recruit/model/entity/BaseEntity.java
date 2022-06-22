@@ -8,9 +8,10 @@ import java.util.Date;
 
 @Data
 @AllArgsConstructor
-@MappedSuperclass
+//@MappedSuperclass
+@Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class BaseEntity {
+public abstract class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -17,7 +17,7 @@ public interface IUserService {
 
     ResponseEntity<?> getAll();
 
-    ResponseEntity<?> getById(String token, Long id);
+    ResponseEntity<?> getById(Long id);
 
     ResponseEntity<?> login(LoginRequest request);
 

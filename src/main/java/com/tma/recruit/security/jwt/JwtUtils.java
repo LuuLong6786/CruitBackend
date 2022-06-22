@@ -1,6 +1,5 @@
 package com.tma.recruit.security.jwt;
 
-import com.tma.recruit.model.entity.Role;
 import com.tma.recruit.model.enums.UserRole;
 import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.service.UserDetailsImpl;
@@ -15,7 +14,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtUtils {
@@ -56,8 +54,8 @@ public class JwtUtils {
     public List<String> getRoleFromToken(String token) {
 
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody();
-        List<String> a= (List<String>) claims.get("authorities");
-        return  null;
+        List<String> a = (List<String>) claims.get("authorities");
+        return null;
     }
 
     public List<String> getPermission(String token) {

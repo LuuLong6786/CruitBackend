@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tma.recruit.model.entity.Permission;
 import com.tma.recruit.model.entity.Role;
 import com.tma.recruit.model.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -44,7 +42,7 @@ public class UserDetailsImpl implements UserDetails {
 
         List<GrantedAuthority> authorities = new ArrayList<>();
         user.getRoles().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority("ROLE_"+role.getName()));
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
             authorities.addAll(role.getPermissions().stream()
                     .map(Permission::getPermissionKey)
                     .map(SimpleGrantedAuthority::new)
