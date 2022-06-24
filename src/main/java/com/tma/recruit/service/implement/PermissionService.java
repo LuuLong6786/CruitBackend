@@ -16,7 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
 import java.util.Date;
-import java.util.List;
 
 @Service
 @Transactional
@@ -58,9 +57,15 @@ public class PermissionService implements IPermissionService {
         Permission permission = permissionRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        if (request.getPermissionKey() != null && !permission.getPermissionKey().equals(request.getPermissionKey())) {
+            if (permissionRepository.existsByPermissionKeyAndActiveTrue(request.getPermissionKey())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT);
+            }
+        }
+
         permissionMapper.partialUpdate(permission, request);
         permission.setUpdatedUser(updater);
-        permission.setUpdatedDate(new Date());
+//        permission.setUpdatedDate(new Date());
         permission = permissionRepository.save(permission);
 
         return ResponseEntity.ok(permissionMapper.toResponse(permission));
@@ -75,7 +80,7 @@ public class PermissionService implements IPermissionService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         permission.setActive(false);
-        permission.setUpdatedDate(new Date());
+//        permission.setUpdatedDate(new Date());
         permission.setUpdatedUser(updater);
         permissionRepository.save(permission);
         return ResponseEntity.ok(HttpStatus.OK);

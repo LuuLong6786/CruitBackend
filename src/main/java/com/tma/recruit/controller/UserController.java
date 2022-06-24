@@ -26,6 +26,15 @@ public class UserController {
         return userService.getAll();
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<?> filter(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                    @RequestParam(required = false) String keyword,
+                                    @RequestParam(required = false) Long roleId,
+                                    @RequestParam(required = false, defaultValue = "5") Integer pageSize,
+                                    @RequestParam(required = false, defaultValue = "1") Integer page) {
+        return userService.filter(keyword, roleId, pageSize, page);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                      @PathVariable Long id) {

@@ -16,6 +16,8 @@ public interface EntityMapper<ENTITY, RESPONSE, REQUEST> {
     @Mapping(ignore = true, target = "createdBy.updatedBy")
     @Mapping(ignore = true, target = "updatedBy.createdBy")
     @Mapping(ignore = true, target = "updatedBy.updatedBy")
+    @Mapping(ignore = true, target = "author.roles")
+    @Mapping(ignore = true, target = "updatedUser.roles")
     RESPONSE toResponse(ENTITY entity);
 
     List<ENTITY> toEntity(List<REQUEST> dtoList);
@@ -23,6 +25,7 @@ public interface EntityMapper<ENTITY, RESPONSE, REQUEST> {
     List<RESPONSE> toResponse(List<ENTITY> entityList);
 
     @Named("partialUpdate")
+    @Mapping(ignore = true, target = "id")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(@MappingTarget ENTITY entity, REQUEST model);
 }

@@ -1,5 +1,6 @@
 package com.tma.recruit.model.entity;
 
+import com.tma.recruit.model.enums.QuestionLevelEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,13 @@ import java.util.List;
 @Entity
 @Table(name = "question_bank")
 public class QuestionBank extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "level")
+    private QuestionLevelEnum level;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -34,9 +42,12 @@ public class QuestionBank extends BaseEntity {
     @JoinColumn(name = "approver_id")
     private User approver;
 
+    @Column(name = "approved")
+    private boolean approved = false;
+
     @ManyToMany
     @JoinTable(name = "question_bank_criteria",
             joinColumns = @JoinColumn(name = "question_id"),
             inverseJoinColumns = @JoinColumn(name = "criteria_id"))
-    private List<QuestionCriteria> criteria;
+    private List<QuestionCriterion> criteria;
 }

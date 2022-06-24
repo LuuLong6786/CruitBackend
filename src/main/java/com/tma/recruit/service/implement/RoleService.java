@@ -43,7 +43,7 @@ public class RoleService implements IRoleService {
 
     @Override
     public ResponseEntity<?> create(String token, RoleRequest request) {
-        if (roleRepository.existsByName(request.getName())) {
+        if (roleRepository.existsByNameAndActiveTrue(request.getName())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
         User author = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
@@ -51,7 +51,8 @@ public class RoleService implements IRoleService {
 
         List<Permission> permissions = new ArrayList<>();
         for (PermissionRequest permissionRequest : request.getPermissions()) {
-            Permission permission = permissionRepository.findByIdAndActiveTrue(permissionRequest.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            Permission permission = permissionRepository.findByIdAndActiveTrue(permissionRequest.getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
             permissions.add(permission);
         }
 
@@ -72,16 +73,27 @@ public class RoleService implements IRoleService {
         Role role = roleRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        List<Permission> permissions = new ArrayList<>();
-        for (PermissionRequest permissionRequest : request.getPermissions()) {
-            Permission permission = permissionRepository.findByIdAndActiveTrue(permissionRequest.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-            permissions.add(permission);
+        if (request.getName() != null && !role.getName().equals(request.getName())) {
+            if (roleRepository.existsByNameAndActiveTrue(request.getName())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT);
+            }
         }
 
         roleMapper.partialUpdate(role, request);
+        if (request.getPermissions() != null && request.getPermissions().size() > 0) {
+            List<Permission> permissions = new ArrayList<>();
+            for (PermissionRequest permissionRequest : request.getPermissions()) {
+                if (permissionRequest.getId() > 0) {
+                    Permission permission = permissionRepository.findByIdAndActiveTrue(permissionRequest.getId())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                    permissions.add(permission);
+                }
+            }
+            role.setPermissions(permissions);
+        }
         role.setUpdatedUser(updater);
-        role.setUpdatedDate(new Date());
-        role.setPermissions(permissions);
+//        role.setUpdatedDate(new Date());
+
         role = roleRepository.save(role);
 
         return ResponseEntity.ok(roleMapper.toResponse(role));
@@ -96,9 +108,10 @@ public class RoleService implements IRoleService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         role.setActive(false);
-        role.setUpdatedDate(new Date());
+//        role.setUpdatedDate(new Date());
         role.setUpdatedUser(updater);
         roleRepository.save(role);
+
         return ResponseEntity.ok(HttpStatus.OK);
     }
 

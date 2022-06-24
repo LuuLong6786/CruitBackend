@@ -5,11 +5,11 @@ import com.tma.recruit.model.entity.Token;
 import com.tma.recruit.model.entity.User;
 import com.tma.recruit.model.enums.TokenType;
 import com.tma.recruit.model.mapper.UserMapper;
-import com.tma.recruit.model.request.ChangePasswordRequest;
-import com.tma.recruit.model.request.LoginRequest;
-import com.tma.recruit.model.request.ResetPasswordRequest;
-import com.tma.recruit.model.request.UserRequest;
+import com.tma.recruit.model.request.*;
 import com.tma.recruit.model.response.LoginResponse;
+import com.tma.recruit.model.response.ModelPage;
+import com.tma.recruit.model.response.Pagination;
+import com.tma.recruit.model.response.UserResponse;
 import com.tma.recruit.repository.RoleRepository;
 import com.tma.recruit.repository.TokenRepository;
 import com.tma.recruit.repository.UserRepository;
@@ -17,6 +17,9 @@ import com.tma.recruit.security.jwt.JwtUtils;
 import com.tma.recruit.service.interfaces.IUserService;
 import com.tma.recruit.util.RoleConstant;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -65,20 +68,27 @@ public class UserService implements IUserService {
         if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "ACCOUNT ALREADY EXISTS");
         }
-        User author ;
-        if (token!=null){
-            author = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token)).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));;
-        }else {
-            author =null;
+        User author;
+        if (token != null) {
+            author = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        } else {
+            author = null;
         }
 
 
-        List<Role> roles=new ArrayList<>();
-        if (request.getRole()!=null && request.getRole().getId()>0){
-            Role role = roleRepository.findByIdAndActiveTrue(request.getRole().getId()).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
-            roles.add(role);
-        }else {
-            Role role = roleRepository.findByNameIgnoreCase(RoleConstant.GUEST).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+        List<Role> roles = new ArrayList<>();
+        if (request.getRoles() != null && request.getRoles().size() > 0) {
+            for (RoleRequest roleRequest : request.getRoles()) {
+                if (roleRequest.getId() > 0) {
+                    Role role = roleRepository.findByIdAndActiveTrue(roleRequest.getId())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                    roles.add(role);
+                }
+            }
+        } else {
+            Role role = roleRepository.findByNameIgnoreCase(RoleConstant.GUEST)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
             roles.add(role);
         }
 
@@ -103,7 +113,7 @@ public class UserService implements IUserService {
 
         userMapper.partialUpdate(user, request);
         user.setUpdatedUser(updater);
-        user.setUpdatedDate(new Date());
+//        user.setUpdatedDate(new Date());
         user = userRepository.save(user);
         return ResponseEntity.ok(userMapper.toResponse(user));
     }
@@ -118,7 +128,7 @@ public class UserService implements IUserService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
             user.setActive(false);
-            user.setUpdatedDate(new Date());
+//            user.setUpdatedDate(new Date());
             user.setUpdatedUser(updater);
             userRepository.save(user);
 
@@ -191,7 +201,7 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (user.getId().equals(token.getUser().getId())) {
-            user.setUpdatedDate(new Date());
+//            user.setUpdatedDate(new Date());
             user.setPassword(encoder.encode(resetPasswordRequest.getPassword()));
             userRepository.save(user);
 
@@ -224,7 +234,7 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (encoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
-            user.setUpdatedDate(new Date());
+//            user.setUpdatedDate(new Date());
             user.setUpdatedUser(user);
             user.setPassword(encoder.encode(changePasswordRequest.getNewPassword()));
             userRepository.save(user);
@@ -235,5 +245,18 @@ public class UserService implements IUserService {
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    @Override
+    public ResponseEntity<?> filter(String keyword, Long roleId, Integer pageSize, Integer page) {
+        Pageable paging = PageRequest.of(page - 1, pageSize);
+
+        Page<User> users = userRepository.filter(keyword, roleId, paging);
+
+        Pagination pagination = new Pagination(pageSize, page, users.getTotalPages(), users.getNumberOfElements());
+
+        ModelPage<UserResponse> modelPage = new ModelPage<>(userMapper.toResponse(users.getContent()), pagination);
+
+        return ResponseEntity.ok(modelPage);
     }
 }

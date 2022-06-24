@@ -4,18 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @AllArgsConstructor
-//@MappedSuperclass
-@Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+@MappedSuperclass
+public abstract class BaseEntity implements Serializable {
 
     @Column(name = "created_date")
     private Date createdDate;

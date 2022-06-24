@@ -16,6 +16,10 @@ import java.util.Date;
 @Table(name = "token")
 public class Token extends BaseEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Lob
     @Column(name = "token")
     private String token;

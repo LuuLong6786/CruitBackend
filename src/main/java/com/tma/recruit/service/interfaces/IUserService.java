@@ -30,4 +30,6 @@ public interface IUserService {
     ResponseEntity<?> getProfile(String token);
 
     ResponseEntity<?> changePassword(String token, ChangePasswordRequest changePasswordRequest);
+
+    ResponseEntity<?> filter(String keyword, Long roleId, Integer pageSize, Integer page);
 }

@@ -1,5 +1,6 @@
 package com.tma.recruit.model.response;
 
+import com.tma.recruit.model.enums.QuestionLevelEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,15 +11,11 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
+public class QuestionBankResponse {
 
     private Long id;
 
-    private String name;
-
-    private String email;
-
-    private List<RoleResponse> roles;
+    private QuestionLevelEnum level;
 
     private Date createdDate;
 
@@ -27,4 +24,16 @@ public class UserResponse {
     private UserResponse author;
 
     private UserResponse updatedUser;
+
+    private QuestionCategoryResponse category;
+
+    private String content;
+
+    private String answer;
+
+    private Date approvedDate;
+
+    private UserResponse approver;
+
+    private List<QuestionCriterionResponse> criteria;
 }

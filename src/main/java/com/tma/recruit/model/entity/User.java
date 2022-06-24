@@ -15,6 +15,13 @@ import java.util.List;
 @Table(name = "users")
 public class User extends BaseEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "name")
+    private String name;
+
     @Email
     @Column(name = "email", unique = true)
     private String email;
@@ -33,10 +40,10 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "approver")
     private List<QuestionBank> questions;
-
-    @OneToMany(mappedBy = "author")
-    private List<BaseEntity> createdEntity;
-
-    @OneToMany(mappedBy = "updatedUser")
-    private List<BaseEntity> updatedEntity;
+//
+//    @OneToMany(mappedBy = "author")
+//    private List<BaseEntity> createdEntity;
+//
+//    @OneToMany(mappedBy = "updatedUser")
+//    private List<BaseEntity> updatedEntity;
 }

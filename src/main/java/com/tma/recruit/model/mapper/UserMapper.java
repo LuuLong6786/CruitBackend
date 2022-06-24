@@ -17,5 +17,6 @@ public abstract class UserMapper implements EntityMapper<User, UserResponse, Use
 
     @Mapping(ignore = true, target = "password")
     @Mapping(ignore = true, target = "email")
+    @Mapping(ignore = true, target = "roles")
     public abstract void partialUpdate(@MappingTarget User entity, UserRequest model);
 }
