@@ -63,7 +63,7 @@ public class QuestionCategoryService implements IQuestionCategoryService {
 
         questionCategoryMapper.partialUpdate(questionCategory, request);
         questionCategory.setUpdatedUser(updater);
-//        questionCategory.setUpdatedDate(new Date());
+        questionCategory.setUpdatedDate(new Date());
         questionCategory = questionCategoryRepository.save(questionCategory);
 
         return ResponseEntity.ok(questionCategoryMapper.toResponse(questionCategory));
@@ -76,7 +76,7 @@ public class QuestionCategoryService implements IQuestionCategoryService {
 
         QuestionCategory questionCategory = questionCategoryRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-//        questionCategory.setUpdatedDate(new Date());
+        questionCategory.setUpdatedDate(new Date());
         questionCategory.setUpdatedUser(updater);
         questionCategory.setActive(false);
         questionCategoryRepository.save(questionCategory);

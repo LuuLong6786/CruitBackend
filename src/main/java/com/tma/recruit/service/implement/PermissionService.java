@@ -65,7 +65,7 @@ public class PermissionService implements IPermissionService {
 
         permissionMapper.partialUpdate(permission, request);
         permission.setUpdatedUser(updater);
-//        permission.setUpdatedDate(new Date());
+        permission.setUpdatedDate(new Date());
         permission = permissionRepository.save(permission);
 
         return ResponseEntity.ok(permissionMapper.toResponse(permission));
@@ -80,7 +80,7 @@ public class PermissionService implements IPermissionService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         permission.setActive(false);
-//        permission.setUpdatedDate(new Date());
+        permission.setUpdatedDate(new Date());
         permission.setUpdatedUser(updater);
         permissionRepository.save(permission);
         return ResponseEntity.ok(HttpStatus.OK);

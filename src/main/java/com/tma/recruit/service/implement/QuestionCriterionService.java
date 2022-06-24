@@ -63,7 +63,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
 
         questionCriterionMapper.partialUpdate(questionCriterion, request);
         questionCriterion.setUpdatedUser(updater);
-//        questionCriterion.setUpdatedDate(new Date());
+        questionCriterion.setUpdatedDate(new Date());
         questionCriterion = questionCriterionRepository.save(questionCriterion);
 
         return ResponseEntity.ok(questionCriterionMapper.toResponse(questionCriterion));
@@ -76,7 +76,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
 
         QuestionCriterion questionCriterion = questionCriterionRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-//        questionCriterion.setUpdatedDate(new Date());
+        questionCriterion.setUpdatedDate(new Date());
         questionCriterion.setUpdatedUser(updater);
         questionCriterion.setActive(false);
         questionCriterionRepository.save(questionCriterion);

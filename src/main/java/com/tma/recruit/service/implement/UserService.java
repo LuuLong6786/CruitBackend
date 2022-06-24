@@ -113,7 +113,7 @@ public class UserService implements IUserService {
 
         userMapper.partialUpdate(user, request);
         user.setUpdatedUser(updater);
-//        user.setUpdatedDate(new Date());
+        user.setUpdatedDate(new Date());
         user = userRepository.save(user);
         return ResponseEntity.ok(userMapper.toResponse(user));
     }
@@ -128,7 +128,7 @@ public class UserService implements IUserService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
             user.setActive(false);
-//            user.setUpdatedDate(new Date());
+            user.setUpdatedDate(new Date());
             user.setUpdatedUser(updater);
             userRepository.save(user);
 
@@ -201,7 +201,7 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (user.getId().equals(token.getUser().getId())) {
-//            user.setUpdatedDate(new Date());
+            user.setUpdatedDate(new Date());
             user.setPassword(encoder.encode(resetPasswordRequest.getPassword()));
             userRepository.save(user);
 
@@ -234,7 +234,7 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (encoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
-//            user.setUpdatedDate(new Date());
+            user.setUpdatedDate(new Date());
             user.setUpdatedUser(user);
             user.setPassword(encoder.encode(changePasswordRequest.getNewPassword()));
             userRepository.save(user);

@@ -105,7 +105,7 @@ public class QuestionBankService implements IQuestionBankService {
             questionBank.setCategory(questionCategory);
         }
         questionBank.setUpdatedUser(updater);
-//        questionBank.setUpdatedDate(new Date());
+        questionBank.setUpdatedDate(new Date());
         questionBank = questionBankRepository.save(questionBank);
 
         return ResponseEntity.ok(questionBankMapper.toResponse(questionBank));
@@ -118,7 +118,7 @@ public class QuestionBankService implements IQuestionBankService {
 
         QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-//        questionBank.setUpdatedDate(new Date());
+        questionBank.setUpdatedDate(new Date());
         questionBank.setUpdatedUser(updater);
         questionBank.setActive(false);
         questionBankRepository.save(questionBank);

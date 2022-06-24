@@ -92,7 +92,7 @@ public class RoleService implements IRoleService {
             role.setPermissions(permissions);
         }
         role.setUpdatedUser(updater);
-//        role.setUpdatedDate(new Date());
+        role.setUpdatedDate(new Date());
 
         role = roleRepository.save(role);
 
@@ -108,7 +108,7 @@ public class RoleService implements IRoleService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         role.setActive(false);
-//        role.setUpdatedDate(new Date());
+        role.setUpdatedDate(new Date());
         role.setUpdatedUser(updater);
         roleRepository.save(role);
 
