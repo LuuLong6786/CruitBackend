@@ -35,5 +35,7 @@ public class QuestionBankResponse {
 
     private UserResponse approver;
 
+    private boolean approved;
+
     private List<QuestionCriterionResponse> criteria;
 }

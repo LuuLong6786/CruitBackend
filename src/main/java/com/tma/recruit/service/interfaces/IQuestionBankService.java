@@ -22,5 +22,5 @@ public interface IQuestionBankService {
 
     ResponseEntity<?> reject(String token, Long id);
 
-    ResponseEntity<?> filter(QuestionLevelEnum level, Long categoryId, Long criterionId, Integer pageSize, Integer page);
+    ResponseEntity<?> filter(QuestionLevelEnum level, Long categoryId, Long criterionId, Integer pageSize, Integer page, String keyword);
 }

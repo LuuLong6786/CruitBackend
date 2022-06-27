@@ -2,21 +2,28 @@ package com.tma.recruit.model.mapper;
 
 import com.tma.recruit.model.entity.User;
 import com.tma.recruit.model.request.UserRequest;
+import com.tma.recruit.model.response.UserDetailResponse;
 import com.tma.recruit.model.response.UserResponse;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @Mapper(componentModel = "spring", uses = {})
-public abstract class UserMapper implements EntityMapper<User, UserResponse, UserRequest> {
+public interface UserMapper extends EntityMapper<User, UserResponse, UserRequest> {
+
+    UserDetailResponse toDetailResponse(User entity);
+
+    List<UserDetailResponse> toDetailResponse(List<User> entity);
 
     @Mapping(ignore = true, target = "password")
-    public abstract User toEntity(UserRequest model);
+    User toEntity(UserRequest model);
 
+    @Mapping(ignore = true, target = "id")
     @Mapping(ignore = true, target = "password")
     @Mapping(ignore = true, target = "email")
     @Mapping(ignore = true, target = "roles")
-    public abstract void partialUpdate(@MappingTarget User entity, UserRequest model);
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void partialUpdate(@MappingTarget User entity, UserRequest model);
 }

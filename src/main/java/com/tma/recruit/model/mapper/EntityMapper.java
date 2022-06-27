@@ -4,21 +4,14 @@ import org.mapstruct.*;
 
 import java.util.List;
 
-
 public interface EntityMapper<ENTITY, RESPONSE, REQUEST> {
+
+    RESPONSE toResponse(ENTITY entity);
 
     @Mapping(ignore = true, target = "id")
     @Mapping(ignore = true, target = "createdDate")
     @Mapping(ignore = true, target = "updatedDate")
     ENTITY toEntity(REQUEST model);
-
-    @Mapping(ignore = true, target = "createdBy.createdBy")
-    @Mapping(ignore = true, target = "createdBy.updatedBy")
-    @Mapping(ignore = true, target = "updatedBy.createdBy")
-    @Mapping(ignore = true, target = "updatedBy.updatedBy")
-    @Mapping(ignore = true, target = "author.roles")
-    @Mapping(ignore = true, target = "updatedUser.roles")
-    RESPONSE toResponse(ENTITY entity);
 
     List<ENTITY> toEntity(List<REQUEST> dtoList);
 

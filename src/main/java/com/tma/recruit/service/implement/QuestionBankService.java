@@ -11,7 +11,6 @@ import com.tma.recruit.model.request.QuestionCriterionRequest;
 import com.tma.recruit.model.response.ModelPage;
 import com.tma.recruit.model.response.Pagination;
 import com.tma.recruit.model.response.QuestionBankResponse;
-import com.tma.recruit.model.response.UserResponse;
 import com.tma.recruit.repository.QuestionBankRepository;
 import com.tma.recruit.repository.QuestionCategoryRepository;
 import com.tma.recruit.repository.QuestionCriterionRepository;
@@ -90,7 +89,7 @@ public class QuestionBankService implements IQuestionBankService {
         if (request.getCriteria() != null && request.getCriteria().size() > 0) {
             List<QuestionCriterion> criteria = new ArrayList<>();
             for (QuestionCriterionRequest questionCriterionRequest : request.getCriteria()) {
-                if (questionCriterionRequest.getId() > 0) {
+                if (questionCriterionRequest.getId() != null && questionCriterionRequest.getId() > 0) {
                     QuestionCriterion criterion = questionCriterionRepository.findByIdAndActiveTrue(questionCriterionRequest.getId())
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
                     criteria.add(criterion);
@@ -179,10 +178,11 @@ public class QuestionBankService implements IQuestionBankService {
     }
 
     @Override
-    public ResponseEntity<?> filter(QuestionLevelEnum level, Long categoryId, Long criterionId, Integer pageSize, Integer page) {
+    public ResponseEntity<?> filter(QuestionLevelEnum level, Long categoryId, Long criterionId, Integer pageSize, Integer page, String keyword) {
         Pageable paging = PageRequest.of(page - 1, pageSize);
 
-        Page<QuestionBank> questionBanks = questionBankRepository.filter(level, categoryId,criterionId, paging);
+        Page<QuestionBank> questionBanks = questionBankRepository
+                .filter(level != null ? level.toString() : null, categoryId, criterionId, paging, keyword);
 
         Pagination pagination = new Pagination(pageSize, page, questionBanks.getTotalPages(),
                 questionBanks.getNumberOfElements());

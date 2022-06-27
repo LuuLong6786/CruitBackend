@@ -1,6 +1,5 @@
 package com.tma.recruit.security.jwt;
 
-import com.tma.recruit.model.enums.UserRole;
 import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
@@ -65,7 +64,8 @@ public class JwtUtils {
     }
 
     public boolean isAdmin(String token) {
-        return getRoleFromToken(token).contains(UserRole.ADMIN.toString());
+//        return getRoleFromToken(token).contains(UserRole.ADMIN.toString());
+        return false;
     }
 
     public boolean isOwner(String token, Long userId) {

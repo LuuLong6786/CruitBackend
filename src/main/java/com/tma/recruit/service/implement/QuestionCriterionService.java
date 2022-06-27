@@ -79,6 +79,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
         questionCriterion.setUpdatedDate(new Date());
         questionCriterion.setUpdatedUser(updater);
         questionCriterion.setActive(false);
+        questionCriterion.setName(null);
         questionCriterionRepository.save(questionCriterion);
 
         return ResponseEntity.ok(HttpStatus.OK);

@@ -80,7 +80,7 @@ public class UserService implements IUserService {
         List<Role> roles = new ArrayList<>();
         if (request.getRoles() != null && request.getRoles().size() > 0) {
             for (RoleRequest roleRequest : request.getRoles()) {
-                if (roleRequest.getId() > 0) {
+                if (roleRequest.getId() != null && roleRequest.getId() > 0) {
                     Role role = roleRepository.findByIdAndActiveTrue(roleRequest.getId())
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
                     roles.add(role);
@@ -111,9 +111,22 @@ public class UserService implements IUserService {
         User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        List<Role> roles = new ArrayList<>();
+        if (request.getRoles() != null && request.getRoles().size() > 0) {
+            for (RoleRequest roleRequest : request.getRoles()) {
+                if (roleRequest.getId() != null && roleRequest.getId() > 0) {
+                    Role role = roleRepository.findByIdAndActiveTrue(roleRequest.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                    roles.add(role);
+                }
+            }
+        }
+
         userMapper.partialUpdate(user, request);
         user.setUpdatedUser(updater);
         user.setUpdatedDate(new Date());
+        if (roles.size()>0){
+            user.setRoles(roles);
+        }
         user = userRepository.save(user);
         return ResponseEntity.ok(userMapper.toResponse(user));
     }
@@ -130,6 +143,7 @@ public class UserService implements IUserService {
             user.setActive(false);
             user.setUpdatedDate(new Date());
             user.setUpdatedUser(updater);
+            user.setEmail(null);
             userRepository.save(user);
 
             return ResponseEntity.ok(HttpStatus.OK);
@@ -142,7 +156,7 @@ public class UserService implements IUserService {
     public ResponseEntity<?> getAll() {
         List<User> users = userRepository.findByActiveTrue();
 
-        return ResponseEntity.ok(userMapper.toResponse(users));
+        return ResponseEntity.ok(userMapper.toDetailResponse(users));
     }
 
     @Override
@@ -152,7 +166,7 @@ public class UserService implements IUserService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
-        return ResponseEntity.ok(userMapper.toResponse(entityOptional.get()));
+        return ResponseEntity.ok(userMapper.toDetailResponse(entityOptional.get()));
     }
 
     @Override
@@ -167,9 +181,10 @@ public class UserService implements IUserService {
             String jwt = jwtUtils.generateJwtToken(authentication);
             Token token = new Token(jwt, TokenType.ACCESS_TOKEN, user);
             tokenRepository.save(token);
-            LoginResponse loginResponse = new LoginResponse(jwt, user.getRoles().stream()
-                    .map(Role::getName)
-                    .collect(Collectors.toList()));
+            LoginResponse loginResponse = new LoginResponse(jwt,
+                    user.getRoles().stream()
+                            .map(Role::getName)
+                            .collect(Collectors.toList()));
 
             return ResponseEntity.ok(loginResponse);
         } catch (BadCredentialsException badCredentialsException) {
@@ -225,7 +240,7 @@ public class UserService implements IUserService {
         User user = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        return ResponseEntity.ok(userMapper.toResponse(user));
+        return ResponseEntity.ok(userMapper.toDetailResponse(user));
     }
 
     @Override

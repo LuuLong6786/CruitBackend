@@ -61,9 +61,10 @@ public class QuestionBankController {
                                     @RequestParam(required = false) QuestionLevelEnum level,
                                     @RequestParam(required = false) Long categoryId,
                                     @RequestParam(required = false) Long criterionId,
+                                    @RequestParam(required = false) String keyword,
                                     @RequestParam(required = false, defaultValue = "5") Integer pageSize,
                                     @RequestParam(required = false, defaultValue = "1") Integer page) {
-        return questionBankService.filter(level, categoryId, criterionId, pageSize, page);
+        return questionBankService.filter(level, categoryId, criterionId, pageSize, page, keyword);
     }
 
     @GetMapping("/{id}")

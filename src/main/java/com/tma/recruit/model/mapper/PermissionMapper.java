@@ -6,16 +6,13 @@ import com.tma.recruit.model.response.PermissionResponse;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 @Mapper(componentModel = "spring", uses = {})
-public abstract class PermissionMapper implements EntityMapper<Permission, PermissionResponse, PermissionRequest> {
+public interface PermissionMapper extends EntityMapper<Permission, PermissionResponse, PermissionRequest> {
 
-    public List<PermissionResponse> toResponse(List<Permission> entityList) {
-        List<PermissionResponse> permissionResponses = new ArrayList<>();
-        entityList.forEach(permission -> permissionResponses.add(toResponse(permission)));
-        return permissionResponses;
-    }
+//    public List<PermissionResponse> toResponse(List<Permission> entityList) {
+//        List<PermissionResponse> permissionResponses = new ArrayList<>();
+//        entityList.forEach(permission -> permissionResponses.add(toResponse(permission)));
+//        return permissionResponses;
+//    }
 }

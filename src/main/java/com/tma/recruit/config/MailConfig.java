@@ -1,6 +1,5 @@
 package com.tma.recruit.config;
 
-import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +19,7 @@ public class MailConfig {
     private String password;
 
     @Bean
-    public JavaMailSender getJavaMailSender() throws IOException, JSONException {
+    public JavaMailSender getJavaMailSender() {
 
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");

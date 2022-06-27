@@ -80,6 +80,7 @@ public class PermissionService implements IPermissionService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         permission.setActive(false);
+        permission.setPermissionKey(null);
         permission.setUpdatedDate(new Date());
         permission.setUpdatedUser(updater);
         permissionRepository.save(permission);

@@ -83,7 +83,7 @@ public class RoleService implements IRoleService {
         if (request.getPermissions() != null && request.getPermissions().size() > 0) {
             List<Permission> permissions = new ArrayList<>();
             for (PermissionRequest permissionRequest : request.getPermissions()) {
-                if (permissionRequest.getId() > 0) {
+                if (permissionRequest.getId() != null && permissionRequest.getId() > 0) {
                     Permission permission = permissionRepository.findByIdAndActiveTrue(permissionRequest.getId())
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
                     permissions.add(permission);
@@ -108,6 +108,7 @@ public class RoleService implements IRoleService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         role.setActive(false);
+        role.setName(null);
         role.setUpdatedDate(new Date());
         role.setUpdatedUser(updater);
         roleRepository.save(role);

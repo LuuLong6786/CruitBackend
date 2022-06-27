@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Mapper(componentModel = "spring", uses = {})
-public abstract class QuestionCategoryMapper
-        implements EntityMapper<QuestionCategory, QuestionCategoryResponse, QuestionCategoryRequest> {
+public interface QuestionCategoryMapper
+        extends EntityMapper<QuestionCategory, QuestionCategoryResponse, QuestionCategoryRequest> {
 }

@@ -5,11 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
+public class UserDetailResponse {
 
     private Long id;
 
@@ -17,7 +18,13 @@ public class UserResponse {
 
     private String email;
 
+    private List<RoleResponse> roles;
+
     private Date createdDate;
 
     private Date updatedDate;
+
+    private UserResponse author;
+
+    private UserResponse updatedUser;
 }

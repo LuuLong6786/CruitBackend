@@ -79,6 +79,7 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         questionCategory.setUpdatedDate(new Date());
         questionCategory.setUpdatedUser(updater);
         questionCategory.setActive(false);
+        questionCategory.setName(null);
         questionCategoryRepository.save(questionCategory);
 
         return ResponseEntity.ok(HttpStatus.OK);

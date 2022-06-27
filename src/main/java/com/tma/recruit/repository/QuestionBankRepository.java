@@ -1,7 +1,6 @@
 package com.tma.recruit.repository;
 
 import com.tma.recruit.model.entity.QuestionBank;
-import com.tma.recruit.model.enums.QuestionLevelEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,7 +19,19 @@ public interface QuestionBankRepository extends JpaRepository<QuestionBank, Long
 
     List<QuestionBank> findByApprovedTrueAndActiveTrue();
 
-    @Query(value = "select u.* from question_bank u "
-    ,nativeQuery = true)
-    Page<QuestionBank> filter(QuestionLevelEnum level, Long categoryId, Long criterionId, Pageable paging);
+    @Query(value = "select q.* " +
+            "from question_bank q, " +
+            "question_category cat, " +
+            "question_criterion cri, " +
+            "question_bank_criteria bc " +
+            "where q.category_id = cat.id " +
+            "and (q.level = :level or :level is null) " +
+            "and bc.question_id = q.id " +
+            "and bc.criteria_id=cri.id " +
+            "and (q.content like CONCAT('%',:keyword,'%') or :keyword is null) " +
+            "and (cri.id= :criterionId or :criterionId is null) " +
+            "and (cat.id= :categoryId or :categoryId is null) " +
+            "group by q.id",
+            nativeQuery = true)
+    Page<QuestionBank> filter(String level, Long categoryId, Long criterionId, Pageable paging, String keyword);
 }

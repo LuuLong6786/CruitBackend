@@ -20,6 +20,7 @@ public class QuestionBank extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "level")
     private QuestionLevelEnum level;
 
