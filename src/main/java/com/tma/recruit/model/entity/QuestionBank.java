@@ -46,7 +46,7 @@ public class QuestionBank extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private QuestionStatus status = QuestionStatus.WAITING;
+    private QuestionStatus status = QuestionStatus.PENDING;
 
     @ManyToMany
     @JoinTable(name = "question_bank_criteria",
