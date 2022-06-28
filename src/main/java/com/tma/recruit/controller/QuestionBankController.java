@@ -1,6 +1,7 @@
 package com.tma.recruit.controller;
 
-import com.tma.recruit.model.enums.QuestionLevelEnum;
+import com.tma.recruit.model.enums.QuestionLevel;
+import com.tma.recruit.model.enums.QuestionStatus;
 import com.tma.recruit.model.request.QuestionBankRequest;
 import com.tma.recruit.service.interfaces.IQuestionBankService;
 import com.tma.recruit.util.Constant;
@@ -58,13 +59,14 @@ public class QuestionBankController {
 
     @GetMapping("/filter")
     public ResponseEntity<?> filter(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                    @RequestParam(required = false) QuestionLevelEnum level,
+                                    @RequestParam(required = false) QuestionLevel level,
                                     @RequestParam(required = false) Long categoryId,
                                     @RequestParam(required = false) Long criterionId,
                                     @RequestParam(required = false) String keyword,
+                                    @RequestParam(required = false,defaultValue = "APPROVED") QuestionStatus status,
                                     @RequestParam(required = false, defaultValue = "5") Integer pageSize,
                                     @RequestParam(required = false, defaultValue = "1") Integer page) {
-        return questionBankService.filter(level, categoryId, criterionId, pageSize, page, keyword);
+        return questionBankService.filter(status, level, categoryId, criterionId, pageSize, page, keyword);
     }
 
     @GetMapping("/{id}")

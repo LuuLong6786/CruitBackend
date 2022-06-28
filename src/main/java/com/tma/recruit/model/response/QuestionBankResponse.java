@@ -1,6 +1,7 @@
 package com.tma.recruit.model.response;
 
-import com.tma.recruit.model.enums.QuestionLevelEnum;
+import com.tma.recruit.model.enums.QuestionLevel;
+import com.tma.recruit.model.enums.QuestionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ public class QuestionBankResponse {
 
     private Long id;
 
-    private QuestionLevelEnum level;
+    private QuestionLevel level;
 
     private Date createdDate;
 
@@ -35,7 +36,7 @@ public class QuestionBankResponse {
 
     private UserResponse approver;
 
-    private boolean approved;
+    private QuestionStatus status;
 
     private List<QuestionCriterionResponse> criteria;
 }

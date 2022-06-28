@@ -1,5 +1,5 @@
 package com.tma.recruit.model.enums;
 
-public enum QuestionLevelEnum {
+public enum QuestionLevel {
     EASY, MEDIUM, HARD
 }

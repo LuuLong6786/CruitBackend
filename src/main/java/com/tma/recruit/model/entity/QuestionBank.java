@@ -1,6 +1,7 @@
 package com.tma.recruit.model.entity;
 
-import com.tma.recruit.model.enums.QuestionLevelEnum;
+import com.tma.recruit.model.enums.QuestionLevel;
+import com.tma.recruit.model.enums.QuestionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ public class QuestionBank extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "level")
-    private QuestionLevelEnum level;
+    private QuestionLevel level;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -43,8 +44,9 @@ public class QuestionBank extends BaseEntity {
     @JoinColumn(name = "approver_id")
     private User approver;
 
-    @Column(name = "approved")
-    private boolean approved = false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private QuestionStatus status = QuestionStatus.WAITING;
 
     @ManyToMany
     @JoinTable(name = "question_bank_criteria",

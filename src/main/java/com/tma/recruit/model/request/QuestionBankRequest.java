@@ -1,6 +1,6 @@
 package com.tma.recruit.model.request;
 
-import com.tma.recruit.model.enums.QuestionLevelEnum;
+import com.tma.recruit.model.enums.QuestionLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ public class QuestionBankRequest {
 
     private Long id;
 
-    private QuestionLevelEnum level;
+    private QuestionLevel level;
 
     private QuestionCategoryRequest category;
 

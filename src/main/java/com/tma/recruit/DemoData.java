@@ -1,9 +1,12 @@
 package com.tma.recruit;
 
 import com.tma.recruit.model.entity.Permission;
+import com.tma.recruit.model.entity.QuestionBank;
 import com.tma.recruit.model.entity.Role;
 import com.tma.recruit.model.entity.User;
+import com.tma.recruit.model.enums.QuestionStatus;
 import com.tma.recruit.repository.PermissionRepository;
+import com.tma.recruit.repository.QuestionBankRepository;
 import com.tma.recruit.repository.RoleRepository;
 import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.util.RoleConstant;
@@ -32,9 +35,14 @@ public class DemoData implements CommandLineRunner {
     @Autowired
     private PermissionRepository permissionRepository;
 
+    @Autowired
+    private QuestionBankRepository questionBankRepository;
+
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         if (!userRepository.existsByEmailIgnoreCase("admin@tma.com.vn")) {
+
+
             //permission
             Permission createPermission = new Permission();
             createPermission.setName("CREATE");
@@ -78,16 +86,19 @@ public class DemoData implements CommandLineRunner {
             admin.setEmail("admin@tma.com.vn");
             admin.setPassword(encoder.encode("12341234"));
             admin.setRoles(Collections.singletonList(adminRole));
+            admin.setName("Admin");
 
             User user = new User();
             user.setEmail("user@tma.com.vn");
             user.setPassword(encoder.encode("12341234"));
             user.setRoles(Collections.singletonList(userRole));
+            user.setName("User");
 
             User guest = new User();
             guest.setEmail("guest@tma.com.vn");
             guest.setPassword(encoder.encode("12341234"));
             guest.setRoles(Collections.singletonList(questRole));
+            guest.setName("Guest");
 
             User multipleUser = new User();
             multipleUser.setEmail("mul@tma.com.vn");

@@ -1,6 +1,7 @@
 package com.tma.recruit.service.interfaces;
 
-import com.tma.recruit.model.enums.QuestionLevelEnum;
+import com.tma.recruit.model.enums.QuestionLevel;
+import com.tma.recruit.model.enums.QuestionStatus;
 import com.tma.recruit.model.request.QuestionBankRequest;
 import org.springframework.http.ResponseEntity;
 
@@ -22,5 +23,5 @@ public interface IQuestionBankService {
 
     ResponseEntity<?> reject(String token, Long id);
 
-    ResponseEntity<?> filter(QuestionLevelEnum level, Long categoryId, Long criterionId, Integer pageSize, Integer page, String keyword);
+    ResponseEntity<?> filter(QuestionStatus status, QuestionLevel level, Long categoryId, Long criterionId, Integer pageSize, Integer page, String keyword);
 }

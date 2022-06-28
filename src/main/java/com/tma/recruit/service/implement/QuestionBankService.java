@@ -4,7 +4,8 @@ import com.tma.recruit.model.entity.QuestionBank;
 import com.tma.recruit.model.entity.QuestionCategory;
 import com.tma.recruit.model.entity.QuestionCriterion;
 import com.tma.recruit.model.entity.User;
-import com.tma.recruit.model.enums.QuestionLevelEnum;
+import com.tma.recruit.model.enums.QuestionLevel;
+import com.tma.recruit.model.enums.QuestionStatus;
 import com.tma.recruit.model.mapper.QuestionBankMapper;
 import com.tma.recruit.model.request.QuestionBankRequest;
 import com.tma.recruit.model.request.QuestionCriterionRequest;
@@ -134,7 +135,7 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> getApprovedQuestion() {
-        List<QuestionBank> questionBanks = questionBankRepository.findByApprovedTrueAndActiveTrue();
+        List<QuestionBank> questionBanks = questionBankRepository.findByActiveTrue();
 
         return ResponseEntity.ok(questionBankMapper.toResponse(questionBanks));
     }
@@ -156,7 +157,7 @@ public class QuestionBankService implements IQuestionBankService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         questionBank.setApprover(approver);
         questionBank.setApprovedDate(new Date());
-        questionBank.setApproved(true);
+        questionBank.setStatus(QuestionStatus.APPROVED);
         questionBankRepository.save(questionBank);
 
         return ResponseEntity.ok(HttpStatus.OK);
@@ -171,18 +172,20 @@ public class QuestionBankService implements IQuestionBankService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         questionBank.setApprover(approver);
         questionBank.setApprovedDate(new Date());
-        questionBank.setApproved(false);
+        questionBank.setStatus(QuestionStatus.REJECTED);
         questionBankRepository.save(questionBank);
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<?> filter(QuestionLevelEnum level, Long categoryId, Long criterionId, Integer pageSize, Integer page, String keyword) {
+    public ResponseEntity<?> filter(QuestionStatus status, QuestionLevel level, Long categoryId, Long criterionId,
+                                    Integer pageSize, Integer page, String keyword) {
         Pageable paging = PageRequest.of(page - 1, pageSize);
 
         Page<QuestionBank> questionBanks = questionBankRepository
-                .filter(level != null ? level.toString() : null, categoryId, criterionId, paging, keyword);
+                .filter(level != null ? level.toString() : null, categoryId, criterionId, paging, keyword,
+                        status != null ? status.toString() : null);
 
         Pagination pagination = new Pagination(pageSize, page, questionBanks.getTotalPages(),
                 questionBanks.getNumberOfElements());
