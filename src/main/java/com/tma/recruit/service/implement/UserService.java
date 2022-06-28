@@ -124,7 +124,7 @@ public class UserService implements IUserService {
         userMapper.partialUpdate(user, request);
         user.setUpdatedUser(updater);
         user.setUpdatedDate(new Date());
-        if (roles.size()>0){
+        if (roles.size() > 0) {
             user.setRoles(roles);
         }
         user = userRepository.save(user);

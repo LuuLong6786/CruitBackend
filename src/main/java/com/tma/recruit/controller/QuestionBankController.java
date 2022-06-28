@@ -63,7 +63,7 @@ public class QuestionBankController {
                                     @RequestParam(required = false) Long categoryId,
                                     @RequestParam(required = false) Long criterionId,
                                     @RequestParam(required = false) String keyword,
-                                    @RequestParam(required = false,defaultValue = "APPROVED") QuestionStatus status,
+                                    @RequestParam(required = false, defaultValue = "APPROVED") QuestionStatus status,
                                     @RequestParam(required = false, defaultValue = "5") Integer pageSize,
                                     @RequestParam(required = false, defaultValue = "1") Integer page) {
         return questionBankService.filter(status, level, categoryId, criterionId, pageSize, page, keyword);

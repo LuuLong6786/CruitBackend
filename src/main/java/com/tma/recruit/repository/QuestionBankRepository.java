@@ -1,8 +1,6 @@
 package com.tma.recruit.repository;
 
 import com.tma.recruit.model.entity.QuestionBank;
-import com.tma.recruit.model.enums.QuestionLevel;
-import com.tma.recruit.model.enums.QuestionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,10 +1,8 @@
 package com.tma.recruit;
 
 import com.tma.recruit.model.entity.Permission;
-import com.tma.recruit.model.entity.QuestionBank;
 import com.tma.recruit.model.entity.Role;
 import com.tma.recruit.model.entity.User;
-import com.tma.recruit.model.enums.QuestionStatus;
 import com.tma.recruit.repository.PermissionRepository;
 import com.tma.recruit.repository.QuestionBankRepository;
 import com.tma.recruit.repository.RoleRepository;
@@ -41,7 +39,6 @@ public class DemoData implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (!userRepository.existsByEmailIgnoreCase("admin@tma.com.vn")) {
-
 
             //permission
             Permission createPermission = new Permission();
