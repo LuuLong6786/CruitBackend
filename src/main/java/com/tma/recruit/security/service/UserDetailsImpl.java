@@ -20,7 +20,7 @@ public class UserDetailsImpl implements UserDetails {
 
     private final Long id;
 
-    private final String email;
+    private final String username;
 
     @JsonIgnore
     private final String password;
@@ -29,10 +29,10 @@ public class UserDetailsImpl implements UserDetails {
 
     private List<Role> roles;
 
-    public UserDetailsImpl(Long id, String email, String password, List<Role> roles,
+    public UserDetailsImpl(Long id, String username, String password, List<Role> roles,
                            Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
-        this.email = email;
+        this.username = username;
         this.password = password;
         this.roles = roles;
         this.authorities = authorities;
@@ -49,24 +49,9 @@ public class UserDetailsImpl implements UserDetails {
                     .collect(Collectors.toList()));
         });
 
-
-//        user.getRoles().forEach(role -> authorities.addAll(role.getPermissions().stream()
-//                .map(Permission::getPermissionKey)
-//                .map(SimpleGrantedAuthority::new)
-//                .collect(Collectors.toList())));
-
-//        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-
-
-//        List<GrantedAuthority> authorities = user.getRoles()
-//                .stream()
-//                .map(Role::getName)
-//                .map(SimpleGrantedAuthority::new)
-//                .collect(Collectors.toList());
-
         return new UserDetailsImpl(
                 user.getId(),
-                user.getEmail(),
+                user.getUsername(),
                 user.getPassword(),
                 user.getRoles(),
                 authorities);
@@ -93,11 +78,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
-    }
-
-    public String getEmail() {
-        return email;
+        return username;
     }
 
     public List<Role> getRoles() {

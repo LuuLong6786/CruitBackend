@@ -33,7 +33,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
 
     @Override
     public ResponseEntity<?> create(String token, QuestionCriterionRequest request) {
-        User author = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (questionCriterionRepository.existsByNameAndActiveTrue(request.getName())) {
@@ -49,7 +49,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
 
     @Override
     public ResponseEntity<?> update(String token, QuestionCriterionRequest request, Long id) {
-        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionCriterion questionCriterion = questionCriterionRepository.findByIdAndActiveTrue(id)
@@ -71,7 +71,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
 
     @Override
     public ResponseEntity<?> delete(String token, Long id) {
-        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionCriterion questionCriterion = questionCriterionRepository.findByIdAndActiveTrue(id)

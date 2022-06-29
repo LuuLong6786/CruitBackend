@@ -13,7 +13,9 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByEmailIgnoreCaseAndActiveTrue(String email);
+//    Optional<User> findByEmailIgnoreCaseAndActiveTrue(String email);
+
+    Optional<User> findByUsernameIgnoreCaseAndActiveTrue(String username);
 
     List<User> findByActiveTrue();
 
@@ -21,7 +23,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmailIgnoreCaseAndActiveTrue(String email);
 
-    boolean existsByEmailIgnoreCase(String email);
+    boolean existsByUsernameIgnoreCaseAndActiveTrue(String username);
 
     Page<User> findByNameContainingIgnoreCaseAndActiveTrue(String keyword, Pageable paging);
 

@@ -1,4 +1,4 @@
-package com.tma.recruit;
+package com.tma.recruit.config;
 
 import com.tma.recruit.model.entity.Permission;
 import com.tma.recruit.model.entity.Role;
@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class DemoData implements CommandLineRunner {
+public class DataLoader implements CommandLineRunner {
 
     @Autowired
     private UserRepository userRepository;
@@ -38,7 +38,7 @@ public class DemoData implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (!userRepository.existsByEmailIgnoreCase("admin@tma.com.vn")) {
+        if (!userRepository.existsByEmailIgnoreCaseAndActiveTrue("admin@tma.com.vn")) {
 
             //permission
             Permission createPermission = new Permission();
@@ -80,24 +80,28 @@ public class DemoData implements CommandLineRunner {
 
             //user
             User admin = new User();
+            admin.setUsername("admin");
             admin.setEmail("admin@tma.com.vn");
             admin.setPassword(encoder.encode("12341234"));
             admin.setRoles(Collections.singletonList(adminRole));
             admin.setName("Admin");
 
             User user = new User();
+            user.setUsername("user");
             user.setEmail("user@tma.com.vn");
             user.setPassword(encoder.encode("12341234"));
             user.setRoles(Collections.singletonList(userRole));
             user.setName("User");
 
             User guest = new User();
+            guest.setUsername("guest");
             guest.setEmail("guest@tma.com.vn");
             guest.setPassword(encoder.encode("12341234"));
             guest.setRoles(Collections.singletonList(questRole));
             guest.setName("Guest");
 
             User multipleUser = new User();
+            multipleUser.setUsername("mul");
             multipleUser.setEmail("mul@tma.com.vn");
             multipleUser.setPassword(encoder.encode("12341234"));
             List<Role> roles = new ArrayList<>();
@@ -107,14 +111,11 @@ public class DemoData implements CommandLineRunner {
 
             userRepository.save(admin);
 
-
             userRepository.save(user);
 
             userRepository.save(guest);
 
             userRepository.save(multipleUser);
         }
-
-
     }
 }

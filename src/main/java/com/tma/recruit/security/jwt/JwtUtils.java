@@ -1,11 +1,9 @@
 package com.tma.recruit.security.jwt;
 
-import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -18,12 +16,7 @@ import java.util.List;
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    private static final String ROLE_KEY = "ROLE_";
-
-    private static final String PERMISSION_KEY = "authority";
-
-    @Autowired
-    private UserRepository userRepository;
+    private static final String AUTH = "auth";
 
     @Value("${recruit.app.jwtSecret}")
     private String jwtSecret;
@@ -37,7 +30,7 @@ public class JwtUtils {
         String token = Jwts.builder()
                 .setId(userPrincipal.getId().toString())
                 .setSubject(userPrincipal.getUsername())
-//                .claim("authorities", userPrincipal.getAuthorities())
+                .claim(AUTH, userPrincipal.getAuthorities())
 //                .claim(ROLE_KEY, userPrincipal.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                 .setIssuedAt(currentDate)
                 .setExpiration(new Date((currentDate).getTime() + jwtExpirationMs))
@@ -46,21 +39,21 @@ public class JwtUtils {
         return token;
     }
 
-    public String getEmailFromJwtToken(String token) {
+    public String getUsernameFromJwtToken(String token) {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody().getSubject();
     }
 
     public List<String> getRoleFromToken(String token) {
 
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody();
-        List<String> a = (List<String>) claims.get("authorities");
-        return null;
+        List<String> roles = (List<String>) claims.get("authorities");
+        return roles;
     }
 
     public List<String> getPermission(String token) {
 
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody();
-        return (List<String>) claims.get(ROLE_KEY);
+        return (List<String>) claims.get(AUTH);
     }
 
     public boolean isAdmin(String token) {

@@ -18,6 +18,8 @@ public class UserDetailResponse {
 
     private String email;
 
+    private String username;
+
     private List<RoleResponse> roles;
 
     private Date createdDate;

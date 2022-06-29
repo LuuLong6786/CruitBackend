@@ -54,7 +54,7 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> create(String token, QuestionBankRequest request) {
-        User author = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionCategory questionCategory = questionCategoryRepository
@@ -79,7 +79,7 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> update(String token, QuestionBankRequest request, Long id) {
-        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
@@ -113,7 +113,7 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> delete(String token, Long id) {
-        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
@@ -150,7 +150,7 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> approve(String token, Long id) {
-        User approver = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User approver = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
@@ -165,7 +165,7 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> reject(String token, Long id) {
-        User approver = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User approver = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)

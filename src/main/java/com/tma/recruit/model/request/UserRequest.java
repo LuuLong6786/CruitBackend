@@ -20,6 +20,8 @@ public class UserRequest {
     @Email
     private String email;
 
+    private String username;
+
     @Size(min = 8, max = 50, message = "Password length must be at least 8 characters")
     private String password;
 

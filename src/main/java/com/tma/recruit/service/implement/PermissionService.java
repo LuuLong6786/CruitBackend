@@ -38,7 +38,7 @@ public class PermissionService implements IPermissionService {
         if (permissionRepository.existsByPermissionKeyAndActiveTrue(request.getPermissionKey())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
-        User author = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         Permission permission = permissionMapper.toEntity(request);
@@ -51,7 +51,7 @@ public class PermissionService implements IPermissionService {
 
     @Override
     public ResponseEntity<?> update(String token, PermissionRequest request, Long id) {
-        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         Permission permission = permissionRepository.findByIdAndActiveTrue(id)
@@ -73,7 +73,7 @@ public class PermissionService implements IPermissionService {
 
     @Override
     public ResponseEntity<?> delete(String token, Long id) {
-        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         Permission permission = permissionRepository.findByIdAndActiveTrue(id)

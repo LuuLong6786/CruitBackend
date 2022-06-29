@@ -36,7 +36,7 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         if (questionCategoryRepository.existsByNameAndActiveTrue(request.getName())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
-        User author = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionCategory questionCategory = questionCategoryMapper.toEntity(request);
@@ -49,7 +49,7 @@ public class QuestionCategoryService implements IQuestionCategoryService {
 
     @Override
     public ResponseEntity<?> update(String token, QuestionCategoryRequest request, Long id) {
-        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionCategory questionCategory = questionCategoryRepository.findByIdAndActiveTrue(id)
@@ -71,7 +71,7 @@ public class QuestionCategoryService implements IQuestionCategoryService {
 
     @Override
     public ResponseEntity<?> delete(String token, Long id) {
-        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionCategory questionCategory = questionCategoryRepository.findByIdAndActiveTrue(id)

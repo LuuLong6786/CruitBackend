@@ -65,17 +65,21 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> create(String token, UserRequest request) {
-        if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
+        if (userRepository.existsByEmailIgnoreCaseAndActiveTrue(request.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "EMAIL ALREADY EXISTS");
+        }
+
+        if (userRepository.existsByUsernameIgnoreCaseAndActiveTrue(request.getUsername())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "ACCOUNT ALREADY EXISTS");
         }
+
         User author;
         if (token != null) {
-            author = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+            author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         } else {
             author = null;
         }
-
 
         List<Role> roles = new ArrayList<>();
         if (request.getRoles() != null && request.getRoles().size() > 0) {
@@ -83,7 +87,7 @@ public class UserService implements IUserService {
                 if (roleRequest.getId() != null && roleRequest.getId() > 0) {
                     Role role = roleRepository.findByIdAndActiveTrue(roleRequest.getId())
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-                    roles.add(role);
+
                 }
             }
         } else {
@@ -93,7 +97,8 @@ public class UserService implements IUserService {
         }
 
         User user = userMapper.toEntity(request);
-        user.setEmail(user.getEmail().toLowerCase());
+        user.setUsername(request.getUsername().toLowerCase());
+        user.setEmail(request.getEmail().toLowerCase());
         user.setPassword(encoder.encode(request.getPassword()));
         user.setAuthor(author);
         user.setUpdatedUser(author);
@@ -108,7 +113,7 @@ public class UserService implements IUserService {
         User user = userRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         List<Role> roles = new ArrayList<>();
@@ -134,7 +139,7 @@ public class UserService implements IUserService {
     @Override
     public ResponseEntity<?> delete(String token, Long id) {
         try {
-            User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+            User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
             User user = userRepository.findByIdAndActiveTrue(id)
@@ -143,7 +148,7 @@ public class UserService implements IUserService {
             user.setActive(false);
             user.setUpdatedDate(new Date());
             user.setUpdatedUser(updater);
-            user.setEmail(null);
+            user.setUsername(null);
             userRepository.save(user);
 
             return ResponseEntity.ok(HttpStatus.OK);
@@ -171,12 +176,12 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> login(LoginRequest request) {
-        User user = userRepository.findByEmailIgnoreCaseAndActiveTrue(request.getEmail())
+        User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(request.getUsername())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
             Token token = new Token(jwt, TokenType.ACCESS_TOKEN, user);
@@ -196,7 +201,7 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> forgotPassword(String email) {
-        User user = userRepository.findByEmailIgnoreCaseAndActiveTrue(email)
+        User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         String tokenString = UUID.randomUUID().toString();
@@ -209,21 +214,22 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> resetPassword(ResetPasswordRequest resetPasswordRequest) {
-        User user = userRepository.findByEmailIgnoreCaseAndActiveTrue(resetPasswordRequest.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        Token token = tokenRepository.findByToken(resetPasswordRequest.getToken())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        if (user.getId().equals(token.getUser().getId())) {
-            user.setUpdatedDate(new Date());
-            user.setPassword(encoder.encode(resetPasswordRequest.getPassword()));
-            userRepository.save(user);
-
-            return ResponseEntity.ok(HttpStatus.OK);
-        } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        }
+        return null;
+//        User user = userRepository.findByEmailIgnoreCaseAndActiveTrue(resetPasswordRequest.getEmail())
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+//
+//        Token token = tokenRepository.findByToken(resetPasswordRequest.getToken())
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+//
+//        if (user.getId().equals(token.getUser().getId())) {
+//            user.setUpdatedDate(new Date());
+//            user.setPassword(encoder.encode(resetPasswordRequest.getPassword()));
+//            userRepository.save(user);
+//
+//            return ResponseEntity.ok(HttpStatus.OK);
+//        } else {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+//        }
     }
 
     @Override
@@ -237,7 +243,7 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> getProfile(String token) {
-        User user = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         return ResponseEntity.ok(userMapper.toDetailResponse(user));

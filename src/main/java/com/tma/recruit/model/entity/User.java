@@ -22,6 +22,9 @@ public class User extends BaseEntity {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "username", unique = true)
+    private String username;
+
     @Email
     @Column(name = "email", unique = true)
     private String email;
@@ -40,10 +43,4 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "approver")
     private List<QuestionBank> questions;
-//
-//    @OneToMany(mappedBy = "author")
-//    private List<BaseEntity> createdEntity;
-//
-//    @OneToMany(mappedBy = "updatedUser")
-//    private List<BaseEntity> updatedEntity;
 }

@@ -46,7 +46,7 @@ public class RoleService implements IRoleService {
         if (roleRepository.existsByNameAndActiveTrue(request.getName())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
-        User author = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         List<Permission> permissions = new ArrayList<>();
@@ -67,7 +67,7 @@ public class RoleService implements IRoleService {
 
     @Override
     public ResponseEntity<?> update(String token, RoleRequest request, Long id) {
-        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         Role role = roleRepository.findByIdAndActiveTrue(id)
@@ -101,7 +101,7 @@ public class RoleService implements IRoleService {
 
     @Override
     public ResponseEntity<?> delete(String token, Long id) {
-        User updater = userRepository.findByEmailIgnoreCaseAndActiveTrue(jwtUtils.getEmailFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         Role role = roleRepository.findByIdAndActiveTrue(id)

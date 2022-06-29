@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 public interface QuestionBankMapper
         extends EntityMapper<QuestionBank, QuestionBankResponse, QuestionBankRequest> {
 
+    @Mapping(ignore = true, target = "id")
     @Mapping(ignore = true, target = "category")
     @Mapping(ignore = true, target = "approver")
     @Mapping(ignore = true, target = "criteria")
-    @Mapping(ignore = true, target = "id")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(@MappingTarget QuestionBank entity, QuestionBankRequest model);
 
