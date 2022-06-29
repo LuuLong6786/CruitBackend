@@ -1,6 +1,5 @@
 package com.tma.recruit.config;
 
-
 import com.tma.recruit.security.jwt.AuthEntryPointJwt;
 import com.tma.recruit.security.jwt.AuthTokenFilter;
 import com.tma.recruit.security.service.UserDetailsServiceImpl;

@@ -9,10 +9,4 @@ import org.springframework.stereotype.Component;
 @Component
 @Mapper(componentModel = "spring", uses = {})
 public interface RoleMapper extends EntityMapper<Role, RoleResponse, RoleRequest> {
-
-//    public List<RoleResponse> toResponse(List<Role> entityList) {
-//        List<RoleResponse> roleResponses = new ArrayList<>();
-//        entityList.forEach(permission -> roleResponses.add(toResponse(permission)));
-//        return roleResponses;
-//    }
 }
