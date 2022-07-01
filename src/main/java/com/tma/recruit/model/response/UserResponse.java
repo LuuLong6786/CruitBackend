@@ -15,6 +15,8 @@ public class UserResponse {
 
     private String name;
 
+    private String badgeId;
+
     private String username;
 
     private String email;

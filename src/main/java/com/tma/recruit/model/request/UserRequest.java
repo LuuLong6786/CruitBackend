@@ -17,6 +17,8 @@ public class UserRequest {
 
     private Long id;
 
+    private String badgeId;
+
     @Email
     private String email;
 

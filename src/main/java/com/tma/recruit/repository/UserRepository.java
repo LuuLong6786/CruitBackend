@@ -36,4 +36,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "group by u.id",
             nativeQuery = true)
     Page<User> filter(String keyword, Long id, Pageable paging);
+
+    List<User> findByRolesNameContaining(String name);
 }

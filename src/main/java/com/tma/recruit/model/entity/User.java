@@ -22,6 +22,9 @@ public class User extends BaseEntity {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "badge_id")
+    private String badgeId;
+
     @Column(name = "username", unique = true)
     private String username;
 

@@ -14,6 +14,7 @@ import com.tma.recruit.repository.RoleRepository;
 import com.tma.recruit.repository.TokenRepository;
 import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.jwt.JwtUtils;
+import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.service.interfaces.IUserService;
 import com.tma.recruit.util.RoleConstant;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,9 +64,12 @@ public class UserService implements IUserService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private INotificationService notificationService;
+
     @Override
     public ResponseEntity<?> create(String token, UserRequest request) {
-        if (userRepository.existsByEmailIgnoreCaseAndActiveTrue(request.getEmail())) {
+        if (request.getEmail() != null && userRepository.existsByEmailIgnoreCaseAndActiveTrue(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "EMAIL ALREADY EXISTS");
         }
 
@@ -88,6 +92,11 @@ public class UserService implements IUserService {
                     Role role = roleRepository.findByIdAndActiveTrue(roleRequest.getId())
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+                    if (!role.getName().equals(RoleConstant.ADMIN)
+                            || (author != null && author.getRoles().stream()
+                            .anyMatch(role1 -> role1.getName().equals(RoleConstant.ADMIN)))) {
+                        roles.add(role);
+                    }
                 }
             }
         } else {
@@ -104,6 +113,7 @@ public class UserService implements IUserService {
         user.setUpdatedUser(author);
         user.setRoles(roles);
         user = userRepository.save(user);
+        notificationService.notifyUserCreationToAdmin(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toResponse(user));
     }
@@ -120,7 +130,8 @@ public class UserService implements IUserService {
         if (request.getRoles() != null && request.getRoles().size() > 0) {
             for (RoleRequest roleRequest : request.getRoles()) {
                 if (roleRequest.getId() != null && roleRequest.getId() > 0) {
-                    Role role = roleRepository.findByIdAndActiveTrue(roleRequest.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                    Role role = roleRepository.findByIdAndActiveTrue(roleRequest.getId())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
                     roles.add(role);
                 }
             }
@@ -149,6 +160,7 @@ public class UserService implements IUserService {
             user.setUpdatedDate(new Date());
             user.setUpdatedUser(updater);
             user.setUsername(null);
+            user.setEmail(null);
             userRepository.save(user);
 
             return ResponseEntity.ok(HttpStatus.OK);

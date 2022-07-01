@@ -51,5 +51,4 @@ public class FilterConfig implements Filter {
     @Override
     public void destroy() {
     }
-
 }
