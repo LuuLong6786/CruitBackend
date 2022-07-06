@@ -21,7 +21,6 @@ public interface UserMapper extends EntityMapper<User, UserResponse, UserRequest
     User toEntity(UserRequest model);
 
     @Mapping(ignore = true, target = "id")
-    @Mapping(ignore = true, target = "email")
     @Mapping(ignore = true, target = "roles")
     @Mapping(ignore = true, target = "password")
     @Mapping(ignore = true, target = "username")

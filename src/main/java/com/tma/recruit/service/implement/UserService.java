@@ -73,16 +73,18 @@ public class UserService implements IUserService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "EMAIL ALREADY EXISTS");
         }
 
+        if (request.getBadgeId() != null && userRepository.existsByBadgeIdIgnoreCaseAndActiveTrue(request.getBadgeId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "BADGE ID ALREADY EXISTS");
+        }
+
         if (userRepository.existsByUsernameIgnoreCaseAndActiveTrue(request.getUsername())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "ACCOUNT ALREADY EXISTS");
         }
 
-        User author;
+        User author = null;
         if (token != null) {
             author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        } else {
-            author = null;
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
         }
 
         List<Role> roles = new ArrayList<>();
@@ -189,7 +191,7 @@ public class UserService implements IUserService {
     @Override
     public ResponseEntity<?> login(LoginRequest request) {
         User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(request.getUsername())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ACCOUNT NOT EXISTS"));
 
         try {
             Authentication authentication = authenticationManager.authenticate(

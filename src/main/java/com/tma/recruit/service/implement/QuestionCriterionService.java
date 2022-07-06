@@ -14,9 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.transaction.Transactional;
 import java.util.Date;
 
 @Service
+@Transactional
 public class QuestionCriterionService implements IQuestionCriteriaService {
 
     @Autowired

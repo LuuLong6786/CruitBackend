@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<?> signUp(@RequestBody UserRequest request) {
+    public ResponseEntity<?> signUp(@Valid @RequestBody UserRequest request) {
         return userService.create(null, request);
     }
 
@@ -55,7 +55,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                    @RequestBody UserRequest request,
+                                    @Valid @RequestBody UserRequest request,
                                     @PathVariable Long id) {
         return userService.update(token, id, request);
     }

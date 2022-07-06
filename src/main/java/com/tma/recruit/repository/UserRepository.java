@@ -25,17 +25,20 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUsernameIgnoreCaseAndActiveTrue(String username);
 
+    boolean existsByBadgeIdIgnoreCaseAndActiveTrue(String badgeId);
+
     Page<User> findByNameContainingIgnoreCaseAndActiveTrue(String keyword, Pageable paging);
 
     Page<User> findByActiveTrue(Pageable paging);
 
-    @Query(value = "select u.* from users u , user_role ur, role r " +
-            "where u.id = ur.user_id and r.id= ur.role_id and u.active=true " +
-            "and (u.name like CONCAT('%',:keyword,'%') or :keyword is null) " +
-            "and (r.id=:id or :id is null)  " +
-            "group by u.id",
+    @Query(value = "select users.* from users , user_role, role \n" +
+            "where users.id = user_role.user_id and role.id= user_role.role_id and users.active=true \n" +
+            "and (users.name like CONCAT('%',:keyword,'%') or :keyword is null) \n" +
+            "and (role.id=:id or :id is null)  " +
+            "group by users.id",
             nativeQuery = true)
     Page<User> filter(String keyword, Long id, Pageable paging);
 
-    List<User> findByRolesNameContaining(String name);
+    List<User> findByRolesNameContainingAndActiveTrue(String name);
+
 }
