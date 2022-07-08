@@ -115,9 +115,9 @@ public class UserService implements IUserService {
         user.setUpdatedUser(author);
         user.setRoles(roles);
         user = userRepository.save(user);
-        notificationService.notifyUserCreationToAdmin(user);
+        notificationService.notifyCreationToAdmin(user);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toResponse(user));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toDetailResponse(user));
     }
 
     @Override
@@ -146,7 +146,9 @@ public class UserService implements IUserService {
             user.setRoles(roles);
         }
         user = userRepository.save(user);
-        return ResponseEntity.ok(userMapper.toResponse(user));
+        notificationService.notifyUpdateToAdmin(user);
+
+        return ResponseEntity.ok(userMapper.toDetailResponse(user));
     }
 
     @Override
