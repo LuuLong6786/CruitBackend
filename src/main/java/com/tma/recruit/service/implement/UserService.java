@@ -121,8 +121,6 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> update(String token, Long id, UserRequest request) {
-        validateUsername(request);
-
         User user = userRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
