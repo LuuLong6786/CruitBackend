@@ -6,10 +6,7 @@ import com.tma.recruit.model.entity.User;
 import com.tma.recruit.model.enums.TokenType;
 import com.tma.recruit.model.mapper.UserMapper;
 import com.tma.recruit.model.request.*;
-import com.tma.recruit.model.response.LoginResponse;
-import com.tma.recruit.model.response.ModelPage;
-import com.tma.recruit.model.response.Pagination;
-import com.tma.recruit.model.response.UserResponse;
+import com.tma.recruit.model.response.*;
 import com.tma.recruit.repository.RoleRepository;
 import com.tma.recruit.repository.TokenRepository;
 import com.tma.recruit.repository.UserRepository;
@@ -69,6 +66,8 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> create(String token, UserRequest request) {
+        validateUsername(request);
+
         if (request.getEmail() != null && userRepository.existsByEmailIgnoreCaseAndActiveTrue(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "EMAIL ALREADY EXISTS");
         }
@@ -122,6 +121,8 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> update(String token, Long id, UserRequest request) {
+        validateUsername(request);
+
         User user = userRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
@@ -285,15 +286,21 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ResponseEntity<?> filter(String keyword, Long roleId, Integer pageSize, Integer page) {
+    public ResponseEntity<?> filter(String name, String username, String email, Long roleId, Integer pageSize, Integer page) {
         Pageable paging = PageRequest.of(page - 1, pageSize);
 
-        Page<User> users = userRepository.filter(keyword, roleId, paging);
+        Page<User> users = userRepository.filter(name, username, email, roleId, paging);
 
         Pagination pagination = new Pagination(pageSize, page, users.getTotalPages(), users.getNumberOfElements());
 
-        ModelPage<UserResponse> modelPage = new ModelPage<>(userMapper.toResponse(users.getContent()), pagination);
+        ModelPage<UserDetailResponse> modelPage = new ModelPage<>(userMapper.toDetailResponse(users.getContent()), pagination);
 
         return ResponseEntity.ok(modelPage);
+    }
+
+    public void validateUsername(UserRequest request){
+        if (request.getUsername().replaceAll("\\s", "").length()<request.getUsername().length()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 }

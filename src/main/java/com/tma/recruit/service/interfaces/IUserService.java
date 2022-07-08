@@ -31,5 +31,5 @@ public interface IUserService {
 
     ResponseEntity<?> changePassword(String token, ChangePasswordRequest changePasswordRequest);
 
-    ResponseEntity<?> filter(String keyword, Long roleId, Integer pageSize, Integer page);
+    ResponseEntity<?> filter(String name,String username,String email, Long roleId, Integer pageSize, Integer page);
 }

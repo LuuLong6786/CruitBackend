@@ -4,6 +4,7 @@ import com.tma.recruit.model.request.ChangePasswordRequest;
 import com.tma.recruit.model.request.LoginRequest;
 import com.tma.recruit.model.request.ResetPasswordRequest;
 import com.tma.recruit.model.request.UserRequest;
+import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.service.interfaces.IUserService;
 import com.tma.recruit.util.Constant;
 import com.tma.recruit.util.PreAuthorizerConstant;
@@ -20,6 +21,9 @@ public class UserController {
 
     @Autowired
     private IUserService userService;
+//
+//    @Autowired
+//    private INotificationService notificationService;
 
     @GetMapping
     public ResponseEntity<?> getAll(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
@@ -28,11 +32,13 @@ public class UserController {
 
     @GetMapping("/filter")
     public ResponseEntity<?> filter(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                    @RequestParam(required = false) String keyword,
+                                    @RequestParam(required = false) String name,
+                                    @RequestParam(required = false) String username,
+                                    @RequestParam(required = false) String email,
                                     @RequestParam(required = false) Long roleId,
                                     @RequestParam(required = false, defaultValue = "5") Integer pageSize,
                                     @RequestParam(required = false, defaultValue = "1") Integer page) {
-        return userService.filter(keyword, roleId, pageSize, page);
+        return userService.filter(name, username, email, roleId, pageSize, page);
     }
 
     @GetMapping("/{id}")
@@ -97,4 +103,14 @@ public class UserController {
     public ResponseEntity<?> getProfile(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
         return userService.getProfile(token);
     }
+//
+//    @GetMapping("/notification/unread")
+//    public ResponseEntity<?> getUnreadNotification(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
+//        return notificationService.getUnreadNotification(token);
+//    }
+//
+//    @GetMapping("/notification")
+//    public ResponseEntity<?> getAllNotification(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
+//        return notificationService.getAllNotification(token);
+//    }
 }
