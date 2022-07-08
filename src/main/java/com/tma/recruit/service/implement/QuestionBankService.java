@@ -17,6 +17,7 @@ import com.tma.recruit.repository.QuestionCategoryRepository;
 import com.tma.recruit.repository.QuestionCriterionRepository;
 import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.jwt.JwtUtils;
+import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.service.interfaces.IQuestionBankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -54,6 +55,9 @@ public class QuestionBankService implements IQuestionBankService {
     @Autowired
     private QuestionCriterionRepository questionCriterionRepository;
 
+    @Autowired
+    private INotificationService notificationService;
+
     @Override
     public ResponseEntity<?> create(String token, QuestionBankRequest request) {
         User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
@@ -76,6 +80,8 @@ public class QuestionBankService implements IQuestionBankService {
         questionBank.setCriteria(questionCriteria);
         questionBank = questionBankRepository.save(questionBank);
 
+        notificationService.notifyCreationToAdmin(questionBank);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(questionBankMapper.toResponse(questionBank));
     }
 
@@ -93,7 +99,8 @@ public class QuestionBankService implements IQuestionBankService {
             List<QuestionCriterion> criteria = new ArrayList<>();
             for (QuestionCriterionRequest questionCriterionRequest : request.getCriteria()) {
                 if (questionCriterionRequest.getId() != null && questionCriterionRequest.getId() > 0) {
-                    QuestionCriterion criterion = questionCriterionRepository.findByIdAndActiveTrue(questionCriterionRequest.getId())
+                    QuestionCriterion criterion = questionCriterionRepository
+                            .findByIdAndActiveTrue(questionCriterionRequest.getId())
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
                     criteria.add(criterion);
                 }
@@ -109,6 +116,8 @@ public class QuestionBankService implements IQuestionBankService {
         questionBank.setUpdatedUser(updater);
         questionBank.setUpdatedDate(new Date());
         questionBank = questionBankRepository.save(questionBank);
+
+        notificationService.notifyUpdateToAdmin(questionBank);
 
         return ResponseEntity.ok(questionBankMapper.toResponse(questionBank));
     }
@@ -130,7 +139,6 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> getAll() {
-        List<QuestionBank> questionBanks = questionBankRepository.findByActiveTrue();
 
         return ResponseEntity.ok(questionBankMapper.toResponse(questionBankRepository.findByActiveTrue()));
     }

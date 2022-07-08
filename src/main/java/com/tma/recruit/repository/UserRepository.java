@@ -33,12 +33,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "select users.* from users , user_role, role \n" +
             "where users.id = user_role.user_id and role.id= user_role.role_id and users.active=true \n" +
-            "and (users.name like CONCAT('%',:keyword,'%') or :keyword is null) \n" +
+            "and (users.name like CONCAT('%',:name,'%') or :name is null) \n" +
+            "and (users.username like CONCAT('%',:username,'%') or :username is null) \n" +
+            "and (users.email like CONCAT('%',:email,'%') or :email is null) \n" +
             "and (role.id=:id or :id is null)  " +
             "group by users.id",
             nativeQuery = true)
-    Page<User> filter(String keyword, Long id, Pageable paging);
+    Page<User> filter(String name, String username, String email, Long id, Pageable paging);
 
-    List<User> findByRolesNameContainingAndActiveTrue(String name);
+    List<User> findByRolesNameContainingIgnoreCaseAndActiveTrue(String name);
 
 }

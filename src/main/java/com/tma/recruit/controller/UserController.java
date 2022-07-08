@@ -21,9 +21,9 @@ public class UserController {
 
     @Autowired
     private IUserService userService;
-//
-//    @Autowired
-//    private INotificationService notificationService;
+
+    @Autowired
+    private INotificationService notificationService;
 
     @GetMapping
     public ResponseEntity<?> getAll(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
@@ -103,14 +103,14 @@ public class UserController {
     public ResponseEntity<?> getProfile(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
         return userService.getProfile(token);
     }
-//
-//    @GetMapping("/notification/unread")
-//    public ResponseEntity<?> getUnreadNotification(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
-//        return notificationService.getUnreadNotification(token);
-//    }
-//
-//    @GetMapping("/notification")
-//    public ResponseEntity<?> getAllNotification(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
-//        return notificationService.getAllNotification(token);
-//    }
+
+    @GetMapping("/notification/unread")
+    public ResponseEntity<?> getUnreadNotification(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
+        return notificationService.getUnreadNotification(token);
+    }
+
+    @GetMapping("/notification")
+    public ResponseEntity<?> getAllNotification(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
+        return notificationService.getAllNotification(token);
+    }
 }
