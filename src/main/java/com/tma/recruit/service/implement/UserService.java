@@ -277,7 +277,19 @@ public class UserService implements IUserService {
             List<Token> tokens = tokenRepository.findByUserId(user.getId());
             tokenRepository.deleteAll(tokens);
 
-            return new ResponseEntity<>(HttpStatus.OK);
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), changePasswordRequest.getNewPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
+            Token tokenEntity = new Token(jwt, TokenType.ACCESS_TOKEN, user);
+            tokenRepository.save(tokenEntity);
+            LoginResponse loginResponse = new LoginResponse(jwt,
+                    user.getRoles().stream()
+                            .map(Role::getName)
+                            .collect(Collectors.toList()));
+
+            return ResponseEntity.ok(loginResponse);
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }

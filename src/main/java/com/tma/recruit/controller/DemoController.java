@@ -1,6 +1,5 @@
 package com.tma.recruit.controller;
 
-import com.tma.recruit.model.entity.QuestionBank;
 import com.tma.recruit.model.entity.Role;
 import com.tma.recruit.model.entity.User;
 import com.tma.recruit.model.mapper.RoleMapper;
@@ -114,17 +113,19 @@ public class DemoController {
     private SimpMessagingTemplate template;
 
     @GetMapping("/test-notification")
-    public ResponseEntity<?> testNotification(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token){
-        List<User> admins = userRepository.findByRolesNameContaining(RoleConstant.ADMIN);
+    public ResponseEntity<?> testNotification(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,@RequestParam String message){
+        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndActiveTrue(RoleConstant.ADMIN);
 
-        User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token)).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+        User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
 
 //        List<User> users=userRepository.findByActiveTrue();
 
 //        notificationService.notifyForUserCreation(users.get(0));
 
         UserNotificationResponse response =new UserNotificationResponse();
-        response.setContent("User "+user.getUsername()+" has been created");
+        response.setContent(message);
+//        response.setContent("User "+user.getUsername()+" has been created");
         response.setUser(userMapper.toResponse(user));
         response.setTime(new Date());
 

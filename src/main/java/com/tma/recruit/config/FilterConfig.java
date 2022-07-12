@@ -39,6 +39,8 @@ public class FilterConfig implements Filter {
             response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
             response.setHeader("Access-Control-Allow-Headers",
                     "Origin, X-Requested-With, Content-Type, Accept, " + "X-CSRF-TOKEN");
+
+            response.setHeader("Access-Control-Allow-Headers", "*");
         }
 
         chain.doFilter(req, res);
