@@ -13,4 +13,6 @@ public class MessageConstants {
     public static final String TOKEN_UNSUPPORTED = "TOKEN UNSUPPORTED";
 
     public static final String CLAIMS_IS_EMPTY = "CLAIMS IS EMPTY";
+
+    public static final String WRONG_PASSWORD = "WRONG PASSWORD";
 }

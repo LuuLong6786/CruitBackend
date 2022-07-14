@@ -6,6 +6,7 @@ import com.tma.recruit.model.entity.QuestionCriterion;
 import com.tma.recruit.model.entity.User;
 import com.tma.recruit.model.enums.QuestionLevel;
 import com.tma.recruit.model.enums.QuestionStatus;
+import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.mapper.QuestionBankMapper;
 import com.tma.recruit.model.request.QuestionBankRequest;
 import com.tma.recruit.model.request.QuestionCriterionRequest;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -139,7 +141,6 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> getAll() {
-
         return ResponseEntity.ok(questionBankMapper.toResponse(questionBankRepository.findByActiveTrue()));
     }
 
@@ -190,8 +191,9 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> filter(QuestionStatus status, QuestionLevel level, Long categoryId, Long criterionId,
-                                    Integer pageSize, Integer page, String keyword) {
-        Pageable paging = PageRequest.of(page - 1, pageSize);
+                                    Integer pageSize, Integer page, String keyword, SortType orderBy) {
+        Pageable paging = PageRequest.of(page - 1, pageSize,
+                SortType.DESC.equals(orderBy) ? Sort.by("id").descending() : Sort.by("id").ascending());
 
         Page<QuestionBank> questionBanks = questionBankRepository
                 .filter(level != null ? level.toString() : null, categoryId, criterionId, paging, keyword,

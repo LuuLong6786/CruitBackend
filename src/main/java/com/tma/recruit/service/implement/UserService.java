@@ -13,6 +13,7 @@ import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.jwt.JwtUtils;
 import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.service.interfaces.IUserService;
+import com.tma.recruit.util.MessageConstants;
 import com.tma.recruit.util.RoleConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -291,7 +292,7 @@ public class UserService implements IUserService {
 
             return ResponseEntity.ok(loginResponse);
         } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, MessageConstants.WRONG_PASSWORD);
         }
     }
 

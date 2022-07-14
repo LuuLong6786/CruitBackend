@@ -2,6 +2,7 @@ package com.tma.recruit.controller;
 
 import com.tma.recruit.model.enums.QuestionLevel;
 import com.tma.recruit.model.enums.QuestionStatus;
+import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.request.QuestionBankRequest;
 import com.tma.recruit.service.interfaces.IQuestionBankService;
 import com.tma.recruit.util.Constant;
@@ -64,9 +65,10 @@ public class QuestionBankController {
                                     @RequestParam(required = false) Long criterionId,
                                     @RequestParam(required = false) String keyword,
                                     @RequestParam(required = false, defaultValue = "APPROVED") QuestionStatus status,
+                                    @RequestParam(required = false, defaultValue = "DESC") SortType sortType,
                                     @RequestParam(required = false, defaultValue = "5") Integer pageSize,
                                     @RequestParam(required = false, defaultValue = "1") Integer page) {
-        return questionBankService.filter(status, level, categoryId, criterionId, pageSize, page, keyword);
+        return questionBankService.filter(status, level, categoryId, criterionId, pageSize, page, keyword, sortType);
     }
 
     @GetMapping("/{id}")
