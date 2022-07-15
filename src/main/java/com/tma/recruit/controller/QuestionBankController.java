@@ -6,6 +6,7 @@ import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.request.QuestionBankRequest;
 import com.tma.recruit.service.interfaces.IQuestionBankService;
 import com.tma.recruit.util.Constant;
+import com.tma.recruit.util.PaginationConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -66,7 +67,8 @@ public class QuestionBankController {
                                     @RequestParam(required = false) String keyword,
                                     @RequestParam(required = false, defaultValue = "APPROVED") QuestionStatus status,
                                     @RequestParam(required = false, defaultValue = "DESC") SortType sortType,
-                                    @RequestParam(required = false, defaultValue = "5") Integer pageSize,
+                                    @RequestParam(required = false, defaultValue =
+                                            PaginationConstant.PAGE_SIZE_DEFAULT_VALUE) Integer pageSize,
                                     @RequestParam(required = false, defaultValue = "1") Integer page) {
         return questionBankService.filter(status, level, categoryId, criterionId, pageSize, page, keyword, sortType);
     }

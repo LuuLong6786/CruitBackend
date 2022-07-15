@@ -131,6 +131,7 @@ public class QuestionBankService implements IQuestionBankService {
 
         QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         questionBank.setUpdatedDate(new Date());
         questionBank.setUpdatedUser(updater);
         questionBank.setActive(false);
