@@ -36,8 +36,9 @@ public class QuestionCriteriaController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
-        return questionCriteriaService.getAll();
+    public ResponseEntity<?> getAll(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                    @RequestParam(required = false, defaultValue = "false") Boolean showDisabled) {
+        return questionCriteriaService.getAll(showDisabled);
     }
 
     @GetMapping("/filter")

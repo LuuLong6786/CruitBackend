@@ -103,8 +103,10 @@ public class QuestionCategoryService implements IQuestionCategoryService {
     }
 
     @Override
-    public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(questionCategoryMapper.toResponse(questionCategoryRepository.findByEnableTrue()));
+    public ResponseEntity<?> getAll(Boolean showDisabled) {
+        return ResponseEntity.ok(questionCategoryMapper.toResponse(showDisabled ?
+                questionCategoryRepository.findAll() :
+                questionCategoryRepository.findByEnableTrue()));
     }
 
     @Override

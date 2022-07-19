@@ -12,7 +12,7 @@ public interface IQuestionCategoryService {
 
     ResponseEntity<?> delete(String token, Long id);
 
-    ResponseEntity<?> getAll();
+    ResponseEntity<?> getAll(Boolean showDisabled);
 
     ResponseEntity<?> getById(Long id);
 

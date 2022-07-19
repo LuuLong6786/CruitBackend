@@ -103,8 +103,10 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
     }
 
     @Override
-    public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(questionCriterionMapper.toResponse(questionCriterionRepository.findByEnableTrue()));
+    public ResponseEntity<?> getAll(Boolean showDisabled) {
+        return ResponseEntity.ok(questionCriterionMapper.toResponse(showDisabled ?
+                questionCriterionRepository.findAll() :
+                questionCriterionRepository.findByEnableTrue()));
     }
 
     @Override
