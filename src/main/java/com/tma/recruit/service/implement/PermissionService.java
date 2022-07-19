@@ -35,10 +35,10 @@ public class PermissionService implements IPermissionService {
 
     @Override
     public ResponseEntity<?> create(String token, PermissionRequest request) {
-        if (permissionRepository.existsByPermissionKeyAndActiveTrue(request.getPermissionKey())) {
+        if (permissionRepository.existsByPermissionKeyAndEnableTrue(request.getPermissionKey())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
-        User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User author = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         Permission permission = permissionMapper.toEntity(request);
@@ -51,14 +51,14 @@ public class PermissionService implements IPermissionService {
 
     @Override
     public ResponseEntity<?> update(String token, PermissionRequest request, Long id) {
-        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        Permission permission = permissionRepository.findByIdAndActiveTrue(id)
+        Permission permission = permissionRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (request.getPermissionKey() != null && !permission.getPermissionKey().equals(request.getPermissionKey())) {
-            if (permissionRepository.existsByPermissionKeyAndActiveTrue(request.getPermissionKey())) {
+            if (permissionRepository.existsByPermissionKeyAndEnableTrue(request.getPermissionKey())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT);
             }
         }
@@ -73,13 +73,13 @@ public class PermissionService implements IPermissionService {
 
     @Override
     public ResponseEntity<?> delete(String token, Long id) {
-        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        Permission permission = permissionRepository.findByIdAndActiveTrue(id)
+        Permission permission = permissionRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        permission.setActive(false);
+        permission.setEnable(false);
         permission.setPermissionKey(null);
         permission.setUpdatedDate(new Date());
         permission.setUpdatedUser(updater);
@@ -89,12 +89,12 @@ public class PermissionService implements IPermissionService {
 
     @Override
     public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(permissionMapper.toResponse(permissionRepository.findByActiveTrue()));
+        return ResponseEntity.ok(permissionMapper.toResponse(permissionRepository.findByEnableTrue()));
     }
 
     @Override
     public ResponseEntity<?> getById(Long id) {
-        Permission permission = permissionRepository.findByIdAndActiveTrue(id)
+        Permission permission = permissionRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         return ResponseEntity.ok(permissionMapper.toResponse(permission));

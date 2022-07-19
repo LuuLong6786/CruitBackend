@@ -18,8 +18,8 @@ public abstract class BaseEntity implements Serializable {
     @Column(name = "updated_date")
     private Date updatedDate;
 
-    @Column(name = "active")
-    private Boolean active = true;
+    @Column(name = "enable")
+    private Boolean enable = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")

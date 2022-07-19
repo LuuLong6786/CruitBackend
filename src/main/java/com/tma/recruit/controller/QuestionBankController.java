@@ -67,10 +67,13 @@ public class QuestionBankController {
                                     @RequestParam(required = false) String keyword,
                                     @RequestParam(required = false, defaultValue = "APPROVED") QuestionStatus status,
                                     @RequestParam(required = false, defaultValue = "DESC") SortType sortType,
-                                    @RequestParam(required = false, defaultValue =
-                                            PaginationConstant.PAGE_SIZE_DEFAULT_VALUE) Integer pageSize,
-                                    @RequestParam(required = false, defaultValue = "1") Integer page) {
-        return questionBankService.filter(status, level, categoryId, criterionId, pageSize, page, keyword, sortType);
+                                    @RequestParam(required = false, defaultValue = "id") String sortBy,
+                                    @RequestParam(required = false,
+                                            defaultValue = PaginationConstant.PAGE_SIZE_DEFAULT_VALUE) Integer pageSize,
+                                    @RequestParam(required = false,
+                                            defaultValue = PaginationConstant.PAGE_DEFAULT_VALUE) Integer page) {
+        return questionBankService.filter(status, level, categoryId, criterionId, pageSize, page, keyword, sortType,
+                sortBy);
     }
 
     @GetMapping("/{id}")

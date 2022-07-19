@@ -22,5 +22,5 @@ public class QuestionCriterion extends BaseEntity {
     private String name;
 
     @ManyToMany(mappedBy = "criteria")
-    private List<QuestionBank> questionBanks;
+    private List<QuestionBank> questions;
 }

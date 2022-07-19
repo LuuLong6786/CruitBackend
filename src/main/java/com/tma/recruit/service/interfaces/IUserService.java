@@ -1,6 +1,5 @@
 package com.tma.recruit.service.interfaces;
 
-
 import com.tma.recruit.model.request.ChangePasswordRequest;
 import com.tma.recruit.model.request.LoginRequest;
 import com.tma.recruit.model.request.ResetPasswordRequest;

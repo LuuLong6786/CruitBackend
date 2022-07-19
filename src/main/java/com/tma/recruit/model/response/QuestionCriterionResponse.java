@@ -22,4 +22,6 @@ public class QuestionCriterionResponse {
     private UserResponse updatedUser;
 
     private String name;
+
+    private long approvedQuantity = 0;
 }

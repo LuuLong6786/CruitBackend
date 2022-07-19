@@ -72,21 +72,21 @@ public class UserService implements IUserService {
     public ResponseEntity<?> create(String token, UserRequest request) {
         validateUsername(request);
 
-        if (request.getEmail() != null && userRepository.existsByEmailIgnoreCaseAndActiveTrue(request.getEmail())) {
+        if (request.getEmail() != null && userRepository.existsByEmailIgnoreCaseAndEnableTrue(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "EMAIL ALREADY EXISTS");
         }
 
-        if (request.getBadgeId() != null && userRepository.existsByBadgeIdIgnoreCaseAndActiveTrue(request.getBadgeId())) {
+        if (request.getBadgeId() != null && userRepository.existsByBadgeIdIgnoreCaseAndEnableTrue(request.getBadgeId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "BADGE ID ALREADY EXISTS");
         }
 
-        if (userRepository.existsByUsernameIgnoreCaseAndActiveTrue(request.getUsername())) {
+        if (userRepository.existsByUsernameIgnoreCaseAndEnableTrue(request.getUsername())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "ACCOUNT ALREADY EXISTS");
         }
 
         User author = null;
         if (token != null) {
-            author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+            author = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
         }
 
@@ -94,7 +94,7 @@ public class UserService implements IUserService {
         if (request.getRoles() != null && request.getRoles().size() > 0) {
             for (RoleRequest roleRequest : request.getRoles()) {
                 if (roleRequest.getId() != null && roleRequest.getId() > 0) {
-                    Role role = roleRepository.findByIdAndActiveTrue(roleRequest.getId())
+                    Role role = roleRepository.findByIdAndEnableTrue(roleRequest.getId())
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
                     if (!role.getName().equals(RoleConstant.ADMIN)
@@ -125,17 +125,17 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> update(String token, Long id, UserRequest request) {
-        User user = userRepository.findByIdAndActiveTrue(id)
+        User user = userRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         List<Role> roles = new ArrayList<>();
         if (request.getRoles() != null && request.getRoles().size() > 0) {
             for (RoleRequest roleRequest : request.getRoles()) {
                 if (roleRequest.getId() != null && roleRequest.getId() > 0) {
-                    Role role = roleRepository.findByIdAndActiveTrue(roleRequest.getId())
+                    Role role = roleRepository.findByIdAndEnableTrue(roleRequest.getId())
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
                     roles.add(role);
                 }
@@ -157,13 +157,13 @@ public class UserService implements IUserService {
     @Override
     public ResponseEntity<?> delete(String token, Long id) {
         try {
-            User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+            User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-            User user = userRepository.findByIdAndActiveTrue(id)
+            User user = userRepository.findByIdAndEnableTrue(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-            user.setActive(false);
+            user.setEnable(false);
             user.setUpdatedDate(new Date());
             user.setUpdatedUser(updater);
             user.setUsername(null);
@@ -178,14 +178,14 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> getAll() {
-        List<User> users = userRepository.findByActiveTrue();
+        List<User> users = userRepository.findByEnableTrue();
 
         return ResponseEntity.ok(userMapper.toDetailResponse(users));
     }
 
     @Override
     public ResponseEntity<?> getById(Long id) {
-        Optional<User> entityOptional = userRepository.findByIdAndActiveTrue(id);
+        Optional<User> entityOptional = userRepository.findByIdAndEnableTrue(id);
         if (!entityOptional.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -195,7 +195,7 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> login(LoginRequest request) {
-        User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(request.getUsername())
+        User user = userRepository.findByUsernameIgnoreCaseAndEnableTrue(request.getUsername())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ACCOUNT NOT EXISTS"));
 
         try {
@@ -220,7 +220,7 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> forgotPassword(String email) {
-        User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(email)
+        User user = userRepository.findByUsernameIgnoreCaseAndEnableTrue(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         String tokenString = UUID.randomUUID().toString();
@@ -234,7 +234,7 @@ public class UserService implements IUserService {
     @Override
     public ResponseEntity<?> resetPassword(ResetPasswordRequest resetPasswordRequest) {
         return null;
-//        User user = userRepository.findByEmailIgnoreCaseAndActiveTrue(resetPasswordRequest.getEmail())
+//        User user = userRepository.findByEmailIgnoreCaseAndEnableTrue(resetPasswordRequest.getEmail())
 //                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 //
 //        Token token = tokenRepository.findByToken(resetPasswordRequest.getToken())
@@ -262,7 +262,7 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> getProfile(String token) {
-        User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User user = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         return ResponseEntity.ok(userMapper.toDetailResponse(user));
@@ -270,7 +270,7 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> changePassword(String token, ChangePasswordRequest changePasswordRequest) {
-        User user = userRepository.findByIdAndActiveTrue(jwtUtils.getUserIdFromJwtToken(token))
+        User user = userRepository.findByIdAndEnableTrue(jwtUtils.getUserIdFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (encoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {

@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    List<Notification> findByReceiversIdContainingAndActiveTrue(Long id);
+    List<Notification> findByReceiversIdContainingAndEnableTrue(Long id);
 
-    List<Notification> findByReceiversIdContainingAndReadFalseAndActiveTrue(Long id);
+    List<Notification> findByReceiversIdContainingAndReadFalseAndEnableTrue(Long id);
 }

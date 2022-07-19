@@ -13,23 +13,21 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-//    Optional<User> findByEmailIgnoreCaseAndActiveTrue(String email);
+    Optional<User> findByUsernameIgnoreCaseAndEnableTrue(String username);
 
-    Optional<User> findByUsernameIgnoreCaseAndActiveTrue(String username);
+    List<User> findByEnableTrue();
 
-    List<User> findByActiveTrue();
+    Optional<User> findByIdAndEnableTrue(Long id);
 
-    Optional<User> findByIdAndActiveTrue(Long id);
+    boolean existsByEmailIgnoreCaseAndEnableTrue(String email);
 
-    boolean existsByEmailIgnoreCaseAndActiveTrue(String email);
+    boolean existsByUsernameIgnoreCaseAndEnableTrue(String username);
 
-    boolean existsByUsernameIgnoreCaseAndActiveTrue(String username);
+    boolean existsByBadgeIdIgnoreCaseAndEnableTrue(String badgeId);
 
-    boolean existsByBadgeIdIgnoreCaseAndActiveTrue(String badgeId);
+    Page<User> findByNameContainingIgnoreCaseAndEnableTrue(String keyword, Pageable paging);
 
-    Page<User> findByNameContainingIgnoreCaseAndActiveTrue(String keyword, Pageable paging);
-
-    Page<User> findByActiveTrue(Pageable paging);
+    Page<User> findByEnableTrue(Pageable paging);
 
     @Query(value = "select users.* from users , user_role, role \n" +
             "where users.id = user_role.user_id and role.id= user_role.role_id and users.active=true \n" +
@@ -41,6 +39,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             nativeQuery = true)
     Page<User> filter(String name, String username, String email, Long id, Pageable paging);
 
-    List<User> findByRolesNameContainingIgnoreCaseAndActiveTrue(String name);
+    List<User> findByRolesNameContainingIgnoreCaseAndEnableTrue(String name);
 
 }

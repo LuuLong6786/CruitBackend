@@ -31,7 +31,6 @@ public class JwtUtils {
                 .setId(userPrincipal.getId().toString())
                 .setSubject(userPrincipal.getUsername())
                 .claim(AUTH, userPrincipal.getAuthorities())
-//                .claim(ROLE_KEY, userPrincipal.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                 .setIssuedAt(currentDate)
                 .setExpiration(new Date((currentDate).getTime() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
@@ -57,7 +56,6 @@ public class JwtUtils {
     }
 
     public boolean isAdmin(String token) {
-//        return getRoleFromToken(token).contains(UserRole.ADMIN.toString());
         return false;
     }
 

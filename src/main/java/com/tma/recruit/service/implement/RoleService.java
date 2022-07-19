@@ -43,15 +43,15 @@ public class RoleService implements IRoleService {
 
     @Override
     public ResponseEntity<?> create(String token, RoleRequest request) {
-        if (roleRepository.existsByNameAndActiveTrue(request.getName())) {
+        if (roleRepository.existsByNameAndEnableTrue(request.getName())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
-        User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User author = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         List<Permission> permissions = new ArrayList<>();
         for (PermissionRequest permissionRequest : request.getPermissions()) {
-            Permission permission = permissionRepository.findByIdAndActiveTrue(permissionRequest.getId())
+            Permission permission = permissionRepository.findByIdAndEnableTrue(permissionRequest.getId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
             permissions.add(permission);
         }
@@ -67,14 +67,14 @@ public class RoleService implements IRoleService {
 
     @Override
     public ResponseEntity<?> update(String token, RoleRequest request, Long id) {
-        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        Role role = roleRepository.findByIdAndActiveTrue(id)
+        Role role = roleRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (request.getName() != null && !role.getName().equals(request.getName())) {
-            if (roleRepository.existsByNameAndActiveTrue(request.getName())) {
+            if (roleRepository.existsByNameAndEnableTrue(request.getName())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT);
             }
         }
@@ -84,7 +84,7 @@ public class RoleService implements IRoleService {
             List<Permission> permissions = new ArrayList<>();
             for (PermissionRequest permissionRequest : request.getPermissions()) {
                 if (permissionRequest.getId() != null && permissionRequest.getId() > 0) {
-                    Permission permission = permissionRepository.findByIdAndActiveTrue(permissionRequest.getId())
+                    Permission permission = permissionRepository.findByIdAndEnableTrue(permissionRequest.getId())
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
                     permissions.add(permission);
                 }
@@ -101,13 +101,13 @@ public class RoleService implements IRoleService {
 
     @Override
     public ResponseEntity<?> delete(String token, Long id) {
-        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        Role role = roleRepository.findByIdAndActiveTrue(id)
+        Role role = roleRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        role.setActive(false);
+        role.setEnable(false);
         role.setName(null);
         role.setUpdatedDate(new Date());
         role.setUpdatedUser(updater);
@@ -118,12 +118,12 @@ public class RoleService implements IRoleService {
 
     @Override
     public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(roleMapper.toResponse(roleRepository.findByActiveTrue()));
+        return ResponseEntity.ok(roleMapper.toResponse(roleRepository.findByEnableTrue()));
     }
 
     @Override
     public ResponseEntity<?> getById(Long id) {
-        Role role = roleRepository.findByIdAndActiveTrue(id)
+        Role role = roleRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         return ResponseEntity.ok(roleMapper.toResponse(role));

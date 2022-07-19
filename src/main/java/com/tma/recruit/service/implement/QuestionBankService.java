@@ -62,16 +62,16 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> create(String token, QuestionBankRequest request) {
-        User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User author = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionCategory questionCategory = questionCategoryRepository
-                .findByIdAndActiveTrue(request.getCategory().getId())
+                .findByIdAndEnableTrue(request.getCategory().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         List<QuestionCriterion> questionCriteria = new ArrayList<>();
         for (QuestionCriterionRequest criterionRequest : request.getCriteria()) {
-            QuestionCriterion criterion = questionCriterionRepository.findByIdAndActiveTrue(criterionRequest.getId())
+            QuestionCriterion criterion = questionCriterionRepository.findByIdAndEnableTrue(criterionRequest.getId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
             questionCriteria.add(criterion);
         }
@@ -89,10 +89,10 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> update(String token, QuestionBankRequest request, Long id) {
-        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
+        QuestionBank questionBank = questionBankRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         questionBankMapper.partialUpdate(questionBank, request);
@@ -102,7 +102,7 @@ public class QuestionBankService implements IQuestionBankService {
             for (QuestionCriterionRequest questionCriterionRequest : request.getCriteria()) {
                 if (questionCriterionRequest.getId() != null && questionCriterionRequest.getId() > 0) {
                     QuestionCriterion criterion = questionCriterionRepository
-                            .findByIdAndActiveTrue(questionCriterionRequest.getId())
+                            .findByIdAndEnableTrue(questionCriterionRequest.getId())
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
                     criteria.add(criterion);
                 }
@@ -111,7 +111,7 @@ public class QuestionBankService implements IQuestionBankService {
         }
         if (request.getCategory() != null && request.getCategory().getId() > 0) {
             QuestionCategory questionCategory = questionCategoryRepository
-                    .findByIdAndActiveTrue(request.getCategory().getId())
+                    .findByIdAndEnableTrue(request.getCategory().getId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
             questionBank.setCategory(questionCategory);
         }
@@ -126,15 +126,15 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> delete(String token, Long id) {
-        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
+        QuestionBank questionBank = questionBankRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         questionBank.setUpdatedDate(new Date());
         questionBank.setUpdatedUser(updater);
-        questionBank.setActive(false);
+        questionBank.setEnable(false);
         questionBankRepository.save(questionBank);
 
         return ResponseEntity.ok(HttpStatus.OK);
@@ -142,19 +142,19 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(questionBankMapper.toResponse(questionBankRepository.findByActiveTrue()));
+        return ResponseEntity.ok(questionBankMapper.toResponse(questionBankRepository.findByEnableTrue()));
     }
 
     @Override
     public ResponseEntity<?> getApprovedQuestion() {
-        List<QuestionBank> questionBanks = questionBankRepository.findByActiveTrue();
+        List<QuestionBank> questionBanks = questionBankRepository.findByEnableTrue();
 
         return ResponseEntity.ok(questionBankMapper.toResponse(questionBanks));
     }
 
     @Override
     public ResponseEntity<?> getById(Long id) {
-        QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
+        QuestionBank questionBank = questionBankRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         return ResponseEntity.ok(questionBankMapper.toResponse(questionBank));
@@ -162,10 +162,10 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> approve(String token, Long id) {
-        User approver = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User approver = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
+        QuestionBank questionBank = questionBankRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         questionBank.setApprover(approver);
         questionBank.setApprovedDate(new Date());
@@ -177,10 +177,10 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> reject(String token, Long id) {
-        User approver = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User approver = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
+        QuestionBank questionBank = questionBankRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         questionBank.setApprover(approver);
         questionBank.setApprovedDate(new Date());
@@ -192,9 +192,9 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> filter(QuestionStatus status, QuestionLevel level, Long categoryId, Long criterionId,
-                                    Integer pageSize, Integer page, String keyword, SortType orderBy) {
+                                    Integer pageSize, Integer page, String keyword, SortType orderBy, String sortBy) {
         Pageable paging = PageRequest.of(page - 1, pageSize,
-                SortType.DESC.equals(orderBy) ? Sort.by("id").descending() : Sort.by("id").ascending());
+                SortType.DESC.equals(orderBy) ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
 
         Page<QuestionBank> questionBanks = questionBankRepository
                 .filter(level != null ? level.toString() : null, categoryId, criterionId, paging, keyword,

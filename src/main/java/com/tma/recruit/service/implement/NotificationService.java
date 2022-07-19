@@ -51,7 +51,7 @@ public class NotificationService implements INotificationService {
     @Override
     public ResponseEntity<?> test(User user) {
 
-        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndActiveTrue(RoleConstant.ADMIN);
+        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndEnableTrue(RoleConstant.ADMIN);
 
         UserNotificationResponse response = new UserNotificationResponse();
         response.setContent("User " + user.getUsername() + " has been created");
@@ -67,7 +67,7 @@ public class NotificationService implements INotificationService {
 
     @Override
     public ResponseEntity<?> notifyCreationToAdmin(User user) {
-        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndActiveTrue(RoleConstant.ADMIN);
+        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndEnableTrue(RoleConstant.ADMIN);
 
         Notification notification = new Notification();
         notification.setContent("User " + user.getName() + " has been created");
@@ -91,7 +91,7 @@ public class NotificationService implements INotificationService {
     @Override
     public ResponseEntity<?> notifyCreationToAdmin(QuestionBank questionBank) {
         User user = questionBank.getUpdatedUser();
-        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndActiveTrue(RoleConstant.ADMIN);
+        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndEnableTrue(RoleConstant.ADMIN);
 
         Notification notification = new Notification();
         notification.setContent("User " + user.getName() + " just created the question");
@@ -115,7 +115,7 @@ public class NotificationService implements INotificationService {
 
     @Override
     public ResponseEntity<?> notifyUpdateToAdmin(User user) {
-        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndActiveTrue(RoleConstant.ADMIN);
+        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndEnableTrue(RoleConstant.ADMIN);
 
         Notification notification = new Notification();
         notification.setContent("User " + user.getName() + " has been updated");
@@ -139,7 +139,7 @@ public class NotificationService implements INotificationService {
     @Override
     public ResponseEntity<?> notifyUpdateToAdmin(QuestionBank questionBank) {
         User user = questionBank.getUpdatedUser();
-        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndActiveTrue(RoleConstant.ADMIN);
+        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndEnableTrue(RoleConstant.ADMIN);
 
         Notification notification = new Notification();
         notification.setContent("User " + user.getName() + " just edited the question");
@@ -164,10 +164,10 @@ public class NotificationService implements INotificationService {
     @Override
     public ResponseEntity<?> getAllNotification(String token) {
         Optional<User> user = userRepository
-                .findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token));
+                .findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token));
         if (user.isPresent()) {
             List<Notification> notifications = notificationRepository
-                    .findByReceiversIdContainingAndActiveTrue(user.get().getId());
+                    .findByReceiversIdContainingAndEnableTrue(user.get().getId());
             return ResponseEntity.ok(notificationMapper.toResponse(notifications));
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -177,10 +177,10 @@ public class NotificationService implements INotificationService {
     @Override
     public ResponseEntity<?> getUnreadNotification(String token) {
         Optional<User> user = userRepository
-                .findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token));
+                .findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token));
         if (user.isPresent()) {
             List<Notification> notifications = notificationRepository
-                    .findByReceiversIdContainingAndReadFalseAndActiveTrue(user.get().getId());
+                    .findByReceiversIdContainingAndReadFalseAndEnableTrue(user.get().getId());
             return ResponseEntity.ok(notificationMapper.toResponse(notifications));
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);

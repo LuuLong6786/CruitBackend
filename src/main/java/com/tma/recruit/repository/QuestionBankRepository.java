@@ -13,16 +13,17 @@ import java.util.Optional;
 @Repository
 public interface QuestionBankRepository extends JpaRepository<QuestionBank, Long> {
 
-    Optional<QuestionBank> findByIdAndActiveTrue(Long id);
+    Optional<QuestionBank> findByIdAndEnableTrue(Long id);
 
-    List<QuestionBank> findByActiveTrue();
+    List<QuestionBank> findByEnableTrue();
 
     @Query(value = "select question_bank.* " +
             "from question_bank, " +
             "question_category, " +
             "question_criterion, " +
             "question_bank_criteria  " +
-            "where question_bank.category_id = question_category.id " +
+            "where " +
+            "question_bank.category_id = question_category.id " +
             "and question_bank_criteria.question_id = question_bank.id " +
             "and question_bank_criteria.criteria_id=question_criterion.id " +
             "and (question_bank.level = :level or :level is null) " +
