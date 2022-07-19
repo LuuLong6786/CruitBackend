@@ -35,14 +35,21 @@ public class QuestionCategoryService implements IQuestionCategoryService {
 
     @Override
     public ResponseEntity<?> create(String token, QuestionCategoryRequest request) {
-        if (questionCategoryRepository.existsByNameAndActiveTrue(request.getName())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
-        }
         User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        QuestionCategory questionCategory = questionCategoryMapper.toEntity(request);
-        questionCategory.setAuthor(author);
+        QuestionCategory questionCategory;
+        if (questionCategoryRepository.existsByNameIgnoreCaseAndActiveTrue(request.getName())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        } else if (questionCategoryRepository.existsByNameIgnoreCase(request.getName())) {
+            questionCategory = questionCategoryRepository.findByNameIgnoreCase(request.getName())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            questionCategory.setActive(true);
+            questionCategory.setUpdatedDate(new Date());
+        } else {
+            questionCategory = questionCategoryMapper.toEntity(request);
+            questionCategory.setAuthor(author);
+        }
         questionCategory.setUpdatedUser(author);
         questionCategory = questionCategoryRepository.save(questionCategory);
 
@@ -58,7 +65,7 @@ public class QuestionCategoryService implements IQuestionCategoryService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (request.getName() != null && !questionCategory.getName().equals(request.getName())) {
-            if (questionCategoryRepository.existsByNameAndActiveTrue(request.getName())) {
+            if (questionCategoryRepository.existsByNameIgnoreCaseAndActiveTrue(request.getName())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT);
             }
         }
@@ -81,7 +88,6 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         questionCategory.setUpdatedDate(new Date());
         questionCategory.setUpdatedUser(updater);
         questionCategory.setActive(false);
-        questionCategory.setName(null);
         questionCategoryRepository.save(questionCategory);
 
         return ResponseEntity.ok(HttpStatus.OK);

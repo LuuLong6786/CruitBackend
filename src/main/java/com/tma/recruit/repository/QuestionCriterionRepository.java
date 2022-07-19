@@ -10,9 +10,13 @@ import java.util.Optional;
 @Repository
 public interface QuestionCriterionRepository extends JpaRepository<QuestionCriterion, Long> {
 
-    boolean existsByNameAndActiveTrue(String criterion);
+    boolean existsByNameIgnoreCaseAndActiveTrue(String criterion);
 
     Optional<QuestionCriterion> findByIdAndActiveTrue(Long id);
 
     List<QuestionCriterion> findByActiveTrue();
+
+    boolean existsByNameIgnoreCase(String name);
+
+    Optional<QuestionCriterion> findByNameIgnoreCase(String name);
 }

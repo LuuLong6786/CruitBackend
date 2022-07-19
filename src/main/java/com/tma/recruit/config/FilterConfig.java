@@ -18,12 +18,11 @@ import java.util.List;
 public class FilterConfig implements Filter {
 
     private final Logger log = LoggerFactory.getLogger(FilterConfig.class);
+    private final List<String> allowedOrigins = Arrays.asList("http://localhost:3000");
 
     public FilterConfig() {
         log.info("SimpleCORSFilter init");
     }
-
-    private final List<String> allowedOrigins = Arrays.asList("http://localhost:3000");
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {

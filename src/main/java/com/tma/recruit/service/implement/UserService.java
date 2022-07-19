@@ -6,7 +6,10 @@ import com.tma.recruit.model.entity.User;
 import com.tma.recruit.model.enums.TokenType;
 import com.tma.recruit.model.mapper.UserMapper;
 import com.tma.recruit.model.request.*;
-import com.tma.recruit.model.response.*;
+import com.tma.recruit.model.response.LoginResponse;
+import com.tma.recruit.model.response.ModelPage;
+import com.tma.recruit.model.response.Pagination;
+import com.tma.recruit.model.response.UserDetailResponse;
 import com.tma.recruit.repository.RoleRepository;
 import com.tma.recruit.repository.TokenRepository;
 import com.tma.recruit.repository.UserRepository;
@@ -309,8 +312,8 @@ public class UserService implements IUserService {
         return ResponseEntity.ok(modelPage);
     }
 
-    public void validateUsername(UserRequest request){
-        if (request.getUsername().replaceAll("\\s", "").length()<request.getUsername().length()){
+    public void validateUsername(UserRequest request) {
+        if (request.getUsername().replaceAll("\\s", "").length() < request.getUsername().length()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }

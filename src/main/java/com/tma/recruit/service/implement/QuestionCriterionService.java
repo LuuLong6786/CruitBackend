@@ -36,13 +36,20 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
     @Override
     public ResponseEntity<?> create(String token, QuestionCriterionRequest request) {
         User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        if (questionCriterionRepository.existsByNameAndActiveTrue(request.getName())) {
+        QuestionCriterion questionCriterion;
+        if (questionCriterionRepository.existsByNameIgnoreCaseAndActiveTrue(request.getName())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
+        } else if (questionCriterionRepository.existsByNameIgnoreCase(request.getName())) {
+            questionCriterion = questionCriterionRepository.findByNameIgnoreCase(request.getName())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            questionCriterion.setActive(true);
+            questionCriterion.setUpdatedDate(new Date());
+        } else {
+            questionCriterion = questionCriterionMapper.toEntity(request);
+            questionCriterion.setAuthor(author);
         }
-        QuestionCriterion questionCriterion = questionCriterionMapper.toEntity(request);
-        questionCriterion.setAuthor(author);
         questionCriterion.setUpdatedUser(author);
         questionCriterion = questionCriterionRepository.save(questionCriterion);
 
@@ -58,7 +65,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (request.getName() != null && !questionCriterion.getName().equals(request.getName())) {
-            if (questionCriterionRepository.existsByNameAndActiveTrue(request.getName())) {
+            if (questionCriterionRepository.existsByNameIgnoreCaseAndActiveTrue(request.getName())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT);
             }
         }
@@ -81,7 +88,6 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
         questionCriterion.setUpdatedDate(new Date());
         questionCriterion.setUpdatedUser(updater);
         questionCriterion.setActive(false);
-        questionCriterion.setName(null);
         questionCriterionRepository.save(questionCriterion);
 
         return ResponseEntity.ok(HttpStatus.OK);
