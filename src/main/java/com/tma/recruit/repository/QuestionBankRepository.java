@@ -31,7 +31,7 @@ public interface QuestionBankRepository extends JpaRepository<QuestionBank, Long
             "and (question_bank.content like CONCAT('%',:keyword,'%') or :keyword is null) " +
             "and (question_criterion.id= :criterionId or :criterionId is null) " +
             "and (question_category.id= :categoryId or :categoryId is null) " +
-            "and question_bank.active=true " +
+            "and question_bank.enable=true " +
             "group by question_bank.id ",
             nativeQuery = true)
     Page<QuestionBank> filter(String level, Long categoryId, Long criterionId, Pageable paging, String keyword,

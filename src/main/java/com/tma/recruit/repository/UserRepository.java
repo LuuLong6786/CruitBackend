@@ -30,7 +30,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findByEnableTrue(Pageable paging);
 
     @Query(value = "select users.* from users , user_role, role \n" +
-            "where users.id = user_role.user_id and role.id= user_role.role_id and users.active=true \n" +
+            "where users.id = user_role.user_id and role.id= user_role.role_id and users.enable=true \n" +
             "and (users.name like CONCAT('%',:name,'%') or :name is null) \n" +
             "and (users.username like CONCAT('%',:username,'%') or :username is null) \n" +
             "and (users.email like CONCAT('%',:email,'%') or :email is null) \n" +
