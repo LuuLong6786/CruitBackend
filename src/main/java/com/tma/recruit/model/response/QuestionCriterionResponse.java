@@ -24,4 +24,6 @@ public class QuestionCriterionResponse {
     private String name;
 
     private long approvedQuantity = 0;
+
+    private Boolean enable = true;
 }

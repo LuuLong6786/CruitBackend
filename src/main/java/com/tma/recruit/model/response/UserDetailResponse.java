@@ -31,4 +31,6 @@ public class UserDetailResponse {
     private UserResponse author;
 
     private UserResponse updatedUser;
+
+    private Boolean enable = true;
 }
