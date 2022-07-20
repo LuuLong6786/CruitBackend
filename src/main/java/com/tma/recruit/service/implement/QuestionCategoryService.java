@@ -25,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Transactional
@@ -47,22 +48,22 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         User author = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        QuestionCategory questionCategory;
+        QuestionCategory category;
         if (questionCategoryRepository.existsByNameIgnoreCaseAndEnableTrue(request.getName())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         } else if (questionCategoryRepository.existsByNameIgnoreCase(request.getName())) {
-            questionCategory = questionCategoryRepository.findByNameIgnoreCase(request.getName())
+            category = questionCategoryRepository.findByNameIgnoreCase(request.getName())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-            questionCategory.setEnable(true);
-            questionCategory.setUpdatedDate(new Date());
+            category.setEnable(true);
+            category.setUpdatedDate(new Date());
         } else {
-            questionCategory = questionCategoryMapper.toEntity(request);
-            questionCategory.setAuthor(author);
+            category = questionCategoryMapper.toEntity(request);
+            category.setAuthor(author);
         }
-        questionCategory.setUpdatedUser(author);
-        questionCategory = questionCategoryRepository.save(questionCategory);
+        category.setUpdatedUser(author);
+        category = questionCategoryRepository.save(category);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(questionCategoryMapper.toResponse(questionCategory));
+        return ResponseEntity.status(HttpStatus.CREATED).body(questionCategoryMapper.toResponse(category));
     }
 
     @Override
@@ -70,21 +71,21 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionCategory questionCategory = questionCategoryRepository.findByIdAndEnableTrue(id)
+        QuestionCategory category = questionCategoryRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (request.getName() != null && !questionCategory.getName().equals(request.getName())) {
+        if (request.getName() != null && !category.getName().equals(request.getName())) {
             if (questionCategoryRepository.existsByNameIgnoreCaseAndEnableTrue(request.getName())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT);
             }
         }
 
-        questionCategoryMapper.partialUpdate(questionCategory, request);
-        questionCategory.setUpdatedUser(updater);
-        questionCategory.setUpdatedDate(new Date());
-        questionCategory = questionCategoryRepository.save(questionCategory);
+        questionCategoryMapper.partialUpdate(category, request);
+        category.setUpdatedUser(updater);
+        category.setUpdatedDate(new Date());
+        category = questionCategoryRepository.save(category);
 
-        return ResponseEntity.ok(questionCategoryMapper.toResponse(questionCategory));
+        return ResponseEntity.ok(questionCategoryMapper.toResponse(category));
     }
 
     @Override
@@ -92,35 +93,38 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionCategory questionCategory = questionCategoryRepository.findByIdAndEnableTrue(id)
+        QuestionCategory category = questionCategoryRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        questionCategory.setUpdatedDate(new Date());
-        questionCategory.setUpdatedUser(updater);
-        questionCategory.setEnable(false);
-        questionCategoryRepository.save(questionCategory);
+        category.setUpdatedDate(new Date());
+        category.setUpdatedUser(updater);
+        category.setEnable(false);
+        questionCategoryRepository.save(category);
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<?> getAll(Boolean showDisabled) {
-        return ResponseEntity.ok(questionCategoryMapper.toResponse(showDisabled ?
+        List<QuestionCategory> categories = showDisabled ?
                 questionCategoryRepository.findAll() :
-                questionCategoryRepository.findByEnableTrue()));
+                questionCategoryRepository.findByEnableTrue();
+
+        List<QuestionCategoryResponse> responses = questionCategoryMapper.toResponse(categories);
+        for (int i = 0; i < categories.size(); i++) {
+            responses.get(i).setApprovedQuantity(getApprovedQuantity(categories.get(i)));
+        }
+
+        return ResponseEntity.ok(responses);
     }
 
     @Override
     public ResponseEntity<?> getById(Long id) {
-        QuestionCategory questionCategory = questionCategoryRepository.findByIdAndEnableTrue(id)
+        QuestionCategory category = questionCategoryRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        long approvedQuantity = questionCategory.getQuestions()
-                .stream()
-                .filter(q -> q.getEnable() && q.getStatus().equals(QuestionStatus.APPROVED))
-                .count();
+        QuestionCategoryResponse response = questionCategoryMapper.toResponse(category);
+        response.setApprovedQuantity(getApprovedQuantity(category));
 
-        QuestionCategoryResponse response = questionCategoryMapper.toResponse(questionCategory);
-        response.setApprovedQuantity(approvedQuantity);
         return ResponseEntity.ok(response);
     }
 
@@ -136,8 +140,12 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         Pagination pagination = new Pagination(pageSize, page, categories.getTotalPages(),
                 categories.getNumberOfElements());
 
-        ModelPage<QuestionCategoryResponse> modelPage = new ModelPage<>(
-                questionCategoryMapper.toResponse(categories.getContent()), pagination);
+        List<QuestionCategoryResponse> categoryResponses = questionCategoryMapper.toResponse(categories.getContent());
+        for (int i = 0; i < categories.getContent().size(); i++) {
+            categoryResponses.get(i).setApprovedQuantity(getApprovedQuantity(categories.getContent().get(i)));
+        }
+
+        ModelPage<QuestionCategoryResponse> modelPage = new ModelPage<>(categoryResponses, pagination);
 
         return ResponseEntity.ok(modelPage);
     }
@@ -147,13 +155,20 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionCategory questionCategory = questionCategoryRepository.findById(id)
+        QuestionCategory category = questionCategoryRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        questionCategory.setUpdatedDate(new Date());
-        questionCategory.setUpdatedUser(updater);
-        questionCategory.setEnable(true);
-        questionCategoryRepository.save(questionCategory);
+        category.setUpdatedDate(new Date());
+        category.setUpdatedUser(updater);
+        category.setEnable(true);
+        questionCategoryRepository.save(category);
 
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    private long getApprovedQuantity(QuestionCategory questionCategory) {
+        return questionCategory.getQuestions()
+                .stream()
+                .filter(q -> q.getEnable() && q.getStatus().equals(QuestionStatus.APPROVED))
+                .count();
     }
 }

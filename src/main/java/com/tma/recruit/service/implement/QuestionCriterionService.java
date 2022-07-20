@@ -1,5 +1,6 @@
 package com.tma.recruit.service.implement;
 
+import com.tma.recruit.model.entity.QuestionCategory;
 import com.tma.recruit.model.entity.QuestionCriterion;
 import com.tma.recruit.model.entity.User;
 import com.tma.recruit.model.enums.QuestionStatus;
@@ -25,6 +26,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Transactional
@@ -47,22 +49,22 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
         User author = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        QuestionCriterion questionCriterion;
+        QuestionCriterion criterion;
         if (questionCriterionRepository.existsByNameIgnoreCaseAndEnableTrue(request.getName())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         } else if (questionCriterionRepository.existsByNameIgnoreCase(request.getName())) {
-            questionCriterion = questionCriterionRepository.findByNameIgnoreCase(request.getName())
+            criterion = questionCriterionRepository.findByNameIgnoreCase(request.getName())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-            questionCriterion.setEnable(true);
-            questionCriterion.setUpdatedDate(new Date());
+            criterion.setEnable(true);
+            criterion.setUpdatedDate(new Date());
         } else {
-            questionCriterion = questionCriterionMapper.toEntity(request);
-            questionCriterion.setAuthor(author);
+            criterion = questionCriterionMapper.toEntity(request);
+            criterion.setAuthor(author);
         }
-        questionCriterion.setUpdatedUser(author);
-        questionCriterion = questionCriterionRepository.save(questionCriterion);
+        criterion.setUpdatedUser(author);
+        criterion = questionCriterionRepository.save(criterion);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(questionCriterionMapper.toResponse(questionCriterion));
+        return ResponseEntity.status(HttpStatus.CREATED).body(questionCriterionMapper.toResponse(criterion));
     }
 
     @Override
@@ -70,21 +72,21 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
         User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionCriterion questionCriterion = questionCriterionRepository.findByIdAndEnableTrue(id)
+        QuestionCriterion criterion = questionCriterionRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (request.getName() != null && !questionCriterion.getName().equals(request.getName())) {
+        if (request.getName() != null && !criterion.getName().equals(request.getName())) {
             if (questionCriterionRepository.existsByNameIgnoreCaseAndEnableTrue(request.getName())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT);
             }
         }
 
-        questionCriterionMapper.partialUpdate(questionCriterion, request);
-        questionCriterion.setUpdatedUser(updater);
-        questionCriterion.setUpdatedDate(new Date());
-        questionCriterion = questionCriterionRepository.save(questionCriterion);
+        questionCriterionMapper.partialUpdate(criterion, request);
+        criterion.setUpdatedUser(updater);
+        criterion.setUpdatedDate(new Date());
+        criterion = questionCriterionRepository.save(criterion);
 
-        return ResponseEntity.ok(questionCriterionMapper.toResponse(questionCriterion));
+        return ResponseEntity.ok(questionCriterionMapper.toResponse(criterion));
     }
 
     @Override
@@ -92,12 +94,12 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
         User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionCriterion questionCriterion = questionCriterionRepository.findByIdAndEnableTrue(id)
+        QuestionCriterion criterion = questionCriterionRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        questionCriterion.setUpdatedDate(new Date());
-        questionCriterion.setUpdatedUser(updater);
-        questionCriterion.setEnable(false);
-        questionCriterionRepository.save(questionCriterion);
+        criterion.setUpdatedDate(new Date());
+        criterion.setUpdatedUser(updater);
+        criterion.setEnable(false);
+        questionCriterionRepository.save(criterion);
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -111,16 +113,12 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
 
     @Override
     public ResponseEntity<?> getById(Long id) {
-        QuestionCriterion questionCriterion = questionCriterionRepository.findByIdAndEnableTrue(id)
+        QuestionCriterion criterion = questionCriterionRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        long approvedQuantity = questionCriterion.getQuestions()
-                .stream()
-                .filter(q -> q.getEnable() && q.getStatus().equals(QuestionStatus.APPROVED))
-                .count();
+        QuestionCriterionResponse response = questionCriterionMapper.toResponse(criterion);
+        response.setApprovedQuantity(getApprovedQuantity(criterion));
 
-        QuestionCriterionResponse response = questionCriterionMapper.toResponse(questionCriterion);
-        response.setApprovedQuantity(approvedQuantity);
         return ResponseEntity.ok(response);
     }
 
@@ -130,14 +128,19 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
         Pageable paging = PageRequest.of(page - 1, pageSize,
                 SortType.DESC.equals(sortType) ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
 
-        Page<QuestionCriterion> questionCriteria = questionCriterionRepository
+        Page<QuestionCriterion> criteria = questionCriterionRepository
                 .filter(keyword, enable, paging);
 
-        Pagination pagination = new Pagination(pageSize, page, questionCriteria.getTotalPages(),
-                questionCriteria.getNumberOfElements());
+        Pagination pagination = new Pagination(pageSize, page, criteria.getTotalPages(),
+                criteria.getNumberOfElements());
+
+        List<QuestionCriterionResponse> responses = questionCriterionMapper.toResponse(criteria.getContent());
+        for (int i = 0; i < criteria.getContent().size(); i++) {
+            responses.get(i).setApprovedQuantity(getApprovedQuantity(criteria.getContent().get(i)));
+        }
 
         ModelPage<QuestionCriterionResponse> modelPage = new ModelPage<>(
-                questionCriterionMapper.toResponse(questionCriteria.getContent()), pagination);
+                questionCriterionMapper.toResponse(criteria.getContent()), pagination);
 
         return ResponseEntity.ok(modelPage);
     }
@@ -147,13 +150,20 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
         User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionCriterion questionCriterion = questionCriterionRepository.findById(id)
+        QuestionCriterion criterion = questionCriterionRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        questionCriterion.setUpdatedDate(new Date());
-        questionCriterion.setUpdatedUser(updater);
-        questionCriterion.setEnable(true);
-        questionCriterionRepository.save(questionCriterion);
+        criterion.setUpdatedDate(new Date());
+        criterion.setUpdatedUser(updater);
+        criterion.setEnable(true);
+        questionCriterionRepository.save(criterion);
 
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    private long getApprovedQuantity(QuestionCriterion criterion) {
+        return criterion.getQuestions()
+                .stream()
+                .filter(q -> q.getEnable() && q.getStatus().equals(QuestionStatus.APPROVED))
+                .count();
     }
 }
