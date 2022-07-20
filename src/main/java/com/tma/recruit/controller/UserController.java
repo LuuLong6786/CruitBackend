@@ -25,26 +25,30 @@ public class UserController {
     @Autowired
     private INotificationService notificationService;
 
+    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
     @GetMapping
     public ResponseEntity<?> getAll(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
         return userService.getAll();
     }
 
+    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
     @GetMapping("/filter")
     public ResponseEntity<?> filter(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                    @RequestParam(required = false, defaultValue = "true") Boolean enable,
                                     @RequestParam(required = false) String name,
                                     @RequestParam(required = false) String username,
                                     @RequestParam(required = false) String email,
                                     @RequestParam(required = false) Long roleId,
                                     @RequestParam(required = false, defaultValue = "5") Integer pageSize,
                                     @RequestParam(required = false, defaultValue = "1") Integer page) {
-        return userService.filter(name, username, email, roleId, pageSize, page);
+        return userService.filter(enable, name, username, email, roleId, pageSize, page);
     }
 
+    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                      @PathVariable Long id) {
-        return userService.getById(id);
+        return userService.getById(token, id);
     }
 
     @PostMapping("/sign-up")
@@ -71,6 +75,13 @@ public class UserController {
     public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @PathVariable Long id) {
         return userService.delete(token, id);
+    }
+
+    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
+    @GetMapping("/enable/{id}")
+    public ResponseEntity<?> enableUser(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                        @PathVariable Long id) {
+        return userService.enable(token, id);
     }
 
     @PostMapping("/login")

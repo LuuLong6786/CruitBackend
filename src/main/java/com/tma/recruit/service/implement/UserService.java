@@ -129,17 +129,21 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         List<Role> roles = new ArrayList<>();
-        if (request.getRoles() != null && request.getRoles().size() > 0) {
-            for (RoleRequest roleRequest : request.getRoles()) {
-                if (roleRequest.getId() != null && roleRequest.getId() > 0) {
-                    Role role = roleRepository.findByIdAndEnableTrue(roleRequest.getId())
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-                    roles.add(role);
+        if (userRepository.checkRole(RoleConstant.ADMIN, updater.getId())){
+            if (request.getRoles() != null && request.getRoles().size() > 0) {
+                for (RoleRequest roleRequest : request.getRoles()) {
+                    if (roleRequest.getId() != null && roleRequest.getId() > 0) {
+                        Role role = roleRepository.findByIdAndEnableTrue(roleRequest.getId())
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                        roles.add(role);
+                    }
                 }
             }
+        }else if (!user.getId().equals(updater.getId())){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
         userMapper.partialUpdate(user, request);
@@ -184,8 +188,14 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ResponseEntity<?> getById(Long id) {
-        Optional<User> entityOptional = userRepository.findByIdAndEnableTrue(id);
+    public ResponseEntity<?> getById(String token, Long id) {
+        Optional<User> entityOptional;
+        if (jwtUtils.isAdmin(token)){
+            entityOptional = userRepository.findById(id);
+        }else {
+            entityOptional = userRepository.findByIdAndEnableTrue(id);
+        }
+
         if (!entityOptional.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -283,7 +293,9 @@ public class UserService implements IUserService {
 
 
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), changePasswordRequest.getNewPassword()));
+                    new UsernamePasswordAuthenticationToken(
+                            user.getUsername(),
+                            changePasswordRequest.getNewPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
             Token tokenEntity = new Token(jwt, TokenType.ACCESS_TOKEN, user);
@@ -300,16 +312,33 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ResponseEntity<?> filter(String name, String username, String email, Long roleId, Integer pageSize, Integer page) {
+    public ResponseEntity<?> filter(Boolean enable, String name, String username, String email, Long roleId,
+                                    Integer pageSize, Integer page) {
         Pageable paging = PageRequest.of(page - 1, pageSize);
 
-        Page<User> users = userRepository.filter(name, username, email, roleId, paging);
+        Page<User> users = userRepository.filter(enable, name, username, email, roleId, paging);
 
         Pagination pagination = new Pagination(pageSize, page, users.getTotalPages(), users.getNumberOfElements());
 
-        ModelPage<UserDetailResponse> modelPage = new ModelPage<>(userMapper.toDetailResponse(users.getContent()), pagination);
+        ModelPage<UserDetailResponse> modelPage = new ModelPage<>(
+                userMapper.toDetailResponse(users.getContent()), pagination);
 
         return ResponseEntity.ok(modelPage);
+    }
+
+    @Override
+    public ResponseEntity<?> enable(String token, Long id) {
+        User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        user.setUpdatedDate(new Date());
+        user.setUpdatedUser(updater);
+        user.setEnable(true);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     public void validateUsername(UserRequest request) {

@@ -34,6 +34,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -153,11 +154,18 @@ public class QuestionBankService implements IQuestionBankService {
     }
 
     @Override
-    public ResponseEntity<?> getById(Long id) {
-        QuestionBank questionBank = questionBankRepository.findByIdAndEnableTrue(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public ResponseEntity<?> getById(String token, Long id) {
+        Optional<QuestionBank> question;
+        if (jwtUtils.isAdmin(token)){
+            question = questionBankRepository.findById(id);
+        }else {
+            question = questionBankRepository.findByIdAndEnableTrue(id);
+        }
 
-        return ResponseEntity.ok(questionBankMapper.toResponse(questionBank));
+        if (!question.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(questionBankMapper.toResponse(question.get()));
     }
 
     @Override
@@ -191,8 +199,14 @@ public class QuestionBankService implements IQuestionBankService {
     }
 
     @Override
-    public ResponseEntity<?> filter(QuestionStatus status, QuestionLevel level, Long categoryId, Long criterionId,
+    public ResponseEntity<?> filter(String token, QuestionStatus status, QuestionLevel level, Long categoryId, Long criterionId,
                                     Integer pageSize, Integer page, String keyword, SortType orderBy, String sortBy) {
+        if (!QuestionStatus.APPROVED.equals(status)){
+            if (!jwtUtils.isAdmin(token)){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+        }
+
         Pageable paging = PageRequest.of(page - 1, pageSize,
                 SortType.DESC.equals(orderBy) ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
 

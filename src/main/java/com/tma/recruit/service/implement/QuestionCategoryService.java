@@ -1,5 +1,6 @@
 package com.tma.recruit.service.implement;
 
+import com.tma.recruit.model.entity.QuestionBank;
 import com.tma.recruit.model.entity.QuestionCategory;
 import com.tma.recruit.model.entity.User;
 import com.tma.recruit.model.enums.QuestionStatus;
@@ -26,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -118,12 +120,20 @@ public class QuestionCategoryService implements IQuestionCategoryService {
     }
 
     @Override
-    public ResponseEntity<?> getById(Long id) {
-        QuestionCategory category = questionCategoryRepository.findByIdAndEnableTrue(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public ResponseEntity<?> getById(String token, Long id) {
+        Optional<QuestionCategory> category;
+        if (jwtUtils.isAdmin(token)){
+            category = questionCategoryRepository.findById(id);
+        }else {
+            category = questionCategoryRepository.findByIdAndEnableTrue(id);
+        }
 
-        QuestionCategoryResponse response = questionCategoryMapper.toResponse(category);
-        response.setApprovedQuantity(getApprovedQuantity(category));
+        if (!category.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        QuestionCategoryResponse response = questionCategoryMapper.toResponse(category.get());
+        response.setApprovedQuantity(getApprovedQuantity(category.get()));
 
         return ResponseEntity.ok(response);
     }

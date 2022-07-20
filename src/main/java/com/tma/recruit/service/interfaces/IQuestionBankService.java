@@ -18,12 +18,12 @@ public interface IQuestionBankService {
 
     ResponseEntity<?> getApprovedQuestion();
 
-    ResponseEntity<?> getById(Long id);
+    ResponseEntity<?> getById(String token, Long id);
 
     ResponseEntity<?> approve(String token, Long id);
 
     ResponseEntity<?> reject(String token, Long id);
 
-    ResponseEntity<?> filter(QuestionStatus status, QuestionLevel level, Long categoryId, Long criterionId,
+    ResponseEntity<?> filter(String token, QuestionStatus status, QuestionLevel level, Long categoryId, Long criterionId,
                              Integer pageSize, Integer page, String keyword, SortType orderBy, String sortBy);
 }

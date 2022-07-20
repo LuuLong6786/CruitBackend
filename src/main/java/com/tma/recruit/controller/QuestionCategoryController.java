@@ -63,6 +63,6 @@ public class QuestionCategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                      @PathVariable Long id) {
-        return questionCategoryService.getById(id);
+        return questionCategoryService.getById(token, id);
     }
 }

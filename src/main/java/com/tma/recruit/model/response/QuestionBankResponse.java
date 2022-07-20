@@ -39,4 +39,6 @@ public class QuestionBankResponse {
     private QuestionStatus status;
 
     private List<QuestionCriterionResponse> criteria;
+
+    private Boolean enable = true;
 }

@@ -1,6 +1,7 @@
 package com.tma.recruit.security.jwt;
 
 import com.tma.recruit.security.service.UserDetailsImpl;
+import com.tma.recruit.util.RoleConstant;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtils {
@@ -43,19 +44,23 @@ public class JwtUtils {
     }
 
     public List<String> getRoleFromToken(String token) {
-
-        Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody();
-        List<String> roles = (List<String>) claims.get("authorities");
+        List<LinkedHashMap<String,String>> claims = (List<LinkedHashMap<String, String>>) Jwts
+                .parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(parseJwtString(token))
+                .getBody()
+                .get(AUTH);
+        claims =  claims.stream().filter(role -> role.get("authority").startsWith("ROLE_")).collect(Collectors.toList());
+        List<String> roles=new ArrayList<>();
+        claims.forEach(claim -> roles.add(claim.get("authority").substring(5)));
         return roles;
     }
 
-    public List<String> getPermission(String token) {
-
-        Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody();
-        return (List<String>) claims.get(AUTH);
-    }
-
     public boolean isAdmin(String token) {
+        List<String> roles = getRoleFromToken(token);
+        if (roles.contains(RoleConstant.ADMIN)){
+            return true;
+        }
         return false;
     }
 

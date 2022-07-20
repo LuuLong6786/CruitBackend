@@ -14,7 +14,7 @@ public interface IQuestionCriteriaService {
 
     ResponseEntity<?> getAll(Boolean showDisabled);
 
-    ResponseEntity<?> getById(Long id);
+    ResponseEntity<?> getById(String token, Long id);
 
     ResponseEntity<?> filter(String keyword, Boolean enable, Integer pageSize, Integer page, SortType sortType, String sortBy);
 

@@ -16,7 +16,7 @@ public interface IUserService {
 
     ResponseEntity<?> getAll();
 
-    ResponseEntity<?> getById(Long id);
+    ResponseEntity<?> getById(String token, Long id);
 
     ResponseEntity<?> login(LoginRequest request);
 
@@ -30,5 +30,7 @@ public interface IUserService {
 
     ResponseEntity<?> changePassword(String token, ChangePasswordRequest changePasswordRequest);
 
-    ResponseEntity<?> filter(String name, String username, String email, Long roleId, Integer pageSize, Integer page);
+    ResponseEntity<?> filter(Boolean enable, String name, String username, String email, Long roleId, Integer pageSize, Integer page);
+
+    ResponseEntity<?> enable(String token, Long id);
 }

@@ -24,4 +24,6 @@ public class UserResponse {
     private Date createdDate;
 
     private Date updatedDate;
+
+    private Boolean enable;
 }

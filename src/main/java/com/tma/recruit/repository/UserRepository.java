@@ -34,11 +34,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "and (users.name like CONCAT('%',:name,'%') or :name is null) \n" +
             "and (users.username like CONCAT('%',:username,'%') or :username is null) \n" +
             "and (users.email like CONCAT('%',:email,'%') or :email is null) \n" +
-            "and (role.id=:id or :id is null)  " +
+            "and (role.id=:id or :id is null) " +
+            "and users.enable = :enable " +
             "group by users.id",
             nativeQuery = true)
-    Page<User> filter(String name, String username, String email, Long id, Pageable paging);
+    Page<User> filter(Boolean enable, String name, String username, String email, Long id, Pageable paging);
 
     List<User> findByRolesNameContainingIgnoreCaseAndEnableTrue(String name);
 
+    @Query(value = "SELECT IF(role.name = :role, 'true', 'false') as status\n" +
+            "FROM users , role, user_role\n" +
+            "where\n" +
+            "users.id = user_role.user_id\n" +
+            "and role.id = user_role.role_id\n" +
+            "and users.id = :userId\n" +
+            "group by users.id",
+            nativeQuery = true)
+    boolean checkRole(String role, Long userId);
 }

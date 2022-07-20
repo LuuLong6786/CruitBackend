@@ -18,7 +18,7 @@ import java.util.List;
 public class FilterConfig implements Filter {
 
     private final Logger log = LoggerFactory.getLogger(FilterConfig.class);
-    private final List<String> allowedOrigins = Arrays.asList("http://localhost:3000");
+    private final List<String> allowedOrigins = Arrays.asList("http://localhost:3000","http://localhost:3001");
 
     public FilterConfig() {
         log.info("SimpleCORSFilter init");
@@ -38,7 +38,6 @@ public class FilterConfig implements Filter {
             response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
             response.setHeader("Access-Control-Allow-Headers",
                     "Origin, X-Requested-With, Content-Type, Accept, " + "X-CSRF-TOKEN");
-
             response.setHeader("Access-Control-Allow-Headers", "*");
         }
 

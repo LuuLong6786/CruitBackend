@@ -63,6 +63,6 @@ public class QuestionCriteriaController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                      @PathVariable Long id) {
-        return questionCriteriaService.getById(id);
+        return questionCriteriaService.getById(token, id);
     }
 }
