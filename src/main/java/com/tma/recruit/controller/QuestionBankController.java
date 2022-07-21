@@ -1,5 +1,6 @@
 package com.tma.recruit.controller;
 
+import com.tma.recruit.anotation.OnlyAdmin;
 import com.tma.recruit.model.enums.QuestionLevel;
 import com.tma.recruit.model.enums.QuestionStatus;
 import com.tma.recruit.model.enums.SortType;
@@ -26,21 +27,21 @@ public class QuestionBankController {
         return questionBankService.create(token, request);
     }
 
-    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
+    @OnlyAdmin
     @PostMapping("/{id}/approve")
     public ResponseEntity<?> approve(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                      @PathVariable Long id) {
         return questionBankService.approve(token, id);
     }
 
-    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
+    @OnlyAdmin
     @PostMapping("/{id}/reject")
     public ResponseEntity<?> reject(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @PathVariable Long id) {
         return questionBankService.reject(token, id);
     }
 
-    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
+    @OnlyAdmin
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @RequestBody QuestionBankRequest request,
@@ -48,7 +49,7 @@ public class QuestionBankController {
         return questionBankService.update(token, request, id);
     }
 
-    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
+    @OnlyAdmin
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @PathVariable Long id) {
@@ -60,7 +61,7 @@ public class QuestionBankController {
         return questionBankService.getApprovedQuestion();
     }
 
-    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
+    @OnlyAdmin
     @GetMapping("/get-all")
     public ResponseEntity<?> getAll(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
         return questionBankService.getAll();

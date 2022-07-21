@@ -1,5 +1,6 @@
 package com.tma.recruit.controller;
 
+import com.tma.recruit.anotation.OnlyAdmin;
 import com.tma.recruit.model.request.ChangePasswordRequest;
 import com.tma.recruit.model.request.LoginRequest;
 import com.tma.recruit.model.request.ResetPasswordRequest;
@@ -25,13 +26,13 @@ public class UserController {
     @Autowired
     private INotificationService notificationService;
 
-    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
+    @OnlyAdmin
     @GetMapping
     public ResponseEntity<?> getAll(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
         return userService.getAll();
     }
 
-    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
+    @OnlyAdmin
     @GetMapping("/filter")
     public ResponseEntity<?> filter(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @RequestParam(required = false, defaultValue = "true") Boolean enable,
@@ -44,7 +45,7 @@ public class UserController {
         return userService.filter(enable, name, username, email, roleId, pageSize, page);
     }
 
-    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
+    @OnlyAdmin
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                      @PathVariable Long id) {
@@ -56,7 +57,7 @@ public class UserController {
         return userService.create(null, request);
     }
 
-    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
+    @OnlyAdmin
     @PostMapping
     public ResponseEntity<?> create(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @Valid @RequestBody UserRequest request) {
@@ -70,15 +71,15 @@ public class UserController {
         return userService.update(token, id, request);
     }
 
-    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
+    @OnlyAdmin
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @PathVariable Long id) {
         return userService.delete(token, id);
     }
 
-    @PreAuthorize(PreAuthorizerConstant.ADMIN_ROLE)
-    @GetMapping("/enable/{id}")
+    @OnlyAdmin
+    @PutMapping("/enable/{id}")
     public ResponseEntity<?> enableUser(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                         @PathVariable Long id) {
         return userService.enable(token, id);

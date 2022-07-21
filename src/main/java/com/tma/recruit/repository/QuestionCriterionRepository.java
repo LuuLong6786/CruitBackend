@@ -27,7 +27,7 @@ public interface QuestionCriterionRepository extends JpaRepository<QuestionCrite
             "from question_criterion " +
             "where " +
             "(name like CONCAT('%',:keyword,'%') or :keyword is null) " +
-            "and enable = :enable ",
+            "and (enable = :enable or :enable is null) ",
             nativeQuery = true)
     Page<QuestionCriterion> filter(String keyword, Boolean enable, Pageable paging);
 }

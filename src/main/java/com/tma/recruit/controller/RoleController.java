@@ -1,5 +1,6 @@
 package com.tma.recruit.controller;
 
+import com.tma.recruit.anotation.OnlyAdmin;
 import com.tma.recruit.model.request.RoleRequest;
 import com.tma.recruit.service.interfaces.IRoleService;
 import com.tma.recruit.util.Constant;
@@ -14,12 +15,14 @@ public class RoleController {
     @Autowired
     private IRoleService roleService;
 
+    @OnlyAdmin
     @PostMapping
     public ResponseEntity<?> create(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @RequestBody RoleRequest request) {
         return roleService.create(token, request);
     }
 
+    @OnlyAdmin
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @RequestBody RoleRequest request,
@@ -27,6 +30,7 @@ public class RoleController {
         return roleService.update(token, request, id);
     }
 
+    @OnlyAdmin
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @PathVariable Long id) {

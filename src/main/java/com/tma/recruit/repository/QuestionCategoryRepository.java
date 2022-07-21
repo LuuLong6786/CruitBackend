@@ -29,7 +29,7 @@ public interface QuestionCategoryRepository extends JpaRepository<QuestionCatego
             "from question_category " +
             "where " +
             "(name like CONCAT('%',:keyword,'%') or :keyword is null) " +
-            "and enable = :enable ",
+            "and (enable = :enable or :enable is null) ",
             nativeQuery = true)
     Page<QuestionCategory> filter(String keyword, Boolean enable, Pageable paging);
 }
