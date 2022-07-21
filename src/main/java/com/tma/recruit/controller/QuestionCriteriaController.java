@@ -3,6 +3,7 @@ package com.tma.recruit.controller;
 import com.tma.recruit.anotation.OnlyAdmin;
 import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.request.QuestionCriterionRequest;
+import com.tma.recruit.model.request.UpdateEnableRequest;
 import com.tma.recruit.service.interfaces.IQuestionCriteriaService;
 import com.tma.recruit.util.Constant;
 import com.tma.recruit.util.PaginationConstant;
@@ -63,6 +64,14 @@ public class QuestionCriteriaController {
     public ResponseEntity<?> enable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @PathVariable Long id) {
         return questionCriteriaService.enable(token, id);
+    }
+
+    @OnlyAdmin
+    @PutMapping("/update-enable/{id}")
+    public ResponseEntity<?> updateEnable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                          @RequestBody UpdateEnableRequest enable,
+                                          @PathVariable Long id){
+      return   questionCriteriaService.updateEnable(token,id,enable);
     }
 
     @GetMapping("/{id}")

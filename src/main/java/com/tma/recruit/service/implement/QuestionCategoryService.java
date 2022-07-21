@@ -1,12 +1,12 @@
 package com.tma.recruit.service.implement;
 
-import com.tma.recruit.model.entity.QuestionBank;
 import com.tma.recruit.model.entity.QuestionCategory;
 import com.tma.recruit.model.entity.User;
 import com.tma.recruit.model.enums.QuestionStatus;
 import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.mapper.QuestionCategoryMapper;
 import com.tma.recruit.model.request.QuestionCategoryRequest;
+import com.tma.recruit.model.request.UpdateEnableRequest;
 import com.tma.recruit.model.response.ModelPage;
 import com.tma.recruit.model.response.Pagination;
 import com.tma.recruit.model.response.QuestionCategoryResponse;
@@ -173,6 +173,22 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         questionCategoryRepository.save(category);
 
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> updateEnable(String token, Long id, UpdateEnableRequest enable) {
+        User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        QuestionCategory category = questionCategoryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        category.setEnable(enable.getEnable());
+        category.setUpdatedUser(updater);
+        category.setUpdatedDate(new Date());
+        category = questionCategoryRepository.save(category);
+
+        return ResponseEntity.ok(questionCategoryMapper.toResponse(category));
     }
 
     private long getApprovedQuantity(QuestionCategory questionCategory) {

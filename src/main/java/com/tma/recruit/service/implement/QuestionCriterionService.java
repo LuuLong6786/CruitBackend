@@ -6,6 +6,7 @@ import com.tma.recruit.model.enums.QuestionStatus;
 import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.mapper.QuestionCriterionMapper;
 import com.tma.recruit.model.request.QuestionCriterionRequest;
+import com.tma.recruit.model.request.UpdateEnableRequest;
 import com.tma.recruit.model.response.ModelPage;
 import com.tma.recruit.model.response.Pagination;
 import com.tma.recruit.model.response.QuestionCriterionResponse;
@@ -166,6 +167,22 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
         questionCriterionRepository.save(criterion);
 
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> updateEnable(String token, Long id, UpdateEnableRequest enable) {
+        User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        QuestionCriterion criterion = questionCriterionRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        criterion.setEnable(enable.getEnable());
+        criterion.setUpdatedUser(updater);
+        criterion.setUpdatedDate(new Date());
+        criterion = questionCriterionRepository.save(criterion);
+
+        return ResponseEntity.ok(questionCriterionMapper.toResponse(criterion));
     }
 
     private long getApprovedQuantity(QuestionCriterion criterion) {

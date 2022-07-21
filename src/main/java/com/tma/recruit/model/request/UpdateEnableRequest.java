@@ -7,9 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionCategoryRequest {
-
-    private Long id;
-
-    private String name;
+public class UpdateEnableRequest {
+    private Boolean enable;
 }

@@ -12,6 +12,4 @@ public class QuestionCriterionRequest {
     private Long id;
 
     private String name;
-
-    private Boolean enable;
 }

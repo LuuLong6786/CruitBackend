@@ -3,13 +3,12 @@ package com.tma.recruit.controller;
 import com.tma.recruit.anotation.OnlyAdmin;
 import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.request.QuestionCategoryRequest;
+import com.tma.recruit.model.request.UpdateEnableRequest;
 import com.tma.recruit.service.interfaces.IQuestionCategoryService;
 import com.tma.recruit.util.Constant;
 import com.tma.recruit.util.PaginationConstant;
-import com.tma.recruit.util.PreAuthorizerConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -65,6 +64,14 @@ public class QuestionCategoryController {
     public ResponseEntity<?> enable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @PathVariable Long id) {
         return questionCategoryService.enable(token, id);
+    }
+
+    @OnlyAdmin
+    @PutMapping("/update-enable/{id}")
+    public ResponseEntity<?> updateEnable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                          @RequestBody UpdateEnableRequest enable,
+                                          @PathVariable Long id) {
+        return questionCategoryService.updateEnable(token, id, enable);
     }
 
     @GetMapping("/{id}")
