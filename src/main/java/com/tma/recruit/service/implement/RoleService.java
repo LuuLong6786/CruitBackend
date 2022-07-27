@@ -100,7 +100,7 @@ public class RoleService implements IRoleService {
     }
 
     @Override
-    public ResponseEntity<?> delete(String token, Long id) {
+    public ResponseEntity<?> disable(String token, Long id) {
         User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 

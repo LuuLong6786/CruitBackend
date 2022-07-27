@@ -8,10 +8,8 @@ import com.tma.recruit.model.request.UserRequest;
 import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.service.interfaces.IUserService;
 import com.tma.recruit.util.Constant;
-import com.tma.recruit.util.PreAuthorizerConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,9 +20,6 @@ public class UserController {
 
     @Autowired
     private IUserService userService;
-
-    @Autowired
-    private INotificationService notificationService;
 
     @OnlyAdmin
     @GetMapping
@@ -73,9 +68,9 @@ public class UserController {
 
     @OnlyAdmin
     @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                    @PathVariable Long id) {
-        return userService.delete(token, id);
+    public ResponseEntity<?> disable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                     @PathVariable Long id) {
+        return userService.disable(token, id);
     }
 
     @OnlyAdmin
@@ -114,15 +109,5 @@ public class UserController {
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
         return userService.getProfile(token);
-    }
-
-    @GetMapping("/notification/unread")
-    public ResponseEntity<?> getUnreadNotification(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
-        return notificationService.getUnreadNotification(token);
-    }
-
-    @GetMapping("/notification")
-    public ResponseEntity<?> getAllNotification(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
-        return notificationService.getAllNotification(token);
     }
 }

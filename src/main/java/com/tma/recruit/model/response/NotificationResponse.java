@@ -14,9 +14,7 @@ public class NotificationResponse {
 
     private Long id;
 
-    private List<UserResponse> receivers;
-
-    private Boolean read = false;
+    private Boolean read;
 
     private String content;
 

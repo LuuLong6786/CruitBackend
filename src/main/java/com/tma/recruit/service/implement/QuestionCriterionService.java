@@ -91,7 +91,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
     }
 
     @Override
-    public ResponseEntity<?> delete(String token, Long id) {
+    public ResponseEntity<?> disable(String token, Long id) {
         User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
@@ -141,7 +141,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
                 .filter(keyword, enable, paging);
 
         Pagination pagination = new Pagination(pageSize, page, criteria.getTotalPages(),
-                criteria.getNumberOfElements());
+                criteria.getTotalElements());
 
         List<QuestionCriterionResponse> responses = questionCriterionMapper.toResponse(criteria.getContent());
         for (int i = 0; i < criteria.getContent().size(); i++) {

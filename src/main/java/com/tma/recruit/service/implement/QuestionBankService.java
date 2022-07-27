@@ -126,7 +126,7 @@ public class QuestionBankService implements IQuestionBankService {
     }
 
     @Override
-    public ResponseEntity<?> delete(String token, Long id) {
+    public ResponseEntity<?> disable(String token, Long id) {
         User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
@@ -156,15 +156,16 @@ public class QuestionBankService implements IQuestionBankService {
     @Override
     public ResponseEntity<?> getById(String token, Long id) {
         Optional<QuestionBank> question;
-        if (jwtUtils.isAdmin(token)){
+        if (jwtUtils.isAdmin(token)) {
             question = questionBankRepository.findById(id);
-        }else {
+        } else {
             question = questionBankRepository.findByIdAndEnableTrue(id);
         }
 
         if (!question.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+
         return ResponseEntity.ok(questionBankMapper.toResponse(question.get()));
     }
 
@@ -199,10 +200,11 @@ public class QuestionBankService implements IQuestionBankService {
     }
 
     @Override
-    public ResponseEntity<?> filter(String token, QuestionStatus status, QuestionLevel level, Long categoryId, Long criterionId,
-                                    Integer pageSize, Integer page, String keyword, SortType orderBy, String sortBy) {
-        if (!QuestionStatus.APPROVED.equals(status)){
-            if (!jwtUtils.isAdmin(token)){
+    public ResponseEntity<?> filter(String token, QuestionStatus status, QuestionLevel level, Long categoryId,
+                                    Long criterionId, Integer pageSize, Integer page, String keyword, SortType orderBy,
+                                    String sortBy) {
+        if (!QuestionStatus.APPROVED.equals(status)) {
+            if (!jwtUtils.isAdmin(token)) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             }
         }
@@ -211,11 +213,11 @@ public class QuestionBankService implements IQuestionBankService {
                 SortType.DESC.equals(orderBy) ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
 
         Page<QuestionBank> questionBanks = questionBankRepository
-                .filter(level != null ? level.toString() : null, categoryId, criterionId, paging, keyword,
-                        status != null ? status.toString() : null);
+                .filter(level != null ? level.toString() : null, categoryId, criterionId, keyword,
+                        status != null ? status.toString() : null, paging);
 
         Pagination pagination = new Pagination(pageSize, page, questionBanks.getTotalPages(),
-                questionBanks.getNumberOfElements());
+                questionBanks.getTotalElements());
 
         ModelPage<QuestionBankResponse> modelPage = new ModelPage<>(
                 questionBankMapper.toResponse(questionBanks.getContent()), pagination);

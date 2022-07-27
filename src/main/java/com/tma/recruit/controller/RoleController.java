@@ -32,9 +32,9 @@ public class RoleController {
 
     @OnlyAdmin
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                    @PathVariable Long id) {
-        return roleService.delete(token, id);
+    public ResponseEntity<?> disable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                     @PathVariable Long id) {
+        return roleService.disable(token, id);
     }
 
     @GetMapping

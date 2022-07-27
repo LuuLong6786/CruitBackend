@@ -1,13 +1,17 @@
 package com.tma.recruit.service.implement;
 
 import com.tma.recruit.model.entity.Notification;
+import com.tma.recruit.model.entity.NotificationReceiver;
 import com.tma.recruit.model.entity.QuestionBank;
 import com.tma.recruit.model.entity.User;
 import com.tma.recruit.model.enums.NotificationType;
 import com.tma.recruit.model.mapper.NotificationMapper;
 import com.tma.recruit.model.mapper.UserMapper;
+import com.tma.recruit.model.response.ModelPage;
 import com.tma.recruit.model.response.NotificationResponse;
-import com.tma.recruit.model.response.UserNotificationResponse;
+import com.tma.recruit.model.response.Pagination;
+import com.tma.recruit.model.response.UnreadNotificationNumberResponse;
+import com.tma.recruit.repository.NotificationReceiverRepository;
 import com.tma.recruit.repository.NotificationRepository;
 import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.jwt.JwtUtils;
@@ -15,6 +19,9 @@ import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.util.Constant;
 import com.tma.recruit.util.RoleConstant;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -22,7 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,42 +50,25 @@ public class NotificationService implements INotificationService {
     private NotificationRepository notificationRepository;
 
     @Autowired
+    private NotificationReceiverRepository notificationReceiverRepository;
+
+    @Autowired
     private NotificationMapper notificationMapper;
 
     @Autowired
     private JwtUtils jwtUtils;
 
     @Override
-    public ResponseEntity<?> test(User user) {
-
-        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndEnableTrue(RoleConstant.ADMIN);
-
-        UserNotificationResponse response = new UserNotificationResponse();
-        response.setContent("User " + user.getUsername() + " has been created");
-        response.setUser(userMapper.toResponse(user));
-        response.setTime(new Date());
-
-        admins.forEach(admin -> {
-            template.convertAndSendToUser(admin.getUsername(), Constant.QUEUE_NOTIFICATION_URL, response);
-        });
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @Override
     public ResponseEntity<?> notifyCreationToAdmin(User user) {
-        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndEnableTrue(RoleConstant.ADMIN);
+        List<User> admins = getAdminList();
 
-        Notification notification = new Notification();
+        Notification notification = new Notification(user);
         notification.setContent("User " + user.getName() + " has been created");
-        notification.setUpdatedUser(user);
-        notification.setUpdatedDate(new Date());
-        notification.setCreatedDate(new Date());
-        notification.setAuthor(user);
         notification.setUser(user);
-        notification.setReceivers(admins);
-        notification.setNotificationType(NotificationType.USER_CREATION);
+        notification.setNotificationType(NotificationType.USER);
         notification = notificationRepository.save(notification);
+
+        saveNotificationReceivers(admins, notification);
 
         NotificationResponse response = notificationMapper.toResponse(notification);
         admins.forEach(receiver -> {
@@ -91,19 +81,16 @@ public class NotificationService implements INotificationService {
     @Override
     public ResponseEntity<?> notifyCreationToAdmin(QuestionBank questionBank) {
         User user = questionBank.getUpdatedUser();
-        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndEnableTrue(RoleConstant.ADMIN);
+        List<User> admins = getAdminList();
 
-        Notification notification = new Notification();
-        notification.setContent("User " + user.getName() + " just created the question");
-        notification.setUpdatedUser(user);
-        notification.setUpdatedDate(new Date());
-        notification.setCreatedDate(new Date());
-        notification.setAuthor(user);
+        Notification notification = new Notification(user);
+        notification.setContent(user.getName() + " just created the question");
         notification.setUser(user);
-        notification.setReceivers(admins);
         notification.setQuestionBank(questionBank);
-        notification.setNotificationType(NotificationType.QUESTION_CREATION);
+        notification.setNotificationType(NotificationType.QUESTION);
         notification = notificationRepository.save(notification);
+
+        saveNotificationReceivers(admins, notification);
 
         NotificationResponse response = notificationMapper.toResponse(notification);
         admins.forEach(receiver -> {
@@ -115,20 +102,18 @@ public class NotificationService implements INotificationService {
 
     @Override
     public ResponseEntity<?> notifyUpdateToAdmin(User user) {
-        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndEnableTrue(RoleConstant.ADMIN);
+        List<User> admins = getAdminList();
 
-        Notification notification = new Notification();
+        Notification notification = new Notification(user);
         notification.setContent("User " + user.getName() + " has been updated");
-        notification.setUpdatedUser(user);
-        notification.setUpdatedDate(new Date());
-        notification.setCreatedDate(new Date());
-        notification.setAuthor(user);
         notification.setUser(user);
-        notification.setReceivers(admins);
-        notification.setNotificationType(NotificationType.USER_UPDATE);
-        notification = notificationRepository.save(notification);
+        notification.setNotificationType(NotificationType.USER);
+        notification = notificationRepository.saveAndFlush(notification);
+
+        saveNotificationReceivers(admins, notification);
 
         NotificationResponse response = notificationMapper.toResponse(notification);
+
         admins.forEach(receiver -> {
             template.convertAndSendToUser(receiver.getUsername(), Constant.QUEUE_NOTIFICATION_URL, response);
         });
@@ -139,19 +124,16 @@ public class NotificationService implements INotificationService {
     @Override
     public ResponseEntity<?> notifyUpdateToAdmin(QuestionBank questionBank) {
         User user = questionBank.getUpdatedUser();
-        List<User> admins = userRepository.findByRolesNameContainingIgnoreCaseAndEnableTrue(RoleConstant.ADMIN);
+        List<User> admins = getAdminList();
 
-        Notification notification = new Notification();
-        notification.setContent("User " + user.getName() + " just edited the question");
-        notification.setUpdatedUser(user);
-        notification.setUpdatedDate(new Date());
-        notification.setCreatedDate(new Date());
-        notification.setAuthor(user);
+        Notification notification = new Notification(user);
+        notification.setContent(user.getName() + " just edited the question");
         notification.setUser(user);
-        notification.setReceivers(admins);
         notification.setQuestionBank(questionBank);
-        notification.setNotificationType(NotificationType.QUESTION_UPDATE);
+        notification.setNotificationType(NotificationType.QUESTION);
         notification = notificationRepository.save(notification);
+
+        saveNotificationReceivers(admins, notification);
 
         NotificationResponse response = notificationMapper.toResponse(notification);
         admins.forEach(receiver -> {
@@ -162,28 +144,92 @@ public class NotificationService implements INotificationService {
     }
 
     @Override
-    public ResponseEntity<?> getAllNotification(String token) {
-        Optional<User> user = userRepository
-                .findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token));
-        if (user.isPresent()) {
-            List<Notification> notifications = notificationRepository
-                    .findByReceiversIdContainingAndEnableTrue(user.get().getId());
-            return ResponseEntity.ok(notificationMapper.toResponse(notifications));
-        } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        }
+    public ResponseEntity<?> getAllNotification(String token, Integer pageSize, Integer page) {
+        Pageable paging = PageRequest.of(page - 1, pageSize);
+
+        User user = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+        Page<Notification> notifications = notificationRepository
+                .findByNotificationReceiversReceiverUsernameContainingIgnoreCaseAndEnableTrueOrderByIdDesc(
+                        user.getUsername(), paging);
+
+        Pagination pagination = new Pagination(pageSize, page, notifications.getTotalPages(),
+                notifications.getNumberOfElements());
+
+        List<NotificationResponse> response = notificationMapper.toResponse(notifications.getContent());
+        addReadToResponse(user, notifications.getContent(), response);
+
+        ModelPage<NotificationResponse> modelPage = new ModelPage<>(response, pagination);
+
+
+        return ResponseEntity.ok(modelPage);
     }
 
     @Override
     public ResponseEntity<?> getUnreadNotification(String token) {
-        Optional<User> user = userRepository
-                .findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token));
-        if (user.isPresent()) {
-            List<Notification> notifications = notificationRepository
-                    .findByReceiversIdContainingAndReadFalseAndEnableTrue(user.get().getId());
-            return ResponseEntity.ok(notificationMapper.toResponse(notifications));
-        } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+//        Optional<User> user = userRepository
+//                .findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token));
+//        if (user.isPresent()) {
+//            List<Notification> notifications = notificationRepository
+//                    .findByReceiversIdContainingAndReadFalseAndEnableTrue(user.get().getId());
+//            return ResponseEntity.ok(notificationMapper.toResponse(notifications));
+//        } else {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+//        }
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<?> getById(String token, Long id) {
+        User user = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        NotificationReceiver notificationReceiver = notificationReceiverRepository
+                .findByReceiverUsernameIgnoreCaseAndNotificationId(user.getUsername(), id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        notificationReceiver.setRead(true);
+        notificationReceiverRepository.save(notificationReceiver);
+
+        return ResponseEntity.ok(notificationMapper.toResponse(notification));
+    }
+
+    @Override
+    public ResponseEntity<?> getUnreadNotificationNumber(String token) {
+        Long unreadNotificationNumber = notificationRepository.countUnreadNotificationNumber(
+                jwtUtils.getIdByJwtToken(token));
+
+        return ResponseEntity.ok(new UnreadNotificationNumberResponse(unreadNotificationNumber));
+    }
+
+    private List<User> getAdminList() {
+        return userRepository.findByRolesNameContainingIgnoreCaseAndEnableTrue(RoleConstant.ADMIN);
+    }
+
+    private void saveNotificationReceivers(List<User> receiver, Notification notification) {
+        List<NotificationReceiver> notificationReceivers = new ArrayList<>();
+        for (User admin : receiver) {
+            NotificationReceiver notificationReceiver = new NotificationReceiver();
+            notificationReceiver.setNotification(notification);
+            notificationReceiver.setReceiver(admin);
+            notificationReceivers.add(notificationReceiver);
+        }
+        notificationReceiverRepository.saveAll(notificationReceivers);
+    }
+
+    private void addReadToResponse(User user, List<Notification> notifications,
+                                   List<NotificationResponse> notificationResponses) {
+        for (int i = 0; i < notifications.size(); i++) {
+            Optional<NotificationReceiver> notificationReceiver = notifications.get(i).getNotificationReceivers()
+                    .stream()
+                    .filter(nr -> (nr.getReceiver().getUsername().equals(user.getUsername())
+                            && nr.getNotification().getId().equals(nr.getNotification().getId()))).findFirst();
+            if (notificationReceiver.isPresent()) {
+                notificationResponses.get(i).setRead(notificationReceiver.get().getRead());
+            }
         }
     }
 }

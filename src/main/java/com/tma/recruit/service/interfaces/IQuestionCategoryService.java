@@ -11,13 +11,14 @@ public interface IQuestionCategoryService {
 
     ResponseEntity<?> update(String token, QuestionCategoryRequest request, Long id);
 
-    ResponseEntity<?> delete(String token, Long id);
+    ResponseEntity<?> disable(String token, Long id);
 
     ResponseEntity<?> getAll(Boolean showDisabled);
 
     ResponseEntity<?> getById(String token, Long id);
 
-    ResponseEntity<?> filter(String keyword, Boolean enable, Integer pageSize, Integer page, SortType sortType, String sortBy);
+    ResponseEntity<?> filter(String keyword, Boolean enable, Integer pageSize, Integer page, SortType sortType,
+                             String sortBy);
 
     ResponseEntity<?> enable(String token, Long id);
 

@@ -25,11 +25,11 @@ public interface QuestionCategoryRepository extends JpaRepository<QuestionCatego
 
     Optional<QuestionCategory> findByNameIgnoreCase(String name);
 
-    @Query(value = "select * " +
-            "from question_category " +
-            "where " +
-            "(name like CONCAT('%',:keyword,'%') or :keyword is null) " +
-            "and (enable = :enable or :enable is null) ",
+    @Query(value = "select *\n" +
+            "from question_category\n" +
+            "where\n" +
+            "(name like CONCAT('%',:keyword,'%') or :keyword is null)\n" +
+            "and (enable = :enable or :enable is null)",
             nativeQuery = true)
     Page<QuestionCategory> filter(String keyword, Boolean enable, Pageable paging);
 }

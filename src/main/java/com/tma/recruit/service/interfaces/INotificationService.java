@@ -6,8 +6,6 @@ import org.springframework.http.ResponseEntity;
 
 public interface INotificationService {
 
-    ResponseEntity<?> test(User user);
-
     ResponseEntity<?> notifyCreationToAdmin(User user);
 
     ResponseEntity<?> notifyCreationToAdmin(QuestionBank questionBank);
@@ -16,7 +14,11 @@ public interface INotificationService {
 
     ResponseEntity<?> notifyUpdateToAdmin(QuestionBank questionBank);
 
-    ResponseEntity<?> getAllNotification(String token);
+    ResponseEntity<?> getAllNotification(String token, Integer pageSize, Integer page);
 
     ResponseEntity<?> getUnreadNotification(String token);
+
+    ResponseEntity<?> getById(String token, Long id);
+
+    ResponseEntity<?> getUnreadNotificationNumber(String token);
 }

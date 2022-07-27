@@ -91,9 +91,9 @@ public class QuestionCategoryService implements IQuestionCategoryService {
     }
 
     @Override
-    public ResponseEntity<?> delete(String token, Long id) {
+    public ResponseEntity<?> disable(String token, Long id) {
         User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         QuestionCategory category = questionCategoryRepository.findByIdAndEnableTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -122,9 +122,9 @@ public class QuestionCategoryService implements IQuestionCategoryService {
     @Override
     public ResponseEntity<?> getById(String token, Long id) {
         Optional<QuestionCategory> category;
-        if (jwtUtils.isAdmin(token)){
+        if (jwtUtils.isAdmin(token)) {
             category = questionCategoryRepository.findById(id);
-        }else {
+        } else {
             category = questionCategoryRepository.findByIdAndEnableTrue(id);
         }
 
@@ -148,7 +148,7 @@ public class QuestionCategoryService implements IQuestionCategoryService {
                 .filter(keyword, enable, paging);
 
         Pagination pagination = new Pagination(pageSize, page, categories.getTotalPages(),
-                categories.getNumberOfElements());
+                categories.getTotalElements());
 
         List<QuestionCategoryResponse> categoryResponses = questionCategoryMapper.toResponse(categories.getContent());
         for (int i = 0; i < categories.getContent().size(); i++) {

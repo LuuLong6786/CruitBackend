@@ -35,9 +35,9 @@ public class QuestionCriteriaController {
 
     @OnlyAdmin
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                    @PathVariable Long id) {
-        return questionCriteriaService.delete(token, id);
+    public ResponseEntity<?> disable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                     @PathVariable Long id) {
+        return questionCriteriaService.disable(token, id);
     }
 
     @GetMapping
@@ -70,8 +70,8 @@ public class QuestionCriteriaController {
     @PutMapping("/update-enable/{id}")
     public ResponseEntity<?> updateEnable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                           @RequestBody UpdateEnableRequest enable,
-                                          @PathVariable Long id){
-      return   questionCriteriaService.updateEnable(token,id,enable);
+                                          @PathVariable Long id) {
+        return questionCriteriaService.updateEnable(token, id, enable);
     }
 
     @GetMapping("/{id}")

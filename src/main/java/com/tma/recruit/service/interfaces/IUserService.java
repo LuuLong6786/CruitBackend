@@ -12,7 +12,7 @@ public interface IUserService {
 
     ResponseEntity<?> update(String token, Long id, UserRequest request);
 
-    ResponseEntity<?> delete(String token, Long id);
+    ResponseEntity<?> disable(String token, Long id);
 
     ResponseEntity<?> getAll();
 
@@ -30,7 +30,8 @@ public interface IUserService {
 
     ResponseEntity<?> changePassword(String token, ChangePasswordRequest changePasswordRequest);
 
-    ResponseEntity<?> filter(Boolean enable, String name, String username, String email, Long roleId, Integer pageSize, Integer page);
+    ResponseEntity<?> filter(Boolean enable, String name, String username, String email, Long roleId, Integer pageSize,
+                             Integer page);
 
     ResponseEntity<?> enable(String token, Long id);
 }

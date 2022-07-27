@@ -8,10 +8,8 @@ import com.tma.recruit.model.request.QuestionBankRequest;
 import com.tma.recruit.service.interfaces.IQuestionBankService;
 import com.tma.recruit.util.Constant;
 import com.tma.recruit.util.PaginationConstant;
-import com.tma.recruit.util.PreAuthorizerConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -51,9 +49,9 @@ public class QuestionBankController {
 
     @OnlyAdmin
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                    @PathVariable Long id) {
-        return questionBankService.delete(token, id);
+    public ResponseEntity<?> disable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                     @PathVariable Long id) {
+        return questionBankService.disable(token, id);
     }
 
     @GetMapping

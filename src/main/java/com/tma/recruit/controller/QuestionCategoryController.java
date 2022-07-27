@@ -35,9 +35,9 @@ public class QuestionCategoryController {
 
     @OnlyAdmin
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                    @PathVariable Long id) {
-        return questionCategoryService.delete(token, id);
+    public ResponseEntity<?> disable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                     @PathVariable Long id) {
+        return questionCategoryService.disable(token, id);
     }
 
     @GetMapping

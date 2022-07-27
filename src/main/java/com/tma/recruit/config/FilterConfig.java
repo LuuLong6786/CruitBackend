@@ -18,7 +18,7 @@ import java.util.List;
 public class FilterConfig implements Filter {
 
     private final Logger log = LoggerFactory.getLogger(FilterConfig.class);
-    private final List<String> allowedOrigins = Arrays.asList("http://localhost:3000","http://localhost:3001");
+    private final List<String> allowedOrigins = Arrays.asList("http://localhost:3000", "http://localhost:3001");
 
     public FilterConfig() {
         log.info("SimpleCORSFilter init");

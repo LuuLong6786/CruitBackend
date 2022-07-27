@@ -19,15 +19,6 @@ public class Notification extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToMany
-    @JoinTable(name = "notification_receiver",
-            joinColumns = @JoinColumn(name = "notification_id"),
-            inverseJoinColumns = @JoinColumn(name = "receiver_id"))
-    private List<User> receivers;
-
-    @Column(name = "is_read")
-    private Boolean read = false;
-
     @Lob
     @Column(name = "content")
     private String content;
@@ -43,4 +34,12 @@ public class Notification extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "question_id")
     private QuestionBank questionBank;
+
+    @OneToMany(mappedBy = "notification")
+    private List<NotificationReceiver> notificationReceivers;
+
+    public Notification(User user) {
+        this.setUpdatedUser(user);
+        this.setAuthor(user);
+    }
 }

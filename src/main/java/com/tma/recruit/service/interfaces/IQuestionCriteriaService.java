@@ -11,13 +11,14 @@ public interface IQuestionCriteriaService {
 
     ResponseEntity<?> update(String token, QuestionCriterionRequest request, Long id);
 
-    ResponseEntity<?> delete(String token, Long id);
+    ResponseEntity<?> disable(String token, Long id);
 
     ResponseEntity<?> getAll(Boolean showDisabled);
 
     ResponseEntity<?> getById(String token, Long id);
 
-    ResponseEntity<?> filter(String keyword, Boolean enable, Integer pageSize, Integer page, SortType sortType, String sortBy);
+    ResponseEntity<?> filter(String keyword, Boolean enable, Integer pageSize, Integer page, SortType sortType,
+                             String sortBy);
 
     ResponseEntity<?> enable(String token, Long id);
 

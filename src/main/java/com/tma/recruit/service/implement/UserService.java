@@ -76,7 +76,8 @@ public class UserService implements IUserService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "EMAIL ALREADY EXISTS");
         }
 
-        if (request.getBadgeId() != null && userRepository.existsByBadgeIdIgnoreCaseAndEnableTrue(request.getBadgeId())) {
+        if (request.getBadgeId() != null
+                && userRepository.existsByBadgeIdIgnoreCaseAndEnableTrue(request.getBadgeId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "BADGE ID ALREADY EXISTS");
         }
 
@@ -132,7 +133,7 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         List<Role> roles = new ArrayList<>();
-        if (userRepository.checkRole(RoleConstant.ADMIN, updater.getId())){
+        if (userRepository.checkRole(RoleConstant.ADMIN, updater.getId())) {
             if (request.getRoles() != null && request.getRoles().size() > 0) {
                 for (RoleRequest roleRequest : request.getRoles()) {
                     if (roleRequest.getId() != null && roleRequest.getId() > 0) {
@@ -142,7 +143,7 @@ public class UserService implements IUserService {
                     }
                 }
             }
-        }else if (!user.getId().equals(updater.getId())){
+        } else if (!user.getId().equals(updater.getId())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
@@ -159,7 +160,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ResponseEntity<?> delete(String token, Long id) {
+    public ResponseEntity<?> disable(String token, Long id) {
         try {
             User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -190,9 +191,9 @@ public class UserService implements IUserService {
     @Override
     public ResponseEntity<?> getById(String token, Long id) {
         Optional<User> entityOptional;
-        if (jwtUtils.isAdmin(token)){
+        if (jwtUtils.isAdmin(token)) {
             entityOptional = userRepository.findById(id);
-        }else {
+        } else {
             entityOptional = userRepository.findByIdAndEnableTrue(id);
         }
 
@@ -318,7 +319,7 @@ public class UserService implements IUserService {
 
         Page<User> users = userRepository.filter(enable, name, username, email, roleId, paging);
 
-        Pagination pagination = new Pagination(pageSize, page, users.getTotalPages(), users.getNumberOfElements());
+        Pagination pagination = new Pagination(pageSize, page, users.getTotalPages(), users.getTotalElements());
 
         ModelPage<UserDetailResponse> modelPage = new ModelPage<>(
                 userMapper.toDetailResponse(users.getContent()), pagination);

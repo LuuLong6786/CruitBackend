@@ -7,13 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Pagination {
+public class UnreadNotificationNumberResponse {
 
-    private int pageSize = 0;
-
-    private int page = 0;
-
-    private int lastPage = 0;
-
-    private long total = 0;
+    private Long number;
 }

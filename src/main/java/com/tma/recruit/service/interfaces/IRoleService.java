@@ -9,7 +9,7 @@ public interface IRoleService {
 
     ResponseEntity<?> update(String token, RoleRequest request, Long id);
 
-    ResponseEntity<?> delete(String token, Long id);
+    ResponseEntity<?> disable(String token, Long id);
 
     ResponseEntity<?> getAll();
 

@@ -10,7 +10,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -44,24 +47,25 @@ public class JwtUtils {
     }
 
     public List<String> getRoleFromToken(String token) {
-        List<LinkedHashMap<String,String>> claims = (List<LinkedHashMap<String, String>>) Jwts
+        List<LinkedHashMap<String, String>> claims = (List<LinkedHashMap<String, String>>) Jwts
                 .parser()
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(parseJwtString(token))
                 .getBody()
                 .get(AUTH);
-        claims =  claims.stream().filter(role -> role.get("authority").startsWith("ROLE_")).collect(Collectors.toList());
-        List<String> roles=new ArrayList<>();
+        claims = claims.stream().filter(role -> role.get("authority").startsWith("ROLE_")).collect(Collectors.toList());
+        List<String> roles = new ArrayList<>();
         claims.forEach(claim -> roles.add(claim.get("authority").substring(5)));
         return roles;
     }
 
+    public Long getIdByJwtToken(String token) {
+        return Long.valueOf(Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody().getId());
+    }
+
     public boolean isAdmin(String token) {
         List<String> roles = getRoleFromToken(token);
-        if (roles.contains(RoleConstant.ADMIN)){
-            return true;
-        }
-        return false;
+        return roles.contains(RoleConstant.ADMIN);
     }
 
     public boolean isOwner(String token, Long userId) {
