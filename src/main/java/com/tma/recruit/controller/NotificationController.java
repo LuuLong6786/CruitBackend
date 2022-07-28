@@ -38,4 +38,9 @@ public class NotificationController {
     public ResponseEntity<?> getUnreadNotificationNumber(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
         return notificationService.getUnreadNotificationNumber(token);
     }
+
+    @PostMapping("/read-all")
+    public ResponseEntity<?> readAll(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token){
+        return notificationService.readAll(token);
+    }
 }

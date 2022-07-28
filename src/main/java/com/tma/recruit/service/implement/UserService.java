@@ -119,6 +119,10 @@ public class UserService implements IUserService {
         user.setUpdatedUser(author);
         user.setRoles(roles);
         user = userRepository.save(user);
+        if (author == null){
+            user.setAuthor(user);
+            user.setUpdatedUser(user);
+        }
         notificationService.notifyCreationToAdmin(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toDetailResponse(user));

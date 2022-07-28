@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -23,4 +24,8 @@ public class NotificationResponse {
     private NotificationType notificationType;
 
     private QuestionBankResponse questionBank;
+
+    private Date createdDate;
+
+    private Date updatedDate;
 }

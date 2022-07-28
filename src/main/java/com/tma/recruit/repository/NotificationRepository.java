@@ -12,8 +12,11 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    Page<Notification> findByNotificationReceiversReceiverUsernameContainingIgnoreCaseAndEnableTrueOrderByIdDesc(
-            String username, Pageable paging);
+    Page<Notification> findByNotificationReceiversReceiverIdAndEnableTrueOrderByIdDesc(
+            Long id, Pageable paging);
+
+    List<Notification> findByNotificationReceiversReceiverIdAndNotificationReceiversReadFalseAndEnableTrueOrderByIdDesc(
+            Long id);
 
     @Query(value = "select COUNT(notification.id) from notification ,notification_receiver\n" +
             "where \n" +

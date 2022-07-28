@@ -21,4 +21,6 @@ public interface INotificationService {
     ResponseEntity<?> getById(String token, Long id);
 
     ResponseEntity<?> getUnreadNotificationNumber(String token);
+
+    ResponseEntity<?> readAll(String token);
 }

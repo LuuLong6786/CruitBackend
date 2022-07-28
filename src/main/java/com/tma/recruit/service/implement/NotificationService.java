@@ -32,6 +32,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -61,9 +62,11 @@ public class NotificationService implements INotificationService {
     @Override
     public ResponseEntity<?> notifyCreationToAdmin(User user) {
         List<User> admins = getAdminList();
+        admins = admins.stream().filter(
+                admin ->(!admin.getId().equals(user.getAuthor().getId()))).collect(Collectors.toList());
 
         Notification notification = new Notification(user);
-        notification.setContent("User " + user.getName() + " has been created");
+        notification.setContent("User " + user.getUsername() + " has been created");
         notification.setUser(user);
         notification.setNotificationType(NotificationType.USER);
         notification = notificationRepository.save(notification);
@@ -80,11 +83,13 @@ public class NotificationService implements INotificationService {
 
     @Override
     public ResponseEntity<?> notifyCreationToAdmin(QuestionBank questionBank) {
-        User user = questionBank.getUpdatedUser();
+        User user = questionBank.getAuthor();
         List<User> admins = getAdminList();
+        admins = admins.stream().filter(
+                admin ->(!admin.getId().equals(user.getId()))).collect(Collectors.toList());
 
         Notification notification = new Notification(user);
-        notification.setContent(user.getName() + " just created the question");
+        notification.setContent(user.getUsername() + " just created the question");
         notification.setUser(user);
         notification.setQuestionBank(questionBank);
         notification.setNotificationType(NotificationType.QUESTION);
@@ -103,12 +108,14 @@ public class NotificationService implements INotificationService {
     @Override
     public ResponseEntity<?> notifyUpdateToAdmin(User user) {
         List<User> admins = getAdminList();
+        admins = admins.stream().filter(
+                admin ->(!admin.getId().equals(user.getUpdatedUser().getId()))).collect(Collectors.toList());
 
         Notification notification = new Notification(user);
-        notification.setContent("User " + user.getName() + " has been updated");
+        notification.setContent("User " + user.getUsername() + " has been updated");
         notification.setUser(user);
         notification.setNotificationType(NotificationType.USER);
-        notification = notificationRepository.saveAndFlush(notification);
+        notification = notificationRepository.save(notification);
 
         saveNotificationReceivers(admins, notification);
 
@@ -125,9 +132,11 @@ public class NotificationService implements INotificationService {
     public ResponseEntity<?> notifyUpdateToAdmin(QuestionBank questionBank) {
         User user = questionBank.getUpdatedUser();
         List<User> admins = getAdminList();
+        admins = admins.stream().filter(
+                admin ->(!admin.getId().equals(user.getId()))).collect(Collectors.toList());
 
         Notification notification = new Notification(user);
-        notification.setContent(user.getName() + " just edited the question");
+        notification.setContent(user.getUsername() + " just edited the question");
         notification.setUser(user);
         notification.setQuestionBank(questionBank);
         notification.setNotificationType(NotificationType.QUESTION);
@@ -151,17 +160,16 @@ public class NotificationService implements INotificationService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         Page<Notification> notifications = notificationRepository
-                .findByNotificationReceiversReceiverUsernameContainingIgnoreCaseAndEnableTrueOrderByIdDesc(
-                        user.getUsername(), paging);
+                .findByNotificationReceiversReceiverIdAndEnableTrueOrderByIdDesc(
+                        user.getId(), paging);
 
         Pagination pagination = new Pagination(pageSize, page, notifications.getTotalPages(),
-                notifications.getNumberOfElements());
+                notifications.getTotalElements());
 
         List<NotificationResponse> response = notificationMapper.toResponse(notifications.getContent());
         addReadToResponse(user, notifications.getContent(), response);
 
         ModelPage<NotificationResponse> modelPage = new ModelPage<>(response, pagination);
-
 
         return ResponseEntity.ok(modelPage);
     }
@@ -189,7 +197,7 @@ public class NotificationService implements INotificationService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         NotificationReceiver notificationReceiver = notificationReceiverRepository
-                .findByReceiverUsernameIgnoreCaseAndNotificationId(user.getUsername(), id)
+                .findByReceiverIdAndNotificationId(user.getId(), id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         notificationReceiver.setRead(true);
         notificationReceiverRepository.save(notificationReceiver);
@@ -203,6 +211,18 @@ public class NotificationService implements INotificationService {
                 jwtUtils.getIdByJwtToken(token));
 
         return ResponseEntity.ok(new UnreadNotificationNumberResponse(unreadNotificationNumber));
+    }
+
+    @Override
+    public ResponseEntity<?> readAll(String token) {
+        User user = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+        List<NotificationReceiver> notificationReceivers = notificationReceiverRepository.findByReceiverIdAndReadFalse(user.getId());
+        notificationReceivers.forEach(notificationReceiver -> notificationReceiver.setRead(true));
+        notificationReceiverRepository.saveAll(notificationReceivers);
+
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     private List<User> getAdminList() {
