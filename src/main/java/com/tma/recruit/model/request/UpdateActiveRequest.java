@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateEnableRequest {
-    private Boolean enable;
+public class UpdateActiveRequest {
+    private Boolean active;
 }

@@ -5,7 +5,6 @@ import com.tma.recruit.model.request.ChangePasswordRequest;
 import com.tma.recruit.model.request.LoginRequest;
 import com.tma.recruit.model.request.ResetPasswordRequest;
 import com.tma.recruit.model.request.UserRequest;
-import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.service.interfaces.IUserService;
 import com.tma.recruit.util.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +29,14 @@ public class UserController {
     @OnlyAdmin
     @GetMapping("/filter")
     public ResponseEntity<?> filter(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                    @RequestParam(required = false, defaultValue = "true") Boolean enable,
+                                    @RequestParam(required = false, defaultValue = "true") Boolean active,
                                     @RequestParam(required = false) String name,
                                     @RequestParam(required = false) String username,
                                     @RequestParam(required = false) String email,
                                     @RequestParam(required = false) Long roleId,
                                     @RequestParam(required = false, defaultValue = "5") Integer pageSize,
                                     @RequestParam(required = false, defaultValue = "1") Integer page) {
-        return userService.filter(enable, name, username, email, roleId, pageSize, page);
+        return userService.filter(active, name, username, email, roleId, pageSize, page);
     }
 
     @OnlyAdmin
@@ -67,17 +66,24 @@ public class UserController {
     }
 
     @OnlyAdmin
-    @DeleteMapping("{id}")
-    public ResponseEntity<?> disable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                      @PathVariable Long id) {
-        return userService.disable(token, id);
+        return userService.delete( id);
     }
 
     @OnlyAdmin
-    @PutMapping("/enable/{id}")
-    public ResponseEntity<?> enableUser(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+    @DeleteMapping("/inactive/{id}")
+    public ResponseEntity<?> inactive(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                     @PathVariable Long id) {
+        return userService.inactive(token, id);
+    }
+
+    @OnlyAdmin
+    @PutMapping("/active/{id}")
+    public ResponseEntity<?> activeUser(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                         @PathVariable Long id) {
-        return userService.enable(token, id);
+        return userService.active(token, id);
     }
 
     @PostMapping("/login")

@@ -9,7 +9,7 @@ public interface IPermissionService {
 
     ResponseEntity<?> update(String token, PermissionRequest request, Long id);
 
-    ResponseEntity<?> disable(String token, Long id);
+    ResponseEntity<?> inactive(String token, Long id);
 
     ResponseEntity<?> getAll();
 

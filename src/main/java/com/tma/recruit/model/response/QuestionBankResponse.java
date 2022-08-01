@@ -40,5 +40,5 @@ public class QuestionBankResponse {
 
     private List<QuestionCriterionResponse> criteria;
 
-    private Boolean enable = true;
+    private Boolean active = true;
 }

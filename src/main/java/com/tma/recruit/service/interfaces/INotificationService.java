@@ -14,9 +14,7 @@ public interface INotificationService {
 
     ResponseEntity<?> notifyUpdateToAdmin(QuestionBank questionBank);
 
-    ResponseEntity<?> getAllNotification(String token, Integer pageSize, Integer page);
-
-    ResponseEntity<?> getUnreadNotification(String token);
+    ResponseEntity<?> getAllNotification(String token, Boolean read, Integer pageSize, Integer page);
 
     ResponseEntity<?> getById(String token, Long id);
 

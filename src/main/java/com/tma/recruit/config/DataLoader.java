@@ -38,7 +38,7 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (!userRepository.existsByEmailIgnoreCaseAndEnableTrue("admin@tma.com.vn")) {
+        if (!userRepository.existsByEmailIgnoreCaseAndActiveTrue("admin@tma.com.vn")) {
 
             //permission
             Permission createPermission = new Permission();

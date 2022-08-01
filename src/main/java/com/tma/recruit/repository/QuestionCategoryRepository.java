@@ -13,15 +13,15 @@ import java.util.Optional;
 @Repository
 public interface QuestionCategoryRepository extends JpaRepository<QuestionCategory, Long> {
 
-    boolean existsByNameIgnoreCaseAndEnableTrue(String name);
+    boolean existsByNameIgnoreCaseAndActiveTrue(String name);
 
-    Optional<QuestionCategory> findByIdAndEnableTrue(Long id);
+    Optional<QuestionCategory> findByIdAndActiveTrue(Long id);
 
-    List<QuestionCategory> findByEnableTrue();
+    List<QuestionCategory> findByActiveTrue();
 
     boolean existsByNameIgnoreCase(String name);
 
-    Optional<QuestionCategory> findByNameIgnoreCaseAndEnableTrue(String name);
+    Optional<QuestionCategory> findByNameIgnoreCaseAndActiveTrue(String name);
 
     Optional<QuestionCategory> findByNameIgnoreCase(String name);
 
@@ -29,7 +29,7 @@ public interface QuestionCategoryRepository extends JpaRepository<QuestionCatego
             "from question_category\n" +
             "where\n" +
             "(name like CONCAT('%',:keyword,'%') or :keyword is null)\n" +
-            "and (enable = :enable or :enable is null)",
+            "and (active = :active or :active is null)",
             nativeQuery = true)
-    Page<QuestionCategory> filter(String keyword, Boolean enable, Pageable paging);
+    Page<QuestionCategory> filter(String keyword, Boolean active, Pageable paging);
 }

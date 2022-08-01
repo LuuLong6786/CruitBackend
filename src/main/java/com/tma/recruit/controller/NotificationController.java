@@ -14,18 +14,14 @@ public class NotificationController {
     @Autowired
     private INotificationService notificationService;
 
-    @GetMapping("/unread")
-    public ResponseEntity<?> getUnreadNotification(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
-        return notificationService.getUnreadNotification(token);
-    }
-
     @GetMapping
     public ResponseEntity<?> getAllNotification(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                                @RequestParam(required = false) Boolean read,
                                                 @RequestParam(required = false, defaultValue =
                                                         PaginationConstant.PAGE_SIZE_DEFAULT_VALUE) Integer pageSize,
                                                 @RequestParam(required = false, defaultValue =
                                                         PaginationConstant.PAGE_DEFAULT_VALUE) Integer page) {
-        return notificationService.getAllNotification(token, pageSize, page);
+        return notificationService.getAllNotification(token, read, pageSize, page);
     }
 
     @GetMapping("/{id}")
@@ -40,7 +36,7 @@ public class NotificationController {
     }
 
     @PostMapping("/read-all")
-    public ResponseEntity<?> readAll(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token){
+    public ResponseEntity<?> readAll(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
         return notificationService.readAll(token);
     }
 }

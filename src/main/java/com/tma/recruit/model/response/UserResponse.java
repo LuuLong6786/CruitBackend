@@ -25,5 +25,5 @@ public class UserResponse {
 
     private Date updatedDate;
 
-    private Boolean enable;
+    private Boolean active;
 }

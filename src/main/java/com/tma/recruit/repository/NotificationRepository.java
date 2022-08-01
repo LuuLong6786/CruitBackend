@@ -12,11 +12,13 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    Page<Notification> findByNotificationReceiversReceiverIdAndEnableTrueOrderByIdDesc(
+    Page<Notification> findByNotificationReceiversReceiverIdAndActiveTrueOrderByIdDesc(Long id, Pageable paging);
+
+    Page<Notification> findByNotificationReceiversReceiverIdAndNotificationReceiversReadTrueAndActiveTrueOrderByIdDesc(
             Long id, Pageable paging);
 
-    List<Notification> findByNotificationReceiversReceiverIdAndNotificationReceiversReadFalseAndEnableTrueOrderByIdDesc(
-            Long id);
+    Page<Notification> findByNotificationReceiversReceiverIdAndNotificationReceiversReadFalseAndActiveTrueOrderByIdDesc(
+            Long id, Pageable paging);
 
     @Query(value = "select COUNT(notification.id) from notification ,notification_receiver\n" +
             "where \n" +
@@ -25,4 +27,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "and notification_receiver.is_read = false",
             nativeQuery = true)
     Long countUnreadNotificationNumber(Long id);
+
+    List<Notification> findByUserIdOrAuthorId(Long id1, Long id2);
 }

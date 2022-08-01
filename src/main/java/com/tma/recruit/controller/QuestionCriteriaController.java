@@ -3,7 +3,7 @@ package com.tma.recruit.controller;
 import com.tma.recruit.anotation.OnlyAdmin;
 import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.request.QuestionCriterionRequest;
-import com.tma.recruit.model.request.UpdateEnableRequest;
+import com.tma.recruit.model.request.UpdateActiveRequest;
 import com.tma.recruit.service.interfaces.IQuestionCriteriaService;
 import com.tma.recruit.util.Constant;
 import com.tma.recruit.util.PaginationConstant;
@@ -35,9 +35,9 @@ public class QuestionCriteriaController {
 
     @OnlyAdmin
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> disable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                     @PathVariable Long id) {
-        return questionCriteriaService.disable(token, id);
+    public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                    @PathVariable Long id) {
+        return questionCriteriaService.delete(id);
     }
 
     @GetMapping
@@ -49,29 +49,36 @@ public class QuestionCriteriaController {
     @GetMapping("/filter")
     public ResponseEntity<?> filter(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @RequestParam(required = false) String keyword,
-                                    @RequestParam(required = false) Boolean enable,
+                                    @RequestParam(required = false) Boolean active,
                                     @RequestParam(required = false, defaultValue = "DESC") SortType sortType,
                                     @RequestParam(required = false, defaultValue = "id") String sortBy,
                                     @RequestParam(required = false,
                                             defaultValue = PaginationConstant.PAGE_SIZE_DEFAULT_VALUE) Integer pageSize,
                                     @RequestParam(required = false,
                                             defaultValue = PaginationConstant.PAGE_DEFAULT_VALUE) Integer page) {
-        return questionCriteriaService.filter(keyword, enable, pageSize, page, sortType, sortBy);
+        return questionCriteriaService.filter(keyword, active, pageSize, page, sortType, sortBy);
     }
 
     @OnlyAdmin
     @PutMapping("/enable/{id}")
     public ResponseEntity<?> enable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @PathVariable Long id) {
-        return questionCriteriaService.enable(token, id);
+        return questionCriteriaService.active(token, id);
     }
 
     @OnlyAdmin
-    @PutMapping("/update-enable/{id}")
-    public ResponseEntity<?> updateEnable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                          @RequestBody UpdateEnableRequest enable,
+    @DeleteMapping("/inactive/{id}")
+    public ResponseEntity<?> inactive(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                     @PathVariable Long id) {
+        return questionCriteriaService.inactive(token, id);
+    }
+
+    @OnlyAdmin
+    @PutMapping("/update-active/{id}")
+    public ResponseEntity<?> updateActive(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                          @RequestBody UpdateActiveRequest active,
                                           @PathVariable Long id) {
-        return questionCriteriaService.updateEnable(token, id, enable);
+        return questionCriteriaService.updateActive(token, id, active);
     }
 
     @GetMapping("/{id}")

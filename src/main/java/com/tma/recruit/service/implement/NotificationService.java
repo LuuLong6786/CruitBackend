@@ -63,7 +63,7 @@ public class NotificationService implements INotificationService {
     public ResponseEntity<?> notifyCreationToAdmin(User user) {
         List<User> admins = getAdminList();
         admins = admins.stream().filter(
-                admin ->(!admin.getId().equals(user.getAuthor().getId()))).collect(Collectors.toList());
+                admin -> (!admin.getId().equals(user.getAuthor().getId()))).collect(Collectors.toList());
 
         Notification notification = new Notification(user);
         notification.setContent("User " + user.getUsername() + " has been created");
@@ -86,7 +86,7 @@ public class NotificationService implements INotificationService {
         User user = questionBank.getAuthor();
         List<User> admins = getAdminList();
         admins = admins.stream().filter(
-                admin ->(!admin.getId().equals(user.getId()))).collect(Collectors.toList());
+                admin -> (!admin.getId().equals(user.getId()))).collect(Collectors.toList());
 
         Notification notification = new Notification(user);
         notification.setContent(user.getUsername() + " just created the question");
@@ -109,7 +109,7 @@ public class NotificationService implements INotificationService {
     public ResponseEntity<?> notifyUpdateToAdmin(User user) {
         List<User> admins = getAdminList();
         admins = admins.stream().filter(
-                admin ->(!admin.getId().equals(user.getUpdatedUser().getId()))).collect(Collectors.toList());
+                admin -> (!admin.getId().equals(user.getUpdatedUser().getId()))).collect(Collectors.toList());
 
         Notification notification = new Notification(user);
         notification.setContent("User " + user.getUsername() + " has been updated");
@@ -133,7 +133,7 @@ public class NotificationService implements INotificationService {
         User user = questionBank.getUpdatedUser();
         List<User> admins = getAdminList();
         admins = admins.stream().filter(
-                admin ->(!admin.getId().equals(user.getId()))).collect(Collectors.toList());
+                admin -> (!admin.getId().equals(user.getId()))).collect(Collectors.toList());
 
         Notification notification = new Notification(user);
         notification.setContent(user.getUsername() + " just edited the question");
@@ -153,21 +153,31 @@ public class NotificationService implements INotificationService {
     }
 
     @Override
-    public ResponseEntity<?> getAllNotification(String token, Integer pageSize, Integer page) {
+    public ResponseEntity<?> getAllNotification(String token, Boolean read, Integer pageSize, Integer page) {
         Pageable paging = PageRequest.of(page - 1, pageSize);
 
-        User user = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-
-        Page<Notification> notifications = notificationRepository
-                .findByNotificationReceiversReceiverIdAndEnableTrueOrderByIdDesc(
-                        user.getId(), paging);
+        Page<Notification> notifications;
+        if (read == null) {
+            notifications = notificationRepository
+                    .findByNotificationReceiversReceiverIdAndActiveTrueOrderByIdDesc(
+                            user.getId(), paging);
+        } else if (read) {
+            notifications = notificationRepository
+                    .findByNotificationReceiversReceiverIdAndNotificationReceiversReadTrueAndActiveTrueOrderByIdDesc(
+                            user.getId(), paging);
+        } else {
+            notifications = notificationRepository
+                    .findByNotificationReceiversReceiverIdAndNotificationReceiversReadFalseAndActiveTrueOrderByIdDesc(
+                            user.getId(), paging);
+        }
 
         Pagination pagination = new Pagination(pageSize, page, notifications.getTotalPages(),
                 notifications.getTotalElements());
 
         List<NotificationResponse> response = notificationMapper.toResponse(notifications.getContent());
-        addReadToResponse(user, notifications.getContent(), response);
+        addReadStatusToResponse(user, notifications.getContent(), response);
 
         ModelPage<NotificationResponse> modelPage = new ModelPage<>(response, pagination);
 
@@ -175,22 +185,8 @@ public class NotificationService implements INotificationService {
     }
 
     @Override
-    public ResponseEntity<?> getUnreadNotification(String token) {
-//        Optional<User> user = userRepository
-//                .findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token));
-//        if (user.isPresent()) {
-//            List<Notification> notifications = notificationRepository
-//                    .findByReceiversIdContainingAndReadFalseAndEnableTrue(user.get().getId());
-//            return ResponseEntity.ok(notificationMapper.toResponse(notifications));
-//        } else {
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-//        }
-        return null;
-    }
-
-    @Override
     public ResponseEntity<?> getById(String token, Long id) {
-        User user = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         Notification notification = notificationRepository.findById(id)
@@ -215,10 +211,11 @@ public class NotificationService implements INotificationService {
 
     @Override
     public ResponseEntity<?> readAll(String token) {
-        User user = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        List<NotificationReceiver> notificationReceivers = notificationReceiverRepository.findByReceiverIdAndReadFalse(user.getId());
+        List<NotificationReceiver> notificationReceivers = notificationReceiverRepository
+                .findByReceiverIdAndReadFalse(user.getId());
         notificationReceivers.forEach(notificationReceiver -> notificationReceiver.setRead(true));
         notificationReceiverRepository.saveAll(notificationReceivers);
 
@@ -226,7 +223,7 @@ public class NotificationService implements INotificationService {
     }
 
     private List<User> getAdminList() {
-        return userRepository.findByRolesNameContainingIgnoreCaseAndEnableTrue(RoleConstant.ADMIN);
+        return userRepository.findByRolesNameContainingIgnoreCaseAndActiveTrue(RoleConstant.ADMIN);
     }
 
     private void saveNotificationReceivers(List<User> receiver, Notification notification) {
@@ -240,8 +237,8 @@ public class NotificationService implements INotificationService {
         notificationReceiverRepository.saveAll(notificationReceivers);
     }
 
-    private void addReadToResponse(User user, List<Notification> notifications,
-                                   List<NotificationResponse> notificationResponses) {
+    private void addReadStatusToResponse(User user, List<Notification> notifications,
+                                         List<NotificationResponse> notificationResponses) {
         for (int i = 0; i < notifications.size(); i++) {
             Optional<NotificationReceiver> notificationReceiver = notifications.get(i).getNotificationReceivers()
                     .stream()

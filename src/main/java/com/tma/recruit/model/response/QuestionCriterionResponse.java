@@ -25,5 +25,7 @@ public class QuestionCriterionResponse {
 
     private long approvedQuantity = 0;
 
-    private Boolean enable = true;
+    private long pendingQuantity = 0;
+
+    private Boolean active = true;
 }

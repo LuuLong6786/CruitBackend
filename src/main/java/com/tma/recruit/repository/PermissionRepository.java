@@ -10,9 +10,9 @@ import java.util.Optional;
 @Repository
 public interface PermissionRepository extends JpaRepository<Permission, Long> {
 
-    boolean existsByPermissionKeyAndEnableTrue(String permissionKey);
+    boolean existsByPermissionKeyAndActiveTrue(String permissionKey);
 
-    Optional<Permission> findByIdAndEnableTrue(Long id);
+    Optional<Permission> findByIdAndActiveTrue(Long id);
 
-    List<Permission> findByEnableTrue();
+    List<Permission> findByActiveTrue();
 }

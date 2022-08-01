@@ -48,10 +48,17 @@ public class QuestionBankController {
     }
 
     @OnlyAdmin
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> disable(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+    @DeleteMapping("/inactive/{id}")
+    public ResponseEntity<?> inactive(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                      @PathVariable Long id) {
-        return questionBankService.disable(token, id);
+        return questionBankService.inactive(token, id);
+    }
+
+    @OnlyAdmin
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                      @PathVariable Long id) {
+        return questionBankService.delete( id);
     }
 
     @GetMapping

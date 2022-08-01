@@ -13,9 +13,9 @@ import java.util.Optional;
 @Repository
 public interface QuestionBankRepository extends JpaRepository<QuestionBank, Long> {
 
-    Optional<QuestionBank> findByIdAndEnableTrue(Long id);
+    Optional<QuestionBank> findByIdAndActiveTrue(Long id);
 
-    List<QuestionBank> findByEnableTrue();
+    List<QuestionBank> findByActiveTrue();
 
     @Query(value = "select question_bank.*\n" +
             "from question_bank,\n" +
@@ -31,7 +31,7 @@ public interface QuestionBankRepository extends JpaRepository<QuestionBank, Long
             "and (question_bank.content like CONCAT('%',:keyword,'%') or :keyword is null)\n" +
             "and (question_criterion.id= :criterionId or :criterionId is null)\n" +
             "and (question_category.id= :categoryId or :categoryId is null)\n" +
-            "and question_bank.enable=true\n" +
+            "and question_bank.active=true\n" +
             "group by question_bank.id",
             nativeQuery = true)
     Page<QuestionBank> filter(String level, Long categoryId, Long criterionId, String keyword, String status,

@@ -13,4 +13,6 @@ public interface NotificationReceiverRepository extends JpaRepository<Notificati
     Optional<NotificationReceiver> findByReceiverIdAndNotificationId(Long receiveId, Long id);
 
     List<NotificationReceiver> findByReceiverIdAndReadFalse(Long id);
+
+    List<NotificationReceiver> findByReceiverId(Long id);
 }

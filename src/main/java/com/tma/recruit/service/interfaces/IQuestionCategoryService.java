@@ -2,7 +2,7 @@ package com.tma.recruit.service.interfaces;
 
 import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.request.QuestionCategoryRequest;
-import com.tma.recruit.model.request.UpdateEnableRequest;
+import com.tma.recruit.model.request.UpdateActiveRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface IQuestionCategoryService {
@@ -11,16 +11,18 @@ public interface IQuestionCategoryService {
 
     ResponseEntity<?> update(String token, QuestionCategoryRequest request, Long id);
 
-    ResponseEntity<?> disable(String token, Long id);
+    ResponseEntity<?> inactive(String token, Long id);
 
     ResponseEntity<?> getAll(Boolean showDisabled);
 
     ResponseEntity<?> getById(String token, Long id);
 
-    ResponseEntity<?> filter(String keyword, Boolean enable, Integer pageSize, Integer page, SortType sortType,
+    ResponseEntity<?> filter(String keyword, Boolean active, Integer pageSize, Integer page, SortType sortType,
                              String sortBy);
 
-    ResponseEntity<?> enable(String token, Long id);
+    ResponseEntity<?> active(String token, Long id);
 
-    ResponseEntity<?> updateEnable(String token, Long id, UpdateEnableRequest enable);
+    ResponseEntity<?> updateActive(String token, Long id, UpdateActiveRequest active);
+
+    ResponseEntity<?> delete(Long id);
 }

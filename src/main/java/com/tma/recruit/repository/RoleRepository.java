@@ -10,11 +10,11 @@ import java.util.Optional;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
-    boolean existsByNameAndEnableTrue(String name);
+    boolean existsByNameAndActiveTrue(String name);
 
-    Optional<Role> findByIdAndEnableTrue(Long id);
+    Optional<Role> findByIdAndActiveTrue(Long id);
 
-    List<Role> findByEnableTrue();
+    List<Role> findByActiveTrue();
 
     Optional<Role> findByName(String name);
 

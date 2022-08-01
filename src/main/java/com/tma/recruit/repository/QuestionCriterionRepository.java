@@ -13,11 +13,11 @@ import java.util.Optional;
 @Repository
 public interface QuestionCriterionRepository extends JpaRepository<QuestionCriterion, Long> {
 
-    boolean existsByNameIgnoreCaseAndEnableTrue(String criterion);
+    boolean existsByNameIgnoreCaseAndActiveTrue(String criterion);
 
-    Optional<QuestionCriterion> findByIdAndEnableTrue(Long id);
+    Optional<QuestionCriterion> findByIdAndActiveTrue(Long id);
 
-    List<QuestionCriterion> findByEnableTrue();
+    List<QuestionCriterion> findByActiveTrue();
 
     boolean existsByNameIgnoreCase(String name);
 
@@ -27,7 +27,7 @@ public interface QuestionCriterionRepository extends JpaRepository<QuestionCrite
             "from question_criterion\n" +
             "where\n" +
             "(name like CONCAT('%',:keyword,'%') or :keyword is null)\n" +
-            "and (enable = :enable or :enable is null)",
+            "and (active = :active or :active is null)",
             nativeQuery = true)
-    Page<QuestionCriterion> filter(String keyword, Boolean enable, Pageable paging);
+    Page<QuestionCriterion> filter(String keyword, Boolean active, Pageable paging);
 }

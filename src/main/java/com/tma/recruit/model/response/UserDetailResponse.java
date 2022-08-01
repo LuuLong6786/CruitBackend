@@ -32,5 +32,5 @@ public class UserDetailResponse {
 
     private UserResponse updatedUser;
 
-    private Boolean enable;
+    private Boolean active;
 }

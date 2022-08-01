@@ -12,7 +12,7 @@ public interface IQuestionBankService {
 
     ResponseEntity<?> update(String token, QuestionBankRequest request, Long id);
 
-    ResponseEntity<?> disable(String token, Long id);
+    ResponseEntity<?> inactive(String token, Long id);
 
     ResponseEntity<?> getAll();
 
@@ -27,4 +27,6 @@ public interface IQuestionBankService {
     ResponseEntity<?> filter(String token, QuestionStatus status, QuestionLevel level, Long categoryId,
                              Long criterionId, Integer pageSize, Integer page, String keyword, SortType orderBy,
                              String sortBy);
+
+    ResponseEntity<?> delete(Long id);
 }

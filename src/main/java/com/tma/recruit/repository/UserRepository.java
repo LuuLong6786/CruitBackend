@@ -13,34 +13,34 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByUsernameIgnoreCaseAndEnableTrue(String username);
+    Optional<User> findByUsernameIgnoreCaseAndActiveTrue(String username);
 
-    List<User> findByEnableTrue();
+    List<User> findByActiveTrue();
 
-    Optional<User> findByIdAndEnableTrue(Long id);
+    Optional<User> findByIdAndActiveTrue(Long id);
 
-    boolean existsByEmailIgnoreCaseAndEnableTrue(String email);
+    boolean existsByEmailIgnoreCaseAndActiveTrue(String email);
 
-    boolean existsByUsernameIgnoreCaseAndEnableTrue(String username);
+    boolean existsByUsernameIgnoreCaseAndActiveTrue(String username);
 
-    boolean existsByBadgeIdIgnoreCaseAndEnableTrue(String badgeId);
+    boolean existsByBadgeIdIgnoreCaseAndActiveTrue(String badgeId);
 
-    Page<User> findByNameContainingIgnoreCaseAndEnableTrue(String keyword, Pageable paging);
+    Page<User> findByNameContainingIgnoreCaseAndActiveTrue(String keyword, Pageable paging);
 
-    Page<User> findByEnableTrue(Pageable paging);
+    Page<User> findByActiveTrue(Pageable paging);
 
     @Query(value = "select users.* from users , user_role, role\n" +
-            "where users.id = user_role.user_id and role.id= user_role.role_id and users.enable=true\n" +
+            "where users.id = user_role.user_id and role.id= user_role.role_id and users.active=true\n" +
             "and (users.name like CONCAT('%',:name,'%') or :name is null)\n" +
             "and (users.username like CONCAT('%',:username,'%') or :username is null)\n" +
             "and (users.email like CONCAT('%',:email,'%') or :email is null)\n" +
             "and (role.id=:id or :id is null)\n" +
-            "and users.enable = :enable\n" +
+            "and users.active = :active\n" +
             "group by users.id",
             nativeQuery = true)
-    Page<User> filter(Boolean enable, String name, String username, String email, Long id, Pageable paging);
+    Page<User> filter(Boolean active, String name, String username, String email, Long id, Pageable paging);
 
-    List<User> findByRolesNameContainingIgnoreCaseAndEnableTrue(String name);
+    List<User> findByRolesNameContainingIgnoreCaseAndActiveTrue(String name);
 
     @Query(value = "SELECT IF(role.name = :role, 'true', 'false') as status\n" +
             "FROM users , role, user_role\n" +

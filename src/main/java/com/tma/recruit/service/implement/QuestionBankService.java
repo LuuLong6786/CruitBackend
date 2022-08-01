@@ -63,16 +63,16 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> create(String token, QuestionBankRequest request) {
-        User author = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionCategory questionCategory = questionCategoryRepository
-                .findByIdAndEnableTrue(request.getCategory().getId())
+                .findByIdAndActiveTrue(request.getCategory().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         List<QuestionCriterion> questionCriteria = new ArrayList<>();
         for (QuestionCriterionRequest criterionRequest : request.getCriteria()) {
-            QuestionCriterion criterion = questionCriterionRepository.findByIdAndEnableTrue(criterionRequest.getId())
+            QuestionCriterion criterion = questionCriterionRepository.findByIdAndActiveTrue(criterionRequest.getId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
             questionCriteria.add(criterion);
         }
@@ -90,10 +90,10 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> update(String token, QuestionBankRequest request, Long id) {
-        User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionBank questionBank = questionBankRepository.findByIdAndEnableTrue(id)
+        QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         questionBankMapper.partialUpdate(questionBank, request);
@@ -103,7 +103,7 @@ public class QuestionBankService implements IQuestionBankService {
             for (QuestionCriterionRequest questionCriterionRequest : request.getCriteria()) {
                 if (questionCriterionRequest.getId() != null && questionCriterionRequest.getId() > 0) {
                     QuestionCriterion criterion = questionCriterionRepository
-                            .findByIdAndEnableTrue(questionCriterionRequest.getId())
+                            .findByIdAndActiveTrue(questionCriterionRequest.getId())
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
                     criteria.add(criterion);
                 }
@@ -112,7 +112,7 @@ public class QuestionBankService implements IQuestionBankService {
         }
         if (request.getCategory() != null && request.getCategory().getId() > 0) {
             QuestionCategory questionCategory = questionCategoryRepository
-                    .findByIdAndEnableTrue(request.getCategory().getId())
+                    .findByIdAndActiveTrue(request.getCategory().getId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
             questionBank.setCategory(questionCategory);
         }
@@ -126,16 +126,16 @@ public class QuestionBankService implements IQuestionBankService {
     }
 
     @Override
-    public ResponseEntity<?> disable(String token, Long id) {
-        User updater = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+    public ResponseEntity<?> inactive(String token, Long id) {
+        User updater = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionBank questionBank = questionBankRepository.findByIdAndEnableTrue(id)
+        QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         questionBank.setUpdatedDate(new Date());
         questionBank.setUpdatedUser(updater);
-        questionBank.setEnable(false);
+        questionBank.setActive(false);
         questionBankRepository.save(questionBank);
 
         return ResponseEntity.ok(HttpStatus.OK);
@@ -143,12 +143,12 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(questionBankMapper.toResponse(questionBankRepository.findByEnableTrue()));
+        return ResponseEntity.ok(questionBankMapper.toResponse(questionBankRepository.findByActiveTrue()));
     }
 
     @Override
     public ResponseEntity<?> getApprovedQuestion() {
-        List<QuestionBank> questionBanks = questionBankRepository.findByEnableTrue();
+        List<QuestionBank> questionBanks = questionBankRepository.findByActiveTrue();
 
         return ResponseEntity.ok(questionBankMapper.toResponse(questionBanks));
     }
@@ -159,7 +159,7 @@ public class QuestionBankService implements IQuestionBankService {
         if (jwtUtils.isAdmin(token)) {
             question = questionBankRepository.findById(id);
         } else {
-            question = questionBankRepository.findByIdAndEnableTrue(id);
+            question = questionBankRepository.findByIdAndActiveTrue(id);
         }
 
         if (!question.isPresent()) {
@@ -171,25 +171,26 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> approve(String token, Long id) {
-        User approver = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User approver = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionBank questionBank = questionBankRepository.findByIdAndEnableTrue(id)
+        QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         questionBank.setApprover(approver);
         questionBank.setApprovedDate(new Date());
         questionBank.setStatus(QuestionStatus.APPROVED);
-        questionBankRepository.save(questionBank);
+        questionBank = questionBankRepository.save(questionBank);
+        notificationService.notifyUpdateToAdmin(questionBank);
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<?> reject(String token, Long id) {
-        User approver = userRepository.findByUsernameIgnoreCaseAndEnableTrue(jwtUtils.getUsernameFromJwtToken(token))
+        User approver = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionBank questionBank = questionBankRepository.findByIdAndEnableTrue(id)
+        QuestionBank questionBank = questionBankRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         questionBank.setApprover(approver);
         questionBank.setApprovedDate(new Date());
@@ -223,5 +224,10 @@ public class QuestionBankService implements IQuestionBankService {
                 questionBankMapper.toResponse(questionBanks.getContent()), pagination);
 
         return ResponseEntity.ok(modelPage);
+    }
+
+    @Override
+    public ResponseEntity<?> delete(Long id) {
+return null;
     }
 }
