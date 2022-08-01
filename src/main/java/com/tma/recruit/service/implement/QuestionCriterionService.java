@@ -1,6 +1,5 @@
 package com.tma.recruit.service.implement;
 
-import com.tma.recruit.model.entity.QuestionCategory;
 import com.tma.recruit.model.entity.QuestionCriterion;
 import com.tma.recruit.model.entity.User;
 import com.tma.recruit.model.enums.QuestionStatus;
@@ -10,7 +9,6 @@ import com.tma.recruit.model.request.QuestionCriterionRequest;
 import com.tma.recruit.model.request.UpdateActiveRequest;
 import com.tma.recruit.model.response.ModelPage;
 import com.tma.recruit.model.response.Pagination;
-import com.tma.recruit.model.response.QuestionCategoryResponse;
 import com.tma.recruit.model.response.QuestionCriterionResponse;
 import com.tma.recruit.repository.QuestionCriterionRepository;
 import com.tma.recruit.repository.UserRepository;
@@ -164,8 +162,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
             responses.get(i).setPendingQuantity(getPendingQuantity(criteria.getContent().get(i)));
         }
 
-        ModelPage<QuestionCriterionResponse> modelPage = new ModelPage<>(
-                questionCriterionMapper.toResponse(criteria.getContent()), pagination);
+        ModelPage<QuestionCriterionResponse> modelPage = new ModelPage<>(responses, pagination);
 
         return ResponseEntity.ok(modelPage);
     }
@@ -218,7 +215,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
     private long getApprovedQuantity(QuestionCriterion criterion) {
         return criterion.getQuestions()
                 .stream()
-                .filter(q -> q.getActive() && q.getStatus().equals(QuestionStatus.APPROVED))
+                .filter(q -> q.getStatus().equals(QuestionStatus.APPROVED))
                 .count();
     }
 
