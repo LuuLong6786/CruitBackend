@@ -29,14 +29,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findByActiveTrue(Pageable paging);
 
-    @Query(value = "select users.* from users , user_role, role\n" +
-            "where users.id = user_role.user_id and role.id= user_role.role_id and users.active=true\n" +
-            "and (users.name like CONCAT('%',:name,'%') or :name is null)\n" +
-            "and (users.username like CONCAT('%',:username,'%') or :username is null)\n" +
-            "and (users.email like CONCAT('%',:email,'%') or :email is null)\n" +
-            "and (role.id=:id or :id is null)\n" +
-            "and users.active = :active\n" +
-            "group by users.id",
+    @Query(value = "SELECT users.* \n" +
+            "FROM users, user_role, role\n" +
+            "WHERE users.id = user_role.user_id\n" +
+            "AND role.id = user_role.role_id\n" +
+            "AND users.active = true\n" +
+            "AND (users.name like CONCAT('%',:name,'%') or :name is null)\n" +
+            "AND (users.username like CONCAT('%',:username,'%') or :username is null)\n" +
+            "AND (users.email like CONCAT('%',:email,'%') or :email is null)\n" +
+            "AND (role.id=:id or :id is null)\n" +
+            "AND users.active = :active\n" +
+            "GROUP BY users.id",
             nativeQuery = true)
     Page<User> filter(Boolean active, String name, String username, String email, Long id, Pageable paging);
 
@@ -46,9 +49,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "FROM users , role, user_role\n" +
             "where\n" +
             "users.id = user_role.user_id\n" +
-            "and role.id = user_role.role_id\n" +
-            "and users.id = :userId\n" +
-            "group by users.id",
+            "AND role.id = user_role.role_id\n" +
+            "AND users.id = :userId\n" +
+            "GROUP BY users.id",
             nativeQuery = true)
     boolean checkRole(String role, Long userId);
 }

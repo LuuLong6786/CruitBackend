@@ -20,11 +20,12 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     Page<Notification> findByNotificationReceiversReceiverIdAndNotificationReceiversReadFalseAndActiveTrueOrderByIdDesc(
             Long id, Pageable paging);
 
-    @Query(value = "select COUNT(notification.id) from notification ,notification_receiver\n" +
-            "where \n" +
+    @Query(value = "SELECT COUNT(notification.id)\n" +
+            "FROM notification ,notification_receiver\n" +
+            "WHERE \n" +
             "notification.id = notification_receiver.notification_id\n" +
-            "and notification_receiver.receiver_id  = :id\n" +
-            "and notification_receiver.is_read = false",
+            "AND notification_receiver.receiver_id = :id\n" +
+            "AND notification_receiver.is_read = false",
             nativeQuery = true)
     Long countUnreadNotificationNumber(Long id);
 

@@ -20,6 +20,7 @@ import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.jwt.JwtUtils;
 import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.service.interfaces.IQuestionBankService;
+import com.tma.recruit.util.PaginationConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -210,8 +211,9 @@ public class QuestionBankService implements IQuestionBankService {
             }
         }
 
-        Pageable paging = PageRequest.of(page - 1, pageSize,
+        Pageable paging = PageRequest.of(PaginationConstant.getPage(page), pageSize,
                 SortType.DESC.equals(orderBy) ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
+
 
         Page<QuestionBank> questionBanks = questionBankRepository
                 .filter(level != null ? level.toString() : null, categoryId, criterionId, keyword,

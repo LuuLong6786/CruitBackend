@@ -49,8 +49,8 @@ public class QuestionBank extends BaseEntity {
     private QuestionStatus status = QuestionStatus.PENDING;
 
     @ManyToMany
-    @JoinTable(name = "question_bank_criteria",
+    @JoinTable(name = "question_bank_criterion",
             joinColumns = @JoinColumn(name = "question_id"),
-            inverseJoinColumns = @JoinColumn(name = "criteria_id"))
+            inverseJoinColumns = @JoinColumn(name = "criterion_id"))
     private List<QuestionCriterion> criteria;
 }

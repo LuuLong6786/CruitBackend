@@ -17,6 +17,7 @@ import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.jwt.JwtUtils;
 import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.util.Constant;
+import com.tma.recruit.util.PaginationConstant;
 import com.tma.recruit.util.RoleConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -154,7 +155,7 @@ public class NotificationService implements INotificationService {
 
     @Override
     public ResponseEntity<?> getAllNotification(String token, Boolean read, Integer pageSize, Integer page) {
-        Pageable paging = PageRequest.of(page - 1, pageSize);
+        Pageable paging = PageRequest.of(PaginationConstant.getPage(page), pageSize);
 
         User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));

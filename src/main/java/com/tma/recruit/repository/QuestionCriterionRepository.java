@@ -23,11 +23,11 @@ public interface QuestionCriterionRepository extends JpaRepository<QuestionCrite
 
     Optional<QuestionCriterion> findByNameIgnoreCase(String name);
 
-    @Query(value = "select *\n" +
-            "from question_criterion\n" +
-            "where\n" +
+    @Query(value = "SELECT *\n" +
+            "FROM question_criterion\n" +
+            "WHERE\n" +
             "(name like CONCAT('%',:keyword,'%') or :keyword is null)\n" +
-            "and (active = :active or :active is null)",
+            "AND (active = :active or :active is null)",
             nativeQuery = true)
     Page<QuestionCriterion> filter(String keyword, Boolean active, Pageable paging);
 }

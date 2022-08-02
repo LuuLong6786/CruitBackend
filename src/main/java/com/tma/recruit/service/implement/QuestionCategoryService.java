@@ -14,6 +14,7 @@ import com.tma.recruit.repository.QuestionCategoryRepository;
 import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.jwt.JwtUtils;
 import com.tma.recruit.service.interfaces.IQuestionCategoryService;
+import com.tma.recruit.util.PaginationConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -76,22 +77,21 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         QuestionCategory category = questionCategoryRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (category.getQuestions().size() == 0) {
+        if (modifiable(category)) {
             if (request.getName() != null && !category.getName().equals(request.getName())) {
                 if (questionCategoryRepository.existsByNameIgnoreCaseAndActiveTrue(request.getName())) {
                     throw new ResponseStatusException(HttpStatus.CONFLICT);
                 }
             }
-
             questionCategoryMapper.partialUpdate(category, request);
             category.setUpdatedUser(updater);
             category.setUpdatedDate(new Date());
             category = questionCategoryRepository.save(category);
 
             return ResponseEntity.ok(questionCategoryMapper.toResponse(category));
+        } else {
+            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(HttpStatus.METHOD_NOT_ALLOWED);
         }
-
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     @Override
@@ -117,8 +117,7 @@ public class QuestionCategoryService implements IQuestionCategoryService {
 
         List<QuestionCategoryResponse> responses = questionCategoryMapper.toResponse(categories);
         for (int i = 0; i < categories.size(); i++) {
-            responses.get(i).setApprovedQuantity(getApprovedQuantity(categories.get(i)));
-            responses.get(i).setPendingQuantity(getPendingQuantity(categories.get(i)));
+            setPendingAndApprovedQuantity(categories.get(i), responses.get(i));
         }
 
         return ResponseEntity.ok(responses);
@@ -138,8 +137,7 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         }
 
         QuestionCategoryResponse response = questionCategoryMapper.toResponse(category.get());
-        response.setApprovedQuantity(getApprovedQuantity(category.get()));
-        response.setPendingQuantity(getPendingQuantity(category.get()));
+        setPendingAndApprovedQuantity(category.get(), response);
 
         return ResponseEntity.ok(response);
     }
@@ -147,19 +145,17 @@ public class QuestionCategoryService implements IQuestionCategoryService {
     @Override
     public ResponseEntity<?> filter(String keyword, Boolean active, Integer pageSize, Integer page, SortType sortType,
                                     String sortBy) {
-        Pageable paging = PageRequest.of(page - 1, pageSize,
+        Pageable paging = PageRequest.of(PaginationConstant.getPage(page), pageSize,
                 SortType.DESC.equals(sortType) ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
 
-        Page<QuestionCategory> categories = questionCategoryRepository
-                .filter(keyword, active, paging);
+        Page<QuestionCategory> categories = questionCategoryRepository.filter(keyword, active, paging);
 
         Pagination pagination = new Pagination(pageSize, page, categories.getTotalPages(),
                 categories.getTotalElements());
 
         List<QuestionCategoryResponse> categoryResponses = questionCategoryMapper.toResponse(categories.getContent());
         for (int i = 0; i < categories.getContent().size(); i++) {
-            categoryResponses.get(i).setApprovedQuantity(getApprovedQuantity(categories.getContent().get(i)));
-            categoryResponses.get(i).setPendingQuantity(getPendingQuantity(categories.getContent().get(i)));
+            setPendingAndApprovedQuantity(categories.getContent().get(i), categoryResponses.get(i));
         }
 
         ModelPage<QuestionCategoryResponse> modelPage = new ModelPage<>(categoryResponses, pagination);
@@ -203,14 +199,23 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         QuestionCategory category = questionCategoryRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (category.getQuestions().size() == 0) {
-
+        if (modifiable(category)) {
             questionCategoryRepository.delete(category);
 
             return ResponseEntity.ok(HttpStatus.OK);
         }
 
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    private boolean modifiable(QuestionCategory category) {
+        return category.getQuestions().isEmpty();
+    }
+
+    private void setPendingAndApprovedQuantity(QuestionCategory questionCategory,
+                                               QuestionCategoryResponse questionCategoryResponse) {
+        questionCategoryResponse.setApprovedQuantity(getApprovedQuantity(questionCategory));
+        questionCategoryResponse.setPendingQuantity(getPendingQuantity(questionCategory));
     }
 
     private long getApprovedQuantity(QuestionCategory questionCategory) {

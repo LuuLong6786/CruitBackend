@@ -13,6 +13,7 @@ import com.tma.recruit.security.jwt.JwtUtils;
 import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.service.interfaces.IUserService;
 import com.tma.recruit.util.MessageConstants;
+import com.tma.recruit.util.PaginationConstant;
 import com.tma.recruit.util.RoleConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -323,7 +324,7 @@ public class UserService implements IUserService {
     @Override
     public ResponseEntity<?> filter(Boolean active, String name, String username, String email, Long roleId,
                                     Integer pageSize, Integer page) {
-        Pageable paging = PageRequest.of(page - 1, pageSize);
+        Pageable paging = PageRequest.of(PaginationConstant.getPage(page), pageSize);
 
         Page<User> users = userRepository.filter(active, name, username, email, roleId, paging);
 
