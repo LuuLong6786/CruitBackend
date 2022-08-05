@@ -23,4 +23,7 @@ public class QuestionCategory extends BaseEntity {
 
     @OneToMany(mappedBy = "category")
     private List<QuestionBank> questions;
+
+    @OneToMany(mappedBy = "category")
+    private List<QuestionTemplate> questionTemplates;
 }

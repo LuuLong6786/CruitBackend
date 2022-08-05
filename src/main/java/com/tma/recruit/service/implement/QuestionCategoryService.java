@@ -15,6 +15,7 @@ import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.jwt.JwtUtils;
 import com.tma.recruit.service.interfaces.IQuestionCategoryService;
 import com.tma.recruit.util.PaginationConstant;
+import com.tma.recruit.util.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -145,13 +146,15 @@ public class QuestionCategoryService implements IQuestionCategoryService {
     @Override
     public ResponseEntity<?> filter(String keyword, Boolean active, Integer pageSize, Integer page, SortType sortType,
                                     String sortBy) {
-        Pageable paging = PageRequest.of(PaginationConstant.getPage(page), pageSize,
-                SortType.DESC.equals(sortType) ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
-
+        PaginationUtil paginationUtil = PaginationUtil.builder()
+                .page(page)
+                .pageSize(pageSize)
+                .sortBy(sortBy)
+                .sortType(sortType)
+                .build();
+        Pageable paging = paginationUtil.getPageable();
         Page<QuestionCategory> categories = questionCategoryRepository.filter(keyword, active, paging);
-
-        Pagination pagination = new Pagination(pageSize, page, categories.getTotalPages(),
-                categories.getTotalElements());
+        Pagination pagination = paginationUtil.getPagination(categories);
 
         List<QuestionCategoryResponse> categoryResponses = questionCategoryMapper.toResponse(categories.getContent());
         for (int i = 0; i < categories.getContent().size(); i++) {
@@ -212,21 +215,21 @@ public class QuestionCategoryService implements IQuestionCategoryService {
         return category.getQuestions().isEmpty();
     }
 
-    private void setPendingAndApprovedQuantity(QuestionCategory questionCategory,
-                                               QuestionCategoryResponse questionCategoryResponse) {
-        questionCategoryResponse.setApprovedQuantity(getApprovedQuantity(questionCategory));
-        questionCategoryResponse.setPendingQuantity(getPendingQuantity(questionCategory));
+    private void setPendingAndApprovedQuantity(QuestionCategory category,
+                                               QuestionCategoryResponse categoryResponse) {
+        categoryResponse.setApprovedQuantity(getApprovedQuantity(category));
+        categoryResponse.setPendingQuantity(getPendingQuantity(category));
     }
 
-    private long getApprovedQuantity(QuestionCategory questionCategory) {
-        return questionCategory.getQuestions()
+    private long getApprovedQuantity(QuestionCategory category) {
+        return category.getQuestions()
                 .stream()
                 .filter(q -> q.getStatus().equals(QuestionStatus.APPROVED))
                 .count();
     }
 
-    private long getPendingQuantity(QuestionCategory questionCategory) {
-        return questionCategory.getQuestions()
+    private long getPendingQuantity(QuestionCategory category) {
+        return category.getQuestions()
                 .stream()
                 .filter(q -> q.getStatus().equals(QuestionStatus.PENDING))
                 .count();

@@ -1,5 +1,7 @@
 package com.tma.recruit.service.interfaces;
 
+import com.tma.recruit.model.entity.User;
+import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.request.ChangePasswordRequest;
 import com.tma.recruit.model.request.LoginRequest;
 import com.tma.recruit.model.request.ResetPasswordRequest;
@@ -31,9 +33,11 @@ public interface IUserService {
     ResponseEntity<?> changePassword(String token, ChangePasswordRequest changePasswordRequest);
 
     ResponseEntity<?> filter(Boolean active, String name, String username, String email, Long roleId, Integer pageSize,
-                             Integer page);
+                             Integer page, SortType sortType, String sortBy);
 
     ResponseEntity<?> active(String token, Long id);
 
     ResponseEntity<?> delete(Long id);
+
+    Boolean isAdmin(User user);
 }

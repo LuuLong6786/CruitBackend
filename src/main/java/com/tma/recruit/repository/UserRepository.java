@@ -29,28 +29,28 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findByActiveTrue(Pageable paging);
 
-    @Query(value = "SELECT users.* \n" +
-            "FROM users, user_role, role\n" +
-            "WHERE users.id = user_role.user_id\n" +
-            "AND role.id = user_role.role_id\n" +
-            "AND users.active = true\n" +
-            "AND (users.name like CONCAT('%',:name,'%') or :name is null)\n" +
-            "AND (users.username like CONCAT('%',:username,'%') or :username is null)\n" +
-            "AND (users.email like CONCAT('%',:email,'%') or :email is null)\n" +
-            "AND (role.id=:id or :id is null)\n" +
-            "AND users.active = :active\n" +
+    @Query(value = "SELECT users.* " +
+            "FROM users, user_role, role " +
+            "WHERE users.id = user_role.user_id " +
+            "AND role.id = user_role.role_id " +
+            "AND users.active = true " +
+            "AND (users.name  LIKE CONCAT('%',:name,'%') or :name is null) " +
+            "AND (users.username  LIKE CONCAT('%',:username,'%') or :username is null) " +
+            "AND (users.email  LIKE CONCAT('%',:email,'%') or :email is null) " +
+            "AND (role.id=:id or :id is null) " +
+            "AND users.active = :active " +
             "GROUP BY users.id",
             nativeQuery = true)
     Page<User> filter(Boolean active, String name, String username, String email, Long id, Pageable paging);
 
     List<User> findByRolesNameContainingIgnoreCaseAndActiveTrue(String name);
 
-    @Query(value = "SELECT IF(role.name = :role, 'true', 'false') as status\n" +
-            "FROM users , role, user_role\n" +
-            "where\n" +
-            "users.id = user_role.user_id\n" +
-            "AND role.id = user_role.role_id\n" +
-            "AND users.id = :userId\n" +
+    @Query(value = "SELECT IF(role.name = :role, 'true', 'false') as status " +
+            "FROM users , role, user_role " +
+            "where " +
+            "users.id = user_role.user_id " +
+            "AND role.id = user_role.role_id " +
+            "AND users.id = :userId " +
             "GROUP BY users.id",
             nativeQuery = true)
     boolean checkRole(String role, Long userId);
