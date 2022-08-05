@@ -1,6 +1,9 @@
 package com.tma.recruit.service.implement;
 
-import com.tma.recruit.model.entity.*;
+import com.tma.recruit.model.entity.Role;
+import com.tma.recruit.model.entity.Token;
+import com.tma.recruit.model.entity.User;
+import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.enums.TokenType;
 import com.tma.recruit.model.mapper.UserMapper;
 import com.tma.recruit.model.request.*;
@@ -14,6 +17,7 @@ import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.service.interfaces.IUserService;
 import com.tma.recruit.util.MessageConstants;
 import com.tma.recruit.util.PaginationConstant;
+import com.tma.recruit.util.PaginationUtil;
 import com.tma.recruit.util.RoleConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -323,11 +327,15 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> filter(Boolean active, String name, String username, String email, Long roleId,
-                                    Integer pageSize, Integer page) {
-        Pageable paging = PageRequest.of(PaginationConstant.getPage(page), pageSize);
-
+                                    Integer pageSize, Integer page, SortType sortType, String sortBy) {
+        PaginationUtil paginationUtil = PaginationUtil.builder()
+                .page(page)
+                .pageSize(pageSize)
+                .sortBy(sortBy)
+                .sortType(sortType)
+                .build();
+        Pageable paging = paginationUtil.getPageable();
         Page<User> users = userRepository.filter(active, name, username, email, roleId, paging);
-
         Pagination pagination = new Pagination(pageSize, page, users.getTotalPages(), users.getTotalElements());
 
         ModelPage<UserDetailResponse> modelPage = new ModelPage<>(
@@ -353,24 +361,17 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseEntity<?> delete(Long id) {
-        List<NotificationReceiver> notificationReceivers = notificationReceiverRepository.findByReceiverId(id);
-//        for (NotificationReceiver notificationReceiver : notificationReceivers) {
-//            no
-//        }
-//
-        List<Notification> notifications = notificationRepository.findByUserIdOrAuthorId(id,id);
-        for (int i  =0 ;i<notifications.size();i++){
-            notifications.get(i).setAuthor(null);
-            notifications.get(i).setUser(null);
-            notifications.get(i).setUpdatedUser(null);
-        }
+        User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+//        notificationReceiverRepository.deleteAll(notificationReceiverRepository.findByReceiverId(id));
+//        notificationRepository.deleteAll(notificationRepository.findByUserIdOrAuthorId(id, id));
+        userRepository.delete(user);
 
-        try {
-            userRepository.deleteById(id);
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
 
-        }catch (Exception e){
-            throw  new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED);
-        }return ResponseEntity.ok(HttpStatus.OK);
+    @Override
+    public Boolean isAdmin(User user) {
+        return user.getRoles().stream().anyMatch(role -> role.getName().equals(RoleConstant.ADMIN));
     }
 
     public void validateUsername(UserRequest request) {

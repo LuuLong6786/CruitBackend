@@ -23,5 +23,5 @@ public interface QuestionBankMapper
     @Mapping(ignore = true, target = "criteria")
     QuestionBank toEntity(QuestionBankRequest questionBankRequest);
 
-    QuestionBankResponse toResponse(QuestionBank questionBank);
+//    QuestionBankResponse toResponse(QuestionBank questionBank);
 }

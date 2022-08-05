@@ -20,12 +20,10 @@ import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.jwt.JwtUtils;
 import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.service.interfaces.IQuestionBankService;
-import com.tma.recruit.util.PaginationConstant;
+import com.tma.recruit.util.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -203,24 +201,25 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> filter(String token, QuestionStatus status, QuestionLevel level, Long categoryId,
-                                    Long criterionId, Integer pageSize, Integer page, String keyword, SortType orderBy,
+                                    Long criterionId, Integer pageSize, Integer page, String keyword, SortType sortType,
                                     String sortBy) {
         if (!QuestionStatus.APPROVED.equals(status)) {
             if (!jwtUtils.isAdmin(token)) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             }
         }
-
-        Pageable paging = PageRequest.of(PaginationConstant.getPage(page), pageSize,
-                SortType.DESC.equals(orderBy) ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
-
-
+        
+        PaginationUtil paginationUtil = PaginationUtil.builder()
+                .page(page)
+                .pageSize(pageSize)
+                .sortBy(sortBy)
+                .sortType(sortType)
+                .build();
+        Pageable paging = paginationUtil.getPageable();
         Page<QuestionBank> questionBanks = questionBankRepository
                 .filter(level != null ? level.toString() : null, categoryId, criterionId, keyword,
                         status != null ? status.toString() : null, paging);
-
-        Pagination pagination = new Pagination(pageSize, page, questionBanks.getTotalPages(),
-                questionBanks.getTotalElements());
+        Pagination pagination = paginationUtil.getPagination(questionBanks);
 
         ModelPage<QuestionBankResponse> modelPage = new ModelPage<>(
                 questionBankMapper.toResponse(questionBanks.getContent()), pagination);
@@ -230,6 +229,6 @@ public class QuestionBankService implements IQuestionBankService {
 
     @Override
     public ResponseEntity<?> delete(Long id) {
-return null;
+        return null;
     }
 }

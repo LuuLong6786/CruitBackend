@@ -14,12 +14,10 @@ import com.tma.recruit.repository.QuestionCriterionRepository;
 import com.tma.recruit.repository.UserRepository;
 import com.tma.recruit.security.jwt.JwtUtils;
 import com.tma.recruit.service.interfaces.IQuestionCriteriaService;
-import com.tma.recruit.util.PaginationConstant;
+import com.tma.recruit.util.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -77,7 +75,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
         QuestionCriterion criterion = questionCriterionRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (criterion.getQuestions().size() == 0) {
+        if (modifiable(criterion)) {
             if (request.getName() != null && !criterion.getName().equals(request.getName())) {
                 if (questionCriterionRepository.existsByNameIgnoreCaseAndActiveTrue(request.getName())) {
                     throw new ResponseStatusException(HttpStatus.CONFLICT);
@@ -118,8 +116,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
 
         List<QuestionCriterionResponse> responses = questionCriterionMapper.toResponse(criteria);
         for (int i = 0; i < criteria.size(); i++) {
-            responses.get(i).setApprovedQuantity(getApprovedQuantity(criteria.get(i)));
-            responses.get(i).setPendingQuantity(getPendingQuantity(criteria.get(i)));
+            setPendingAndApprovedQuantity(criteria.get(i), responses.get(i));
         }
 
         return ResponseEntity.ok(responses);
@@ -139,8 +136,7 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
         }
 
         QuestionCriterionResponse response = questionCriterionMapper.toResponse(criterion.get());
-        response.setApprovedQuantity(getApprovedQuantity(criterion.get()));
-        response.setPendingQuantity(getPendingQuantity(criterion.get()));
+        setPendingAndApprovedQuantity(criterion.get(), response);
 
         return ResponseEntity.ok(response);
     }
@@ -148,19 +144,19 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
     @Override
     public ResponseEntity<?> filter(String keyword, Boolean active, Integer pageSize, Integer page, SortType sortType,
                                     String sortBy) {
-        Pageable paging = PageRequest.of(PaginationConstant.getPage(page), pageSize,
-                SortType.DESC.equals(sortType) ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
-
-        Page<QuestionCriterion> criteria = questionCriterionRepository
-                .filter(keyword, active, paging);
-
-        Pagination pagination = new Pagination(pageSize, page, criteria.getTotalPages(),
-                criteria.getTotalElements());
+        PaginationUtil paginationUtil = PaginationUtil.builder()
+                .page(page)
+                .pageSize(pageSize)
+                .sortBy(sortBy)
+                .sortType(sortType)
+                .build();
+        Pageable paging = paginationUtil.getPageable();
+        Page<QuestionCriterion> criteria = questionCriterionRepository.filter(keyword, active, paging);
+        Pagination pagination = paginationUtil.getPagination(criteria);
 
         List<QuestionCriterionResponse> responses = questionCriterionMapper.toResponse(criteria.getContent());
         for (int i = 0; i < criteria.getContent().size(); i++) {
-            responses.get(i).setApprovedQuantity(getApprovedQuantity(criteria.getContent().get(i)));
-            responses.get(i).setPendingQuantity(getPendingQuantity(criteria.getContent().get(i)));
+            setPendingAndApprovedQuantity(criteria.getContent().get(i), responses.get(i));
         }
 
         ModelPage<QuestionCriterionResponse> modelPage = new ModelPage<>(responses, pagination);
@@ -204,13 +200,23 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
         QuestionCriterion criterion = questionCriterionRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (criterion.getQuestions().size() == 0) {
+        if (modifiable(criterion)) {
             questionCriterionRepository.delete(criterion);
 
             return ResponseEntity.ok(HttpStatus.OK);
         }
 
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    private boolean modifiable(QuestionCriterion criterion) {
+        return criterion.getQuestions().isEmpty();
+    }
+
+    private void setPendingAndApprovedQuantity(QuestionCriterion criterion,
+                                               QuestionCriterionResponse criterionResponse) {
+        criterionResponse.setApprovedQuantity(getApprovedQuantity(criterion));
+        criterionResponse.setPendingQuantity(getPendingQuantity(criterion));
     }
 
     private long getApprovedQuantity(QuestionCriterion criterion) {

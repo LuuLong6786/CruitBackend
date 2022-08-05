@@ -59,10 +59,6 @@ public class JwtUtils {
         return roles;
     }
 
-    public Long getIdByJwtToken(String token) {
-        return Long.valueOf(Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody().getId());
-    }
-
     public boolean isAdmin(String token) {
         List<String> roles = getRoleFromToken(token);
         return roles.contains(RoleConstant.ADMIN);
@@ -73,7 +69,7 @@ public class JwtUtils {
     }
 
     public Long getUserIdFromJwtToken(String token) {
-        return Long.parseLong(Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody().getId());
+        return Long.valueOf(Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(parseJwtString(token)).getBody().getId());
     }
 
     public boolean validateJwtToken(String authToken) {

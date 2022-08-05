@@ -27,4 +27,8 @@ public class NotificationResponse {
     private Date createdDate;
 
     private Date updatedDate;
+
+    private UserResponse author;
+
+    private UserResponse updatedUser;
 }

@@ -1,12 +1,14 @@
 package com.tma.recruit.controller;
 
 import com.tma.recruit.anotation.OnlyAdmin;
+import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.request.ChangePasswordRequest;
 import com.tma.recruit.model.request.LoginRequest;
 import com.tma.recruit.model.request.ResetPasswordRequest;
 import com.tma.recruit.model.request.UserRequest;
 import com.tma.recruit.service.interfaces.IUserService;
 import com.tma.recruit.util.Constant;
+import com.tma.recruit.util.PaginationConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,9 +36,13 @@ public class UserController {
                                     @RequestParam(required = false) String username,
                                     @RequestParam(required = false) String email,
                                     @RequestParam(required = false) Long roleId,
-                                    @RequestParam(required = false, defaultValue = "5") Integer pageSize,
-                                    @RequestParam(required = false, defaultValue = "1") Integer page) {
-        return userService.filter(active, name, username, email, roleId, pageSize, page);
+                                    @RequestParam(required = false, defaultValue = "DESC") SortType sortType,
+                                    @RequestParam(required = false, defaultValue = "id") String sortBy,
+                                    @RequestParam(required = false,
+                                            defaultValue = PaginationConstant.PAGE_SIZE_DEFAULT_VALUE) Integer pageSize,
+                                    @RequestParam(required = false,
+                                            defaultValue = PaginationConstant.PAGE_DEFAULT_VALUE) Integer page) {
+        return userService.filter(active, name, username, email, roleId, pageSize, page, sortType, sortBy);
     }
 
     @OnlyAdmin
@@ -68,14 +74,14 @@ public class UserController {
     @OnlyAdmin
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                     @PathVariable Long id) {
-        return userService.delete( id);
+                                    @PathVariable Long id) {
+        return userService.delete(id);
     }
 
     @OnlyAdmin
     @DeleteMapping("/inactive/{id}")
     public ResponseEntity<?> inactive(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                     @PathVariable Long id) {
+                                      @PathVariable Long id) {
         return userService.inactive(token, id);
     }
 

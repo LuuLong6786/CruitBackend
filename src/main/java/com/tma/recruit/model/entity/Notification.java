@@ -35,7 +35,7 @@ public class Notification extends BaseEntity {
     @JoinColumn(name = "question_id")
     private QuestionBank questionBank;
 
-    @OneToMany(mappedBy = "notification")
+    @OneToMany(mappedBy = "notification", cascade = {CascadeType.ALL})
     private List<NotificationReceiver> notificationReceivers;
 
     public Notification(User user) {
