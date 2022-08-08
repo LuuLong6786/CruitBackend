@@ -11,6 +11,7 @@ import com.tma.recruit.model.response.Pagination;
 import com.tma.recruit.model.response.QuestionTemplateResponse;
 import com.tma.recruit.repository.*;
 import com.tma.recruit.security.jwt.JwtUtils;
+import com.tma.recruit.service.interfaces.INotificationService;
 import com.tma.recruit.service.interfaces.IQuestionTemplateService;
 import com.tma.recruit.service.interfaces.IUserService;
 import com.tma.recruit.util.PaginationUtil;
@@ -53,6 +54,9 @@ public class QuestionTemplateService implements IQuestionTemplateService {
 
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private INotificationService notificationService;
 
     @Override
     public ResponseEntity<?> create(String token, QuestionTemplateRequest request) {
@@ -102,9 +106,10 @@ public class QuestionTemplateService implements IQuestionTemplateService {
                 questionBankTemplateRepository.deleteAll(questionBankTemplates);
                 saveQuestionBankTemplates(request, template);
             }
-            QuestionTemplate newTemplate = questionTemplateRepository.findById(id)
+            template = questionTemplateRepository.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-            return ResponseEntity.ok(questionTemplateMapper.toResponse(newTemplate));
+
+            return ResponseEntity.ok(questionTemplateMapper.toResponse(template));
         } else {
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(HttpStatus.METHOD_NOT_ALLOWED);
         }
@@ -250,6 +255,10 @@ public class QuestionTemplateService implements IQuestionTemplateService {
 
         saveQuestionBankTemplates(template, sharingTemplate);
 
+        sharingTemplate = questionTemplateRepository.findById(sharingTemplate.getId()).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        notificationService.notifySharingTemplate(sharingTemplate);
+
         return ResponseEntity.ok(questionTemplateMapper.toResponse(sharingTemplate));
     }
 
@@ -318,6 +327,7 @@ public class QuestionTemplateService implements IQuestionTemplateService {
             questionBankTemplates.add(questionBankTemplate);
         }
         questionBankTemplateRepository.saveAll(questionBankTemplates);
+        template.setQuestionBankTemplates(questionBankTemplates);
     }
 
     private boolean modifiable(User updater, QuestionTemplate template) {
