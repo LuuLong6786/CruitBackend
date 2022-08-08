@@ -1,9 +1,6 @@
 package com.tma.recruit.service.implement;
 
-import com.tma.recruit.model.entity.Notification;
-import com.tma.recruit.model.entity.NotificationReceiver;
-import com.tma.recruit.model.entity.QuestionBank;
-import com.tma.recruit.model.entity.User;
+import com.tma.recruit.model.entity.*;
 import com.tma.recruit.model.enums.NotificationType;
 import com.tma.recruit.model.mapper.NotificationMapper;
 import com.tma.recruit.model.mapper.UserMapper;
@@ -221,6 +218,28 @@ public class NotificationService implements INotificationService {
         notificationReceiverRepository.saveAll(notificationReceivers);
 
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @Override
+    public void notifySharingTemplate(QuestionTemplate questionTemplate) {
+        User user = questionTemplate.getAuthor();
+        List<User> admins = getAdminList();
+        admins = admins.stream().filter(
+                admin -> (!admin.getId().equals(user.getId()))).collect(Collectors.toList());
+
+        Notification notification = new Notification(user);
+        notification.setContent(user.getUsername() + " just shared a template");
+        notification.setUser(user);
+        notification.setQuestionTemplate(questionTemplate);
+        notification.setNotificationType(NotificationType.QUESTION_TEMPLATE);
+        notification = notificationRepository.save(notification);
+
+        saveNotificationReceivers(admins, notification);
+
+        NotificationResponse response = notificationMapper.toResponse(notification);
+        admins.forEach(receiver -> {
+            template.convertAndSendToUser(receiver.getUsername(), Constant.QUEUE_NOTIFICATION_URL, response);
+        });
     }
 
     private List<User> getAdminList() {

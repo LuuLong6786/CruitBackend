@@ -1,8 +1,11 @@
 package com.tma.recruit.service.interfaces;
 
 import com.tma.recruit.model.entity.QuestionBank;
+import com.tma.recruit.model.entity.QuestionTemplate;
 import com.tma.recruit.model.entity.User;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 public interface INotificationService {
 
@@ -21,4 +24,6 @@ public interface INotificationService {
     ResponseEntity<?> getUnreadNotificationNumber(String token);
 
     ResponseEntity<?> readAll(String token);
+
+    void notifySharingTemplate(QuestionTemplate questionTemplate);
 }
