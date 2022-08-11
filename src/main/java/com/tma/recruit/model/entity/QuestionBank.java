@@ -54,9 +54,6 @@ public class QuestionBank extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "criterion_id"))
     private List<QuestionCriterion> criteria;
 
-//    @ManyToMany(mappedBy = "questions")
-//    private List<QuestionTemplate> templates;
-
     @OneToMany(mappedBy = "question")
     private List<QuestionBankTemplate> questionBankTemplates;
 }

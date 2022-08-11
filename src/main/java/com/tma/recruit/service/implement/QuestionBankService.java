@@ -208,7 +208,7 @@ public class QuestionBankService implements IQuestionBankService {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             }
         }
-        
+
         PaginationUtil paginationUtil = PaginationUtil.builder()
                 .page(page)
                 .pageSize(pageSize)
@@ -217,8 +217,7 @@ public class QuestionBankService implements IQuestionBankService {
                 .build();
         Pageable paging = paginationUtil.getPageable();
         Page<QuestionBank> questionBanks = questionBankRepository
-                .filter(level != null ? level.toString() : null, categoryId, criterionId, keyword,
-                        status != null ? status.toString() : null, paging);
+                .filter(level, categoryId, criterionId, keyword, status, paging);
         Pagination pagination = paginationUtil.getPagination(questionBanks);
 
         ModelPage<QuestionBankResponse> modelPage = new ModelPage<>(

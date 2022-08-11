@@ -5,7 +5,6 @@ import com.tma.recruit.model.enums.QuestionTemplateStatus;
 import com.tma.recruit.model.enums.QuestionTemplateType;
 import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.mapper.QuestionTemplateMapper;
-import com.tma.recruit.model.request.QuestionBankTemplateRequest;
 import com.tma.recruit.model.request.QuestionTemplateRequest;
 import com.tma.recruit.model.response.ModelPage;
 import com.tma.recruit.model.response.Pagination;
@@ -66,7 +65,7 @@ public class QuestionTemplateService implements IQuestionTemplateService {
         User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        QuestionTemplate template = createTemplate(author,request);
+        QuestionTemplate template = createTemplate(author, request);
         template.setQuestionTemplateType(QuestionTemplateType.PERSONAL);
         template = questionTemplateRepository.save(template);
 
@@ -83,7 +82,7 @@ public class QuestionTemplateService implements IQuestionTemplateService {
         User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        QuestionTemplate template = createTemplate(author,request);
+        QuestionTemplate template = createTemplate(author, request);
         template.setQuestionTemplateType(QuestionTemplateType.SHARING);
         template.setPublic(true);
         template = questionTemplateRepository.save(template);
@@ -96,7 +95,7 @@ public class QuestionTemplateService implements IQuestionTemplateService {
         return ResponseEntity.status(HttpStatus.CREATED).body(questionTemplateMapper.toResponse(template));
     }
 
-    private QuestionTemplate createTemplate(User author, QuestionTemplateRequest request){
+    private QuestionTemplate createTemplate(User author, QuestionTemplateRequest request) {
         request.setQuestionBankTemplates(
                 request.getQuestionBankTemplates().stream().distinct().collect(Collectors.toList()));
 
@@ -192,9 +191,8 @@ public class QuestionTemplateService implements IQuestionTemplateService {
                 .build();
         Pageable paging = paginationUtil.getPageable();
 
-        Page<QuestionTemplate> templates = questionTemplateRepository.filterByAdmin(
-                status != null ? status.toString() : null, categoryId, keyword,
-                templateType != null ? templateType.toString() : null, paging);
+        Page<QuestionTemplate> templates = questionTemplateRepository.filterByAdmin(status, categoryId, keyword,
+                templateType, paging);
 
         Pagination pagination = paginationUtil.getPagination(templates);
 
@@ -220,8 +218,8 @@ public class QuestionTemplateService implements IQuestionTemplateService {
                 .build();
         Pageable paging = paginationUtil.getPageable();
 
-        Page<QuestionTemplate> templates = questionTemplateRepository.filterByUser(isPublic, categoryId,
-                templateType != null ? templateType.toString() : null, keyword, user.getId(), paging);
+        Page<QuestionTemplate> templates = questionTemplateRepository.filterByUser(isPublic, categoryId, templateType,
+                keyword, user.getId(), paging);
 
         Pagination pagination = paginationUtil.getPagination(templates);
 
@@ -300,9 +298,26 @@ public class QuestionTemplateService implements IQuestionTemplateService {
     }
 
     @Override
-    public ResponseEntity<?> explore(String token, String keyword, SortType sortType, String sortBy, Integer page,
-                                     Integer pageSize) {
-        return null;
+    public ResponseEntity<?> explore(String token, Long categoryId, String keyword, SortType sortType, String sortBy,
+                                     Integer page, Integer pageSize) {
+
+        PaginationUtil paginationUtil = PaginationUtil.builder()
+                .page(page)
+                .pageSize(pageSize)
+                .sortBy(sortBy)
+                .sortType(sortType)
+                .build();
+        Pageable paging = paginationUtil.getPageable();
+
+        Page<QuestionTemplate> templates = questionTemplateRepository.explore(categoryId, keyword, paging);
+
+        Pagination pagination = paginationUtil.getPagination(templates);
+
+        List<QuestionTemplateResponse> responses = questionTemplateMapper.toResponse(templates.getContent());
+
+        ModelPage<QuestionTemplateResponse> modelPage = new ModelPage<>(responses, pagination);
+
+        return ResponseEntity.ok(modelPage);
     }
 
     @Override

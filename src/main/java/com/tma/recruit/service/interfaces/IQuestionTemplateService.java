@@ -38,8 +38,8 @@ public interface IQuestionTemplateService {
 
     ResponseEntity<?> share(String token, Long id);     // ok
 
-    ResponseEntity<?> explore(String token, String keyword, SortType sortType, String sortBy, Integer page,     // yet
-                              Integer pageSize);
+    ResponseEntity<?> explore(String token, Long categoryId, String keyword, SortType sortType, String sortBy,
+                              Integer page, Integer pageSize);
 
     ResponseEntity<?> pullTemplate(String token, Long id);      // ok
 

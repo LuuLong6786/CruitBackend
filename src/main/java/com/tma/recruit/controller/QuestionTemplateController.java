@@ -27,7 +27,7 @@ public class QuestionTemplateController {
 
     @PostMapping("/sharing")
     public ResponseEntity<?> createSharingTemplate(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                    @RequestBody QuestionTemplateRequest request) {
+                                                   @RequestBody QuestionTemplateRequest request) {
         return questionTemplateService.createSharingTemplate(token, request);
     }
 
@@ -95,13 +95,14 @@ public class QuestionTemplateController {
     @GetMapping("/explore")
     public ResponseEntity<?> explore(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                      @RequestParam(required = false) String keyword,
+                                     @RequestParam(required = false) Long categoryId,
                                      @RequestParam(required = false, defaultValue = "DESC") SortType sortType,
                                      @RequestParam(required = false, defaultValue = "id") String sortBy,
                                      @RequestParam(required = false, defaultValue =
                                              PaginationConstant.PAGE_SIZE_DEFAULT_VALUE) Integer pageSize,
                                      @RequestParam(required = false,
                                              defaultValue = PaginationConstant.PAGE_DEFAULT_VALUE) Integer page) {
-        return questionTemplateService.explore(token, keyword, sortType, sortBy, page, pageSize);
+        return questionTemplateService.explore(token, categoryId, keyword, sortType, sortBy, page, pageSize);
     }
 
     @PostMapping("/pull/{id}")

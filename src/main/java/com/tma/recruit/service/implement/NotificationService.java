@@ -201,7 +201,7 @@ public class NotificationService implements INotificationService {
 
     @Override
     public ResponseEntity<?> getUnreadNotificationNumber(String token) {
-        Long unreadNotificationNumber = notificationRepository.countUnreadNotificationNumber(
+        Long unreadNotificationNumber = notificationReceiverRepository.countUnreadNotificationNumber(
                 jwtUtils.getUserIdFromJwtToken(token));
 
         return ResponseEntity.ok(new UnreadNotificationNumberResponse(unreadNotificationNumber));

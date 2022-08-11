@@ -29,29 +29,25 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findByActiveTrue(Pageable paging);
 
-    @Query(value = "SELECT users.* " +
-            "FROM users, user_role, role " +
-            "WHERE users.id = user_role.user_id " +
-            "AND role.id = user_role.role_id " +
-            "AND users.active = true " +
-            "AND (users.name  LIKE CONCAT('%',:name,'%') or :name is null) " +
-            "AND (users.username  LIKE CONCAT('%',:username,'%') or :username is null) " +
-            "AND (users.email  LIKE CONCAT('%',:email,'%') or :email is null) " +
-            "AND (role.id=:id or :id is null) " +
-            "AND users.active = :active " +
-            "GROUP BY users.id",
-            nativeQuery = true)
+    @Query(value = "SELECT u " +
+            "FROM User u " +
+            "JOIN u.roles r " +
+            "WHERE " +
+            "(u.name LIKE CONCAT('%',:name,'%') OR :name is null) " +
+            "AND (u.username  LIKE CONCAT('%',:username,'%') OR :username is null) " +
+            "AND (u.email  LIKE CONCAT('%',:email,'%') OR :email is null) " +
+            "AND (r.id=:id OR :id is null) " +
+            "AND u.active = :active " +
+            "GROUP BY u.id")
     Page<User> filter(Boolean active, String name, String username, String email, Long id, Pageable paging);
 
     List<User> findByRolesNameContainingIgnoreCaseAndActiveTrue(String name);
 
-    @Query(value = "SELECT IF(role.name = :role, 'true', 'false') as status " +
-            "FROM users , role, user_role " +
-            "where " +
-            "users.id = user_role.user_id " +
-            "AND role.id = user_role.role_id " +
-            "AND users.id = :userId " +
-            "GROUP BY users.id",
-            nativeQuery = true)
+    @Query(value = "SELECT CASE WHEN (r.name = :role) THEN 'true' ELSE 'false' END AS status " +
+            "FROM User u " +
+            "JOIN u.roles r " +
+            "WHERE " +
+            "u.id = :userId " +
+            "GROUP BY u.id")
     boolean checkRole(String role, Long userId);
 }
