@@ -43,6 +43,8 @@ public interface QuestionTemplateRepository extends JpaRepository<QuestionTempla
             "WHERE " +
             "(category.id = :categoryId OR :categoryId is null) " +
             "AND (name LIKE CONCAT('%',:keyword,'%') OR description LIKE CONCAT('%',:keyword,'%') " +
-            "OR :keyword is null)")
+            "OR :keyword is null) " +
+            "AND questionTemplateType = 'SHARING' " +
+            "AND status = 'APPROVED'")
     Page<QuestionTemplate> explore(Long categoryId, String keyword, Pageable paging);
 }
