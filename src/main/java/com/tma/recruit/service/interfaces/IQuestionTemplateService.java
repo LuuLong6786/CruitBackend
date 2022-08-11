@@ -8,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 
 public interface IQuestionTemplateService {
 
-    ResponseEntity<?> create(String token, QuestionTemplateRequest request);  // ok
+    ResponseEntity<?> createPersonalTemplate(String token, QuestionTemplateRequest request);  // ok
+
+    ResponseEntity<?> createSharingTemplate(String token, QuestionTemplateRequest request);
 
     ResponseEntity<?> update(String token, Long id, QuestionTemplateRequest request); // ok
 

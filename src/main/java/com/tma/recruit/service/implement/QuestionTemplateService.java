@@ -5,6 +5,7 @@ import com.tma.recruit.model.enums.QuestionTemplateStatus;
 import com.tma.recruit.model.enums.QuestionTemplateType;
 import com.tma.recruit.model.enums.SortType;
 import com.tma.recruit.model.mapper.QuestionTemplateMapper;
+import com.tma.recruit.model.request.QuestionBankTemplateRequest;
 import com.tma.recruit.model.request.QuestionTemplateRequest;
 import com.tma.recruit.model.response.ModelPage;
 import com.tma.recruit.model.response.Pagination;
@@ -23,12 +24,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class QuestionTemplateService implements IQuestionTemplateService {
 
     @Autowired
@@ -59,15 +62,12 @@ public class QuestionTemplateService implements IQuestionTemplateService {
     private INotificationService notificationService;
 
     @Override
-    public ResponseEntity<?> create(String token, QuestionTemplateRequest request) {
+    public ResponseEntity<?> createPersonalTemplate(String token, QuestionTemplateRequest request) {
         User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        request.setQuestionBankTemplates(request.getQuestionBankTemplates().stream().distinct().collect(Collectors.toList()));
-
-        QuestionTemplate template = questionTemplateMapper.toEntity(request);
-        template.setAuthor(author);
-        template.setUpdatedUser(author);
+        QuestionTemplate template = createTemplate(author,request);
+        template.setQuestionTemplateType(QuestionTemplateType.PERSONAL);
         template = questionTemplateRepository.save(template);
 
         saveQuestionBankTemplates(request, template);
@@ -76,6 +76,35 @@ public class QuestionTemplateService implements IQuestionTemplateService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(questionTemplateMapper.toResponse(template));
+    }
+
+    @Override
+    public ResponseEntity<?> createSharingTemplate(String token, QuestionTemplateRequest request) {
+        User author = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+        QuestionTemplate template = createTemplate(author,request);
+        template.setQuestionTemplateType(QuestionTemplateType.SHARING);
+        template.setPublic(true);
+        template = questionTemplateRepository.save(template);
+
+        saveQuestionBankTemplates(request, template);
+
+        template = questionTemplateRepository.findById(template.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(questionTemplateMapper.toResponse(template));
+    }
+
+    private QuestionTemplate createTemplate(User author, QuestionTemplateRequest request){
+        request.setQuestionBankTemplates(
+                request.getQuestionBankTemplates().stream().distinct().collect(Collectors.toList()));
+
+        QuestionTemplate template = questionTemplateMapper.toEntity(request);
+        template.setAuthor(author);
+        template.setUpdatedUser(author);
+
+        return template;
     }
 
     @Override
@@ -100,7 +129,7 @@ public class QuestionTemplateService implements IQuestionTemplateService {
             template.setUpdatedUser(updater);
             template = questionTemplateRepository.save(template);
 
-            if (!request.getQuestionBankTemplates().isEmpty()) {
+            if (request.getQuestionBankTemplates() != null && !request.getQuestionBankTemplates().isEmpty()) {
                 List<QuestionBankTemplate> questionBankTemplates = template.getQuestionBankTemplates();
                 template.setQuestionBankTemplates(null);
                 questionBankTemplateRepository.deleteAll(questionBankTemplates);
@@ -123,7 +152,9 @@ public class QuestionTemplateService implements IQuestionTemplateService {
         QuestionTemplate template = questionTemplateRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (userService.isAdmin(user) || (template.getAuthor().getId().equals(user.getId())
+        if ((userService.isAdmin(user)
+                && template.getQuestionTemplateType().equals(QuestionTemplateType.SHARING))
+                || (template.getAuthor().getId().equals(user.getId())
                 && template.getQuestionTemplateType().equals(QuestionTemplateType.PERSONAL))) {
             questionTemplateRepository.delete(template);
 
@@ -160,9 +191,11 @@ public class QuestionTemplateService implements IQuestionTemplateService {
                 .sortType(sortType)
                 .build();
         Pageable paging = paginationUtil.getPageable();
+
         Page<QuestionTemplate> templates = questionTemplateRepository.filterByAdmin(
                 status != null ? status.toString() : null, categoryId, keyword,
                 templateType != null ? templateType.toString() : null, paging);
+
         Pagination pagination = paginationUtil.getPagination(templates);
 
         List<QuestionTemplateResponse> responses = questionTemplateMapper.toResponse(templates.getContent());
@@ -186,8 +219,10 @@ public class QuestionTemplateService implements IQuestionTemplateService {
                 .sortType(sortType)
                 .build();
         Pageable paging = paginationUtil.getPageable();
+
         Page<QuestionTemplate> templates = questionTemplateRepository.filterByUser(isPublic, categoryId,
                 templateType != null ? templateType.toString() : null, keyword, user.getId(), paging);
+
         Pagination pagination = paginationUtil.getPagination(templates);
 
         List<QuestionTemplateResponse> responses = questionTemplateMapper.toResponse(templates.getContent());
@@ -251,11 +286,13 @@ public class QuestionTemplateService implements IQuestionTemplateService {
         QuestionTemplate sharingTemplate = template.cloneTemplateForSharing();
         sharingTemplate.setAuthor(user);
         sharingTemplate.setUpdatedUser(user);
+        sharingTemplate.setCategory(template.getCategory());
         sharingTemplate = questionTemplateRepository.save(sharingTemplate);
 
         saveQuestionBankTemplates(template, sharingTemplate);
 
-        sharingTemplate = questionTemplateRepository.findById(sharingTemplate.getId()).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+        sharingTemplate = questionTemplateRepository.findById(sharingTemplate.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         notificationService.notifySharingTemplate(sharingTemplate);
 
@@ -279,6 +316,7 @@ public class QuestionTemplateService implements IQuestionTemplateService {
         QuestionTemplate newTemplate = template.cloneTemplateForPull();
         newTemplate.setAuthor(user);
         newTemplate.setUpdatedUser(user);
+        newTemplate.setCategory(template.getCategory());
         newTemplate = questionTemplateRepository.save(newTemplate);
 
         saveQuestionBankTemplates(template, newTemplate);

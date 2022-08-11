@@ -21,8 +21,6 @@ public class QuestionTemplateRequest {
 
     private boolean isPublic = false;
 
-    private QuestionTemplateType questionTemplateType;
-
     private List<QuestionBankTemplateRequest> questionBankTemplates;
 
     private QuestionCategoryRequest category;

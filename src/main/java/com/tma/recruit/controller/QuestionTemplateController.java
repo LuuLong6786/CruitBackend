@@ -1,5 +1,6 @@
 package com.tma.recruit.controller;
 
+import com.tma.recruit.anotation.OnlyAdmin;
 import com.tma.recruit.model.enums.QuestionTemplateStatus;
 import com.tma.recruit.model.enums.QuestionTemplateType;
 import com.tma.recruit.model.enums.SortType;
@@ -21,7 +22,13 @@ public class QuestionTemplateController {
     @PostMapping
     public ResponseEntity<?> create(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @RequestBody QuestionTemplateRequest request) {
-        return questionTemplateService.create(token, request);
+        return questionTemplateService.createPersonalTemplate(token, request);
+    }
+
+    @PostMapping("/sharing")
+    public ResponseEntity<?> createSharingTemplate(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                    @RequestBody QuestionTemplateRequest request) {
+        return questionTemplateService.createSharingTemplate(token, request);
     }
 
     @PutMapping("/{id}")
@@ -65,12 +72,14 @@ public class QuestionTemplateController {
         return questionTemplateService.getById(token, id);
     }
 
+    @OnlyAdmin
     @PostMapping("/approve/{id}")
     public ResponseEntity<?> approve(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                      @PathVariable Long id) {
         return questionTemplateService.approve(token, id);
     }
 
+    @OnlyAdmin
     @PostMapping("/reject/{id}")
     public ResponseEntity<?> reject(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @PathVariable Long id) {
@@ -101,7 +110,7 @@ public class QuestionTemplateController {
         return questionTemplateService.pullTemplate(token, id);
     }
 
-    @PostMapping("/update-status/{id}")
+    @PutMapping("/update-status/{id}")
     public ResponseEntity<?> updateStatus(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                           @RequestBody QuestionTemplateRequest request,
                                           @PathVariable Long id) {

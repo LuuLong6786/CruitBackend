@@ -153,7 +153,9 @@ public class QuestionCategoryService implements IQuestionCategoryService {
                 .sortType(sortType)
                 .build();
         Pageable paging = paginationUtil.getPageable();
+
         Page<QuestionCategory> categories = questionCategoryRepository.filter(keyword, active, paging);
+
         Pagination pagination = paginationUtil.getPagination(categories);
 
         List<QuestionCategoryResponse> categoryResponses = questionCategoryMapper.toResponse(categories.getContent());

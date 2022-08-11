@@ -45,6 +45,9 @@ public class QuestionTemplate extends BaseEntity {
     @OneToMany(mappedBy = "template", cascade = {CascadeType.ALL})
     private List<QuestionBankTemplate> questionBankTemplates;
 
+    @OneToMany(mappedBy = "questionTemplate", cascade = {CascadeType.ALL})
+    private List<Notification> notifications;
+
     public QuestionTemplate(String name, String description, Boolean isPublic,
                             QuestionTemplateType questionTemplateType) {
         this.name = name;

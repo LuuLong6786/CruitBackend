@@ -151,7 +151,9 @@ public class QuestionCriterionService implements IQuestionCriteriaService {
                 .sortType(sortType)
                 .build();
         Pageable paging = paginationUtil.getPageable();
+
         Page<QuestionCriterion> criteria = questionCriterionRepository.filter(keyword, active, paging);
+
         Pagination pagination = paginationUtil.getPagination(criteria);
 
         List<QuestionCriterionResponse> responses = questionCriterionMapper.toResponse(criteria.getContent());
