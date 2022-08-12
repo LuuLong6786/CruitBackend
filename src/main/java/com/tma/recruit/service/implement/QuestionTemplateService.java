@@ -152,9 +152,9 @@ public class QuestionTemplateService implements IQuestionTemplateService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if ((userService.isAdmin(user)
-                && template.getQuestionTemplateType().equals(QuestionTemplateType.SHARING))
+                && QuestionTemplateType.SHARING.equals(template.getQuestionTemplateType()))
                 || (template.getAuthor().getId().equals(user.getId())
-                && template.getQuestionTemplateType().equals(QuestionTemplateType.PERSONAL))) {
+                && QuestionTemplateType.PERSONAL.equals(template.getQuestionTemplateType()))) {
             questionTemplateRepository.delete(template);
 
             return ResponseEntity.ok(HttpStatus.OK);
@@ -300,7 +300,6 @@ public class QuestionTemplateService implements IQuestionTemplateService {
     @Override
     public ResponseEntity<?> explore(String token, Long categoryId, String keyword, SortType sortType, String sortBy,
                                      Integer page, Integer pageSize) {
-
         PaginationUtil paginationUtil = PaginationUtil.builder()
                 .page(page)
                 .pageSize(pageSize)
