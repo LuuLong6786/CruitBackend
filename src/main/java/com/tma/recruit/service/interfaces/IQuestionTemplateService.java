@@ -23,7 +23,7 @@ public interface IQuestionTemplateService {
                              String sortBy, Integer page, Integer pageSize); // ok
 
     ResponseEntity<?> filterByAdmin(String keyword, QuestionTemplateStatus status, Long categoryId,
-                                    QuestionTemplateType templateType, SortType sortType, String sortBy, Integer page,
+                                    SortType sortType, String sortBy, Integer page,
                                     Integer pageSize); // ok
 
     ResponseEntity<?> filterByUser(String token, String keyword, Boolean isPublic, Long categoryId,

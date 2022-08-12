@@ -55,15 +55,31 @@ public class QuestionTemplateController {
                                     @RequestParam(required = false) Boolean isPublic,
                                     @RequestParam(required = false) QuestionTemplateStatus status,
                                     @RequestParam(required = false) Long categoryId,
-                                    @RequestParam(required = false) QuestionTemplateType templateType,
+                                    @RequestParam(required = false,
+                                            defaultValue = "PERSONAL") QuestionTemplateType templateType,
                                     @RequestParam(required = false, defaultValue = "DESC") SortType sortType,
                                     @RequestParam(required = false, defaultValue = "id") String sortBy,
                                     @RequestParam(required = false,
                                             defaultValue = PaginationConstant.PAGE_SIZE_DEFAULT_VALUE) Integer pageSize,
                                     @RequestParam(required = false,
                                             defaultValue = PaginationConstant.PAGE_DEFAULT_VALUE) Integer page) {
-        return questionTemplateService.filter(token, keyword, isPublic, status, categoryId, templateType, sortType,
-                sortBy, page, pageSize);
+        return questionTemplateService.filterByUser(token, keyword, isPublic, categoryId, templateType, sortType, sortBy, page, pageSize);
+    }
+
+    @GetMapping("/admin-filter")
+    public ResponseEntity<?> filterByAdmin(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                           @RequestParam(required = false) String keyword,
+                                           @RequestParam(required = false) QuestionTemplateStatus status,
+                                           @RequestParam(required = false) Long categoryId,
+                                           @RequestParam(required = false, defaultValue = "DESC") SortType sortType,
+                                           @RequestParam(required = false, defaultValue = "id") String sortBy,
+                                           @RequestParam(required = false,
+                                                   defaultValue = PaginationConstant.PAGE_SIZE_DEFAULT_VALUE)
+                                                   Integer pageSize,
+                                           @RequestParam(required = false,
+                                                   defaultValue = PaginationConstant.PAGE_DEFAULT_VALUE) Integer page) {
+        return questionTemplateService.filterByAdmin(keyword, status, categoryId, sortType, sortBy, page,
+                pageSize);
     }
 
     @GetMapping("/{id}")

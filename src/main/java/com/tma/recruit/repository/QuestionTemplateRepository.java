@@ -20,11 +20,10 @@ public interface QuestionTemplateRepository extends JpaRepository<QuestionTempla
             "FROM QuestionTemplate t " +
             "WHERE " +
             "(status = :status OR :status is null) " +
-            "AND (questionTemplateType = :templateType or :templateType is null) " +
+            "AND questionTemplateType = 'SHARING' " +
             "AND (category.id = :categoryId OR :categoryId is null) " +
             "AND (name LIKE CONCAT('%',:keyword,'%') OR description LIKE CONCAT('%',:keyword,'%') OR :keyword is null)")
-    Page<QuestionTemplate> filterByAdmin(QuestionTemplateStatus status, Long categoryId, String keyword,
-                                         QuestionTemplateType templateType, Pageable paging);
+    Page<QuestionTemplate> filterByAdmin(QuestionTemplateStatus status, Long categoryId, String keyword, Pageable paging);
 
     @Query(value = "SELECT t " +
             "FROM QuestionTemplate t " +
