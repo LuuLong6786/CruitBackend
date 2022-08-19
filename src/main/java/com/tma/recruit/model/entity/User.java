@@ -52,6 +52,6 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.ALL})
     private List<Notification> notifications;
 
-    @OneToMany(mappedBy = "receiver",cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "receiver", cascade = {CascadeType.ALL})
     private List<NotificationReceiver> notificationReceivers;
 }

@@ -33,7 +33,7 @@ public class PermissionController {
     @OnlyAdmin
     @DeleteMapping("/inactive/{id}")
     public ResponseEntity<?> inactive(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                     @PathVariable Long id) {
+                                      @PathVariable Long id) {
         return permissionService.inactive(token, id);
     }
 

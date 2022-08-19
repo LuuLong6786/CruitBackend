@@ -5,8 +5,6 @@ import com.tma.recruit.model.entity.QuestionTemplate;
 import com.tma.recruit.model.entity.User;
 import org.springframework.http.ResponseEntity;
 
-import java.util.List;
-
 public interface INotificationService {
 
     ResponseEntity<?> notifyCreationToAdmin(User user);

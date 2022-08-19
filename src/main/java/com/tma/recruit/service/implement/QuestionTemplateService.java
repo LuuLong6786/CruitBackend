@@ -169,17 +169,6 @@ public class QuestionTemplateService implements IQuestionTemplateService {
     }
 
     @Override
-    public ResponseEntity<?> filter(String token, String keyword, Boolean isPublic, QuestionTemplateStatus status,
-                                    Long categoryId, QuestionTemplateType templateType, SortType sortType,
-                                    String sortBy, Integer page, Integer pageSize) {
-        if (jwtUtils.isAdmin(token) && QuestionTemplateType.SHARING.equals(templateType)) {
-            return filterByAdmin(keyword, status, categoryId, sortType, sortBy, page, pageSize);
-        } else {
-            return filterByUser(token, keyword, isPublic, categoryId, templateType, sortType, sortBy, page, pageSize);
-        }
-    }
-
-    @Override
     public ResponseEntity<?> filterByAdmin(String keyword, QuestionTemplateStatus status, Long categoryId,
                                            SortType sortType, String sortBy,
                                            Integer page, Integer pageSize) {
@@ -192,7 +181,7 @@ public class QuestionTemplateService implements IQuestionTemplateService {
         Pageable paging = paginationUtil.getPageable();
 
         Page<QuestionTemplate> templates = questionTemplateRepository.filterByAdmin(status, categoryId, keyword,
-                 paging);
+                paging);
 
         Pagination pagination = paginationUtil.getPagination(templates);
 
@@ -320,7 +309,7 @@ public class QuestionTemplateService implements IQuestionTemplateService {
     }
 
     @Override
-    public ResponseEntity<?> pullTemplate(String token, Long id) {
+    public ResponseEntity<?> cloneTemplate(String token, Long id) {
         User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 

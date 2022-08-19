@@ -1,7 +1,6 @@
 package com.tma.recruit.model.request;
 
 import com.tma.recruit.model.enums.QuestionTemplateStatus;
-import com.tma.recruit.model.enums.QuestionTemplateType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

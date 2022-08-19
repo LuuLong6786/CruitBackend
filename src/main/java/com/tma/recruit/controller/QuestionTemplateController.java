@@ -121,10 +121,10 @@ public class QuestionTemplateController {
         return questionTemplateService.explore(token, categoryId, keyword, sortType, sortBy, page, pageSize);
     }
 
-    @PostMapping("/pull/{id}")
-    public ResponseEntity<?> pullTemplate(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
-                                          @PathVariable Long id) {
-        return questionTemplateService.pullTemplate(token, id);
+    @PostMapping("/clone/{id}")
+    public ResponseEntity<?> cloneTemplate(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+                                           @PathVariable Long id) {
+        return questionTemplateService.cloneTemplate(token, id);
     }
 
     @PutMapping("/update-status/{id}")

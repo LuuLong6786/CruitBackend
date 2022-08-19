@@ -1,7 +1,5 @@
 package com.tma.recruit.model.response;
 
-import com.tma.recruit.model.entity.QuestionBankTemplate;
-import com.tma.recruit.model.entity.QuestionCategory;
 import com.tma.recruit.model.enums.QuestionTemplateStatus;
 import com.tma.recruit.model.enums.QuestionTemplateType;
 import lombok.AllArgsConstructor;

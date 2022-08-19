@@ -8,40 +8,36 @@ import org.springframework.http.ResponseEntity;
 
 public interface IQuestionTemplateService {
 
-    ResponseEntity<?> createPersonalTemplate(String token, QuestionTemplateRequest request);  // ok
+    ResponseEntity<?> createPersonalTemplate(String token, QuestionTemplateRequest request);
 
     ResponseEntity<?> createSharingTemplate(String token, QuestionTemplateRequest request);
 
-    ResponseEntity<?> update(String token, Long id, QuestionTemplateRequest request); // ok
+    ResponseEntity<?> update(String token, Long id, QuestionTemplateRequest request);
 
-    ResponseEntity<?> delete(String token, Long id);    // ok
+    ResponseEntity<?> delete(String token, Long id);
 
-    ResponseEntity<?> getAll();      // X
-
-    ResponseEntity<?> filter(String token, String keyword, Boolean isPublic, QuestionTemplateStatus status,
-                             Long categoryId, QuestionTemplateType templateType, SortType sortType,
-                             String sortBy, Integer page, Integer pageSize); // ok
+    ResponseEntity<?> getAll();
 
     ResponseEntity<?> filterByAdmin(String keyword, QuestionTemplateStatus status, Long categoryId,
                                     SortType sortType, String sortBy, Integer page,
-                                    Integer pageSize); // ok
+                                    Integer pageSize);
 
     ResponseEntity<?> filterByUser(String token, String keyword, Boolean isPublic, Long categoryId,
                                    QuestionTemplateType templateType, SortType sortType, String sortBy,
-                                   Integer page, Integer pageSize); // ok
+                                   Integer page, Integer pageSize);
 
-    ResponseEntity<?> getById(String token, Long id);   // ok
+    ResponseEntity<?> getById(String token, Long id);
 
-    ResponseEntity<?> approve(String token, Long id);   // ok
+    ResponseEntity<?> approve(String token, Long id);
 
-    ResponseEntity<?> reject(String token, Long id);    // ok
+    ResponseEntity<?> reject(String token, Long id);
 
-    ResponseEntity<?> share(String token, Long id);     // ok
+    ResponseEntity<?> share(String token, Long id);
 
     ResponseEntity<?> explore(String token, Long categoryId, String keyword, SortType sortType, String sortBy,
                               Integer page, Integer pageSize);
 
-    ResponseEntity<?> pullTemplate(String token, Long id);      // ok
+    ResponseEntity<?> cloneTemplate(String token, Long id);
 
     ResponseEntity<?> updateStatus(String token, Long id, QuestionTemplateRequest request);
 }
