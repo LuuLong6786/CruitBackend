@@ -98,8 +98,10 @@ public class QuestionTemplateService implements IQuestionTemplateService {
     private QuestionTemplate createTemplate(User author, QuestionTemplateRequest request) {
         request.setQuestionBankTemplates(
                 request.getQuestionBankTemplates().stream().distinct().collect(Collectors.toList()));
+        QuestionCategory category = questionCategoryRepository.findByIdAndActiveTrue(request.getCategory().getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionTemplate template = questionTemplateMapper.toEntity(request);
+        template.setCategory(category);
         template.setAuthor(author);
         template.setUpdatedUser(author);
 
@@ -270,7 +272,7 @@ public class QuestionTemplateService implements IQuestionTemplateService {
         QuestionTemplate template = questionTemplateRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionTemplate sharingTemplate = template.cloneTemplateForSharing();
+        QuestionTemplate sharingTemplate = template.initTemplateForSharing();
         sharingTemplate.setAuthor(user);
         sharingTemplate.setUpdatedUser(user);
         sharingTemplate.setCategory(template.getCategory());
@@ -316,7 +318,7 @@ public class QuestionTemplateService implements IQuestionTemplateService {
         QuestionTemplate template = questionTemplateRepository.findByIdAndIsPublicTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        QuestionTemplate newTemplate = template.cloneTemplateForPull();
+        QuestionTemplate newTemplate = template.initTemplateForClone();
         newTemplate.setAuthor(user);
         newTemplate.setUpdatedUser(user);
         newTemplate.setCategory(template.getCategory());

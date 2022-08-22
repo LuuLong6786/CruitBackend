@@ -56,11 +56,11 @@ public class QuestionTemplate extends BaseEntity {
         this.questionTemplateType = questionTemplateType;
     }
 
-    public QuestionTemplate cloneTemplateForSharing() {
+    public QuestionTemplate initTemplateForSharing() {
         return new QuestionTemplate(this.name, this.description, true, QuestionTemplateType.SHARING);
     }
 
-    public QuestionTemplate cloneTemplateForPull() {
+    public QuestionTemplate initTemplateForClone() {
         return new QuestionTemplate(this.name, this.description, false, QuestionTemplateType.PERSONAL);
     }
 }

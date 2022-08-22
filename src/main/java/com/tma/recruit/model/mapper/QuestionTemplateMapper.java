@@ -15,7 +15,6 @@ public interface QuestionTemplateMapper extends EntityMapper<QuestionTemplate, Q
     @Mapping(ignore = true, target = "id")
     @Mapping(ignore = true, target = "category")
     @Mapping(ignore = true, target = "questionBankTemplates")
-//    @Mapping(target = "public",source = "public")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(@MappingTarget QuestionTemplate entity, QuestionTemplateRequest model);
 //    QuestionTemplate toEntity(QuestionTemplateRequest questionTemplateRequest);

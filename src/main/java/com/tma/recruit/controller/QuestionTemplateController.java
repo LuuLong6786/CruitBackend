@@ -63,9 +63,11 @@ public class QuestionTemplateController {
                                             defaultValue = PaginationConstant.PAGE_SIZE_DEFAULT_VALUE) Integer pageSize,
                                     @RequestParam(required = false,
                                             defaultValue = PaginationConstant.PAGE_DEFAULT_VALUE) Integer page) {
-        return questionTemplateService.filterByUser(token, keyword, isPublic, categoryId, templateType, sortType, sortBy, page, pageSize);
+        return questionTemplateService.filterByUser(token, keyword, isPublic, categoryId, templateType, sortType,
+                sortBy, page, pageSize);
     }
 
+    @OnlyAdmin
     @GetMapping("/admin-filter")
     public ResponseEntity<?> filterByAdmin(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                            @RequestParam(required = false) String keyword,
@@ -127,6 +129,7 @@ public class QuestionTemplateController {
         return questionTemplateService.cloneTemplate(token, id);
     }
 
+    @OnlyAdmin
     @PutMapping("/update-status/{id}")
     public ResponseEntity<?> updateStatus(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                           @RequestBody QuestionTemplateRequest request,

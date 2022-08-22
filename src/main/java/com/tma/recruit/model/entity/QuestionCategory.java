@@ -26,4 +26,8 @@ public class QuestionCategory extends BaseEntity {
 
     @OneToMany(mappedBy = "category")
     private List<QuestionTemplate> questionTemplates;
+
+    public QuestionCategory(Long id) {
+        this.id = id;
+    }
 }
