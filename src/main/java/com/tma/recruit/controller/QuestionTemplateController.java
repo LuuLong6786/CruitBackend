@@ -104,10 +104,10 @@ public class QuestionTemplateController {
         return questionTemplateService.reject(token, id);
     }
 
-    @PostMapping("/share/{id}")
-    public ResponseEntity<?> shareTemplate(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
+    @PostMapping("/submit-to-queue/{id}")
+    public ResponseEntity<?> submitToQueue(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                            @PathVariable Long id) {
-        return questionTemplateService.share(token, id);
+        return questionTemplateService.submitToQueue(token, id);
     }
 
     @GetMapping("/explore")

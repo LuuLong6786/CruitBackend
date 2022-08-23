@@ -265,7 +265,7 @@ public class QuestionTemplateService implements IQuestionTemplateService {
     }
 
     @Override
-    public ResponseEntity<?> share(String token, Long id) {
+    public ResponseEntity<?> submitToQueue(String token, Long id) {
         User user = userRepository.findByUsernameIgnoreCaseAndActiveTrue(jwtUtils.getUsernameFromJwtToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 

@@ -32,7 +32,7 @@ public interface IQuestionTemplateService {
 
     ResponseEntity<?> reject(String token, Long id);
 
-    ResponseEntity<?> share(String token, Long id);
+    ResponseEntity<?> submitToQueue(String token, Long id);
 
     ResponseEntity<?> explore(String token, Long categoryId, String keyword, SortType sortType, String sortBy,
                               Integer page, Integer pageSize);
