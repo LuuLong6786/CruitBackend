@@ -16,8 +16,6 @@ public interface IQuestionTemplateService {
 
     ResponseEntity<?> delete(String token, Long id);
 
-    ResponseEntity<?> getAll();
-
     ResponseEntity<?> filterByAdmin(String keyword, QuestionTemplateStatus status, Long categoryId,
                                     SortType sortType, String sortBy, Integer page,
                                     Integer pageSize);

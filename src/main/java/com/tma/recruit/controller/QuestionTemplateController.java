@@ -44,11 +44,6 @@ public class QuestionTemplateController {
         return questionTemplateService.delete(token, id);
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAll(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token) {
-        return questionTemplateService.getAll();
-    }
-
     @GetMapping("/filter")
     public ResponseEntity<?> filter(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @RequestParam(required = false) String keyword,

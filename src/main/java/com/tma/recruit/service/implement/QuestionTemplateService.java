@@ -166,11 +166,6 @@ public class QuestionTemplateService implements IQuestionTemplateService {
     }
 
     @Override
-    public ResponseEntity<?> getAll() {
-        return null;
-    }
-
-    @Override
     public ResponseEntity<?> filterByAdmin(String keyword, QuestionTemplateStatus status, Long categoryId,
                                            SortType sortType, String sortBy,
                                            Integer page, Integer pageSize) {
