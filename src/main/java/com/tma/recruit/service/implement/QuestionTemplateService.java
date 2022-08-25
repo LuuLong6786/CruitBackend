@@ -98,7 +98,8 @@ public class QuestionTemplateService implements IQuestionTemplateService {
     private QuestionTemplate createTemplate(User author, QuestionTemplateRequest request) {
         request.setQuestionBankTemplates(
                 request.getQuestionBankTemplates().stream().distinct().collect(Collectors.toList()));
-        QuestionCategory category = questionCategoryRepository.findByIdAndActiveTrue(request.getCategory().getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        QuestionCategory category = questionCategoryRepository.findByIdAndActiveTrue(request.getCategory().getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         QuestionTemplate template = questionTemplateMapper.toEntity(request);
         template.setCategory(category);

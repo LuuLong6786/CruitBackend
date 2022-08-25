@@ -93,7 +93,7 @@ public class QuestionTemplateController {
     }
 
     @OnlyAdmin
-    @PostMapping("/reject/{id}")
+    @DeleteMapping("/reject/{id}")
     public ResponseEntity<?> reject(@RequestHeader(Constant.AUTHENTICATION_HEADER) String token,
                                     @PathVariable Long id) {
         return questionTemplateService.reject(token, id);
